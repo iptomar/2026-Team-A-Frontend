@@ -13,7 +13,10 @@ function Login({ onLogin }) {
     // Mais tarde, isto será substituído por uma chamada à API (Backend)
     if (email === 'admin@ipt.pt' && password === '123456') {
       setError(''); // Limpa os erros
-      onLogin('Administrador'); // Autentica com sucesso
+      onLogin({ role: 'admin', name: 'Administrador' }); // Autentica como Admin
+    } else if (email === 'professor@ipt.pt' && password === '123456') {
+      setError(''); // Limpa os erros
+      onLogin({ role: 'professor', name: 'Professor' }); // Autentica como Professor
     } else {
       // Mostra a mensagem visual de erro se falhar
       setError('Credenciais inválidas. Tente novamente.');
@@ -39,7 +42,7 @@ function Login({ onLogin }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            placeholder="Ex: admin@ipt.pt"
+            placeholder="Ex: admin@ipt.pt ou professor@ipt.pt"
             style={{ width: '100%', padding: '10px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
           />
         </div>
