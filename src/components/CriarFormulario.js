@@ -10,6 +10,9 @@ function CriarFormulario() {
   const [campos, setCampos] = useState([]);
   const [novaEtiqueta, setNovaEtiqueta] = useState('');
   const [novoTipo, setNovoTipo] = useState('Texto Curto');
+  
+  // NOVO: Estado para a flag de Campo Obrigatório (inicia a false/Não)
+  const [novoObrigatorio, setNovoObrigatorio] = useState(false);
 
   // Função para adicionar um novo campo à lista
   const adicionarCampo = () => {
@@ -21,14 +24,16 @@ function CriarFormulario() {
     const novoCampo = {
       id: Date.now(), // ID temporário para identificação na lista
       etiqueta: novaEtiqueta,
-      tipo: novoTipo
+      tipo: novoTipo,
+      obrigatorio: novoObrigatorio // NOVO: Guarda a flag (true ou false) na base de dados
     };
 
     setCampos([...campos, novoCampo]);
     
-    // Limpar os inputs de criação de campo
+    // Limpar os inputs de criação de campo após adicionar
     setNovaEtiqueta('');
     setNovoTipo('Texto Curto');
+    setNovoObrigatorio(false); // NOVO: Volta a colocar o defeito como "Não"
     setMensagem(''); 
   };
 
@@ -111,7 +116,7 @@ function CriarFormulario() {
         <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '5px', backgroundColor: '#f8f9fa' }}>
           <h3 style={{ marginTop: 0, fontSize: '18px' }}>Adicionar Campos</h3>
           
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', flexDirection: 'column', flex: '1 1 200px' }}>
               <label htmlFor="etiqueta" style={{ fontSize: '14px', marginBottom: '5px' }}>Pergunta / Etiqueta</label>
               <input
@@ -137,6 +142,20 @@ function CriarFormulario() {
                 <option value="Data">Data</option>
               </select>
             </div>
+
+            {/* NOVO: Toggle / Checkbox de Campo Obrigatório */}
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '5px', height: '35px' }}>
+              <input
+                id="obrigatorio"
+                type="checkbox"
+                checked={novoObrigatorio}
+                onChange={(e) => setNovoObrigatorio(e.target.checked)}
+                style={{ transform: 'scale(1.2)', cursor: 'pointer' }}
+              />
+              <label htmlFor="obrigatorio" style={{ fontSize: '14px', cursor: 'pointer', fontWeight: 'bold' }}>
+                Campo Obrigatório?
+              </label>
+            </div>
             
             <button 
               type="button" 
@@ -149,12 +168,19 @@ function CriarFormulario() {
 
           {/* Lista de Campos Adicionados */}
           {campos.length > 0 && (
-            <div style={{ marginTop: '15px' }}>
+            <div style={{ marginTop: '20px' }}>
               <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#555' }}>Campos no Rascunho:</h4>
               <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
                 {campos.map((campo) => (
-                  <li key={campo.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', backgroundColor: '#fff', border: '1px solid #ddd', marginBottom: '5px', borderRadius: '4px' }}>
-                    <span><strong>{campo.etiqueta}</strong> <span style={{ color: '#666', fontSize: '12px' }}>({campo.tipo})</span></span>
+                  <li key={campo.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', backgroundColor: '#fff', border: '1px solid #ddd', marginBottom: '5px', borderRadius: '4px' }}>
+                    <span>
+                      <strong>{campo.etiqueta}</strong> 
+                      {/* NOVO: Mostra asterisco vermelho se for obrigatório */}
+                      {campo.obrigatorio && <span style={{ color: 'red', marginLeft: '3px' }}>*</span>}
+                      <span style={{ color: '#666', fontSize: '12px', marginLeft: '5px' }}>
+                        ({campo.tipo} {campo.obrigatorio ? '- Obrigatório' : '- Opcional'})
+                      </span>
+                    </span>
                     <button
                       type="button"
                       onClick={() => removerCampo(campo.id)}
