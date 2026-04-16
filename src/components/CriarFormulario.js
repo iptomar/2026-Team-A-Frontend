@@ -10,9 +10,19 @@ function CriarFormulario() {
   const [campos, setCampos] = useState([]);
   const [novaEtiqueta, setNovaEtiqueta] = useState('');
   const [novoTipo, setNovoTipo] = useState('Texto Curto');
-  
-  // NOVO: Estado para a flag de Campo Obrigatório (inicia a false/Não)
   const [novoObrigatorio, setNovoObrigatorio] = useState(false);
+
+  // Para lógica de Data (Adiar/Anticipar)
+  const [tipoAlteracao, setTipoAlteracao] = useState('Adiar');
+  const [dataSelecionada, setDataSelecionada] = useState('');
+
+  // Função para validar se a data é futura
+  const isDataFutura = (data) => {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const dataInserida = new Date(data);
+    return dataInserida > hoje;
+  };
 
   // Função para adicionar um novo campo à lista
   const adicionarCampo = () => {
@@ -21,28 +31,41 @@ function CriarFormulario() {
       return;
     }
 
+    // Validação específica para o tipo Data
+    if (novoTipo === 'Data') {
+      if (!dataSelecionada) {
+        setMensagem('Erro: Deve selecionar uma data.');
+        return;
+      }
+      if (!isDataFutura(dataSelecionada)) {
+        setMensagem('Erro: A data deve ser superior ao dia de hoje.');
+        return;
+      }
+    }
+
     const novoCampo = {
-      id: Date.now(), // ID temporário para identificação na lista
+      id: Date.now(),
       etiqueta: novaEtiqueta,
       tipo: novoTipo,
-      obrigatorio: novoObrigatorio // NOVO: Guarda a flag (true ou false) na base de dados
+      obrigatorio: novoObrigatorio,
+      // Propriedades extra se for do tipo Data
+      detalhesData: novoTipo === 'Data' ? { tipoAlteracao, data: dataSelecionada } : null
     };
 
     setCampos([...campos, novoCampo]);
     
-    // Limpar os inputs de criação de campo após adicionar
+    // Limpar os inputs após adicionar
     setNovaEtiqueta('');
     setNovoTipo('Texto Curto');
-    setNovoObrigatorio(false); // NOVO: Volta a colocar o defeito como "Não"
-    setMensagem(''); 
+    setNovoObrigatorio(false);
+    setDataSelecionada('');
+    setMensagem('');
   };
 
-  // Função para remover um campo da lista antes de gravar
   const removerCampo = (id) => {
     setCampos(campos.filter(campo => campo.id !== id));
   };
 
-  // Função que corre quando clica em "Gravar Rascunho"
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -51,7 +74,6 @@ function CriarFormulario() {
       return;
     }
 
-    // Estrutura de dados atualizada para o Backend com os novos campos
     const novoFormulario = {
       titulo: titulo,
       descricao: descricao,
@@ -62,7 +84,6 @@ function CriarFormulario() {
     console.log('A enviar para a Base de Dados:', novoFormulario);
     setMensagem(`Sucesso! Formulário "${titulo}" gravado como Rascunho com ${campos.length} campo(s).`);
 
-    // Limpar o formulário após gravar
     setTitulo('');
     setDescricao('');
     setCampos([]);
@@ -80,7 +101,6 @@ function CriarFormulario() {
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
-        {/* Informação Base do Formulário */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <label htmlFor="titulo" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
@@ -112,57 +132,83 @@ function CriarFormulario() {
           </div>
         </div>
 
-        {/* Secção de Adição de Campos (Critérios de Aceitação) */}
         <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '5px', backgroundColor: '#f8f9fa' }}>
           <h3 style={{ marginTop: 0, fontSize: '18px' }}>Adicionar Campos</h3>
           
-          <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', flex: '1 1 200px' }}>
-              <label htmlFor="etiqueta" style={{ fontSize: '14px', marginBottom: '5px' }}>Pergunta / Etiqueta</label>
-              <input
-                id="etiqueta"
-                type="text"
-                value={novaEtiqueta}
-                onChange={(e) => setNovaEtiqueta(e.target.value)}
-                placeholder="Ex: Nome do Aluno"
-                style={{ padding: '8px', fontSize: '14px' }}
-              />
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <label htmlFor="tipo" style={{ fontSize: '14px', marginBottom: '5px' }}>Tipo de Campo</label>
-              <select
-                id="tipo"
-                value={novoTipo}
-                onChange={(e) => setNovoTipo(e.target.value)}
-                style={{ padding: '8px', fontSize: '14px' }}
-              >
-                <option value="Texto Curto">Texto Curto</option>
-                <option value="Texto Longo">Texto Longo</option>
-                <option value="Data">Data</option>
-              </select>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', flex: '1 1 200px' }}>
+                <label htmlFor="etiqueta" style={{ fontSize: '14px', marginBottom: '5px' }}>Pergunta / Etiqueta</label>
+                <input
+                  id="etiqueta"
+                  type="text"
+                  value={novaEtiqueta}
+                  onChange={(e) => setNovaEtiqueta(e.target.value)}
+                  placeholder="Ex: Sugestão de nova data"
+                  style={{ padding: '8px', fontSize: '14px' }}
+                />
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <label htmlFor="tipo" style={{ fontSize: '14px', marginBottom: '5px' }}>Tipo de Campo</label>
+                <select
+                  id="tipo"
+                  value={novoTipo}
+                  onChange={(e) => setNovoTipo(e.target.value)}
+                  style={{ padding: '8px', fontSize: '14px' }}
+                >
+                  <option value="Texto Curto">Texto Curto</option>
+                  <option value="Texto Longo">Texto Longo</option>
+                  <option value="Data">Data (Alteração de Aula)</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '5px', height: '35px' }}>
+                <input
+                  id="obrigatorio"
+                  type="checkbox"
+                  checked={novoObrigatorio}
+                  onChange={(e) => setNovoObrigatorio(e.target.checked)}
+                  style={{ transform: 'scale(1.2)', cursor: 'pointer' }}
+                />
+                <label htmlFor="obrigatorio" style={{ fontSize: '14px', cursor: 'pointer', fontWeight: 'bold' }}>
+                  Obrigatório?
+                </label>
+              </div>
             </div>
 
-            {/* NOVO: Toggle / Checkbox de Campo Obrigatório */}
-            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '5px', height: '35px' }}>
-              <input
-                id="obrigatorio"
-                type="checkbox"
-                checked={novoObrigatorio}
-                onChange={(e) => setNovoObrigatorio(e.target.checked)}
-                style={{ transform: 'scale(1.2)', cursor: 'pointer' }}
-              />
-              <label htmlFor="obrigatorio" style={{ fontSize: '14px', cursor: 'pointer', fontWeight: 'bold' }}>
-                Campo Obrigatório?
-              </label>
-            </div>
+            {/* SEÇÃO DINÂMICA: Apenas aparece se o tipo for Data */}
+            {novoTipo === 'Data' && (
+              <div style={{ display: 'flex', gap: '15px', padding: '10px', backgroundColor: '#e9ecef', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <label style={{ fontSize: '13px', marginBottom: '5px' }}>Ação:</label>
+                  <select 
+                    value={tipoAlteracao} 
+                    onChange={(e) => setTipoAlteracao(e.target.value)}
+                    style={{ padding: '5px' }}
+                  >
+                    <option value="Adiar">Adiar Aula</option>
+                    <option value="Antecipar">Antecipar Aula</option>
+                  </select>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <label style={{ fontSize: '13px', marginBottom: '5px' }}>Nova Data (Futura):</label>
+                  <input 
+                    type="date" 
+                    value={dataSelecionada}
+                    onChange={(e) => setDataSelecionada(e.target.value)}
+                    style={{ padding: '5px' }}
+                  />
+                </div>
+              </div>
+            )}
             
             <button 
               type="button" 
               onClick={adicionarCampo}
-              style={{ padding: '9px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
+              style={{ alignSelf: 'flex-start', padding: '9px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
             >
-              Adicionar
+              Adicionar Campo
             </button>
           </div>
 
@@ -175,10 +221,11 @@ function CriarFormulario() {
                   <li key={campo.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', backgroundColor: '#fff', border: '1px solid #ddd', marginBottom: '5px', borderRadius: '4px' }}>
                     <span>
                       <strong>{campo.etiqueta}</strong> 
-                      {/* NOVO: Mostra asterisco vermelho se for obrigatório */}
                       {campo.obrigatorio && <span style={{ color: 'red', marginLeft: '3px' }}>*</span>}
                       <span style={{ color: '#666', fontSize: '12px', marginLeft: '5px' }}>
-                        ({campo.tipo} {campo.obrigatorio ? '- Obrigatório' : '- Opcional'})
+                        ({campo.tipo === 'Data' 
+                          ? `${campo.detalhesData.tipoAlteracao} para ${campo.detalhesData.data}` 
+                          : campo.tipo})
                       </span>
                     </span>
                     <button
@@ -195,7 +242,6 @@ function CriarFormulario() {
           )}
         </div>
 
-        {/* Botão de Submissão Principal */}
         <button 
           type="submit" 
           style={{ padding: '12px', fontSize: '16px', backgroundColor: '#0056b3', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px', marginTop: '10px' }}
