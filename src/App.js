@@ -1,29 +1,46 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
-import './App.css';
 import EcraAdmin from './components/EcraAdmin';
 import CriarFormulario from './components/CriarFormulario';
 import EcraProfessor from './components/EcraProfessor';
 import './App.css';
 
-// 1. Componente Route Guard (Barreira de Segurança)
+// 1. Guard de Rotas (Protege páginas internas)
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token'); // Verifica o token de sessão
-  
-  if (!token) {
-    // Se não há token, expulsa para o login
-    return <Navigate to="/" replace />;
-  }
+  const token = localStorage.getItem('token');
+  if (!token) return <Navigate to="/" replace />;
   return children;
 };
 
-// 2. Layout para as páginas protegidas (inclui o botão de Sair)
-const Layout = ({ children }) => {
-  const handleLogout = () => {
-    localStorage.removeItem('token'); // Limpa a sessão
+// 2. Redirecionamento da Home (Se já tiver token, vai para o dashboard)
+const HomeRedirect = () => {
+  const token = localStorage.getItem('token');
+  const userString = localStorage.getItem('user');
+
+  if (token && userString) {
+    const user = JSON.parse(userString);
+    // Redireciona conforme o cargo (role)
+    return <Navigate to={user.role === 'admin' ? '/admin' : '/professor'} replace />;
+  }
+  
+  // Se não tem token, mostra o Login e trata o login com armazenamento local
+  const handleLogin = (user) => {
+    localStorage.setItem('token', 'mock-token');
+    localStorage.setItem('user', JSON.stringify(user));
     window.location.href = '/';
   };
+
+  return <Login onLogin={handleLogin} />;
+};
+
+const Layout = ({ children }) => {
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = '/';
+  };
+
+  const user = JSON.parse(localStorage.getItem('user') || '{"name":"Utilizador"}');
 
   return (
     <div className="App">
@@ -34,15 +51,7 @@ const Layout = ({ children }) => {
       <header className="App-header">
         <h1>Sistema de Gestão de Horários - IPT</h1>
       </header>
-      
-      <main style={{ padding: '20px' }}>
-        {/* Rota condicional baseada no tipo de utilizador */}
-        {user.role === 'admin' ? (
-          <EcraAdmin />
-        ) : user.role === 'professor' ? (
-          <EcraProfessor />
-        ) : null}
-      </main>
+      <main style={{ padding: '20px' }}>{children}</main>
     </div>
   );
 };
@@ -51,33 +60,14 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Rota Pública */}
-        <Route path="/" element={<Login />} />
+        {/* Rota Raiz com lógica de redirecionamento inteligente */}
+        <Route path="/" element={<HomeRedirect />} />
 
-        {/* Rotas Protegidas (Route Guards) */}
-        <Route 
-          path="/professor" 
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <EcraProfessor />
-              </Layout>
-            </ProtectedRoute>
-          } 
-        />
+        {/* Rotas Protegidas */}
+        <Route path="/professor" element={<ProtectedRoute><Layout><EcraProfessor /></Layout></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute><Layout><EcraAdmin /></Layout></ProtectedRoute>} />
+        <Route path="/criar-formulario" element={<ProtectedRoute><Layout><CriarFormulario /></Layout></ProtectedRoute>} />
 
-        <Route 
-          path="/criar-formulario" 
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <CriarFormulario />
-              </Layout>
-            </ProtectedRoute>
-          } 
-        />
-
-        {/* Redirecionar qualquer outra rota para o login */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
