@@ -66,7 +66,7 @@ function CriarFormulario() {
     setCampos(campos.filter(campo => campo.id !== id));
   };
 
-  const handleSubmit = (e) => {
+  const handleSalvar = async (e, acao) => {
     e.preventDefault();
 
     if (titulo.trim() === '') {
@@ -74,19 +74,29 @@ function CriarFormulario() {
       return;
     }
 
+    // Validação solicitada na Tarefa #13: Se for Publicado, tem de ter > 0 campos
+    if (acao === 'Publicado' && campos.length === 0) {
+      setMensagem('Erro: Não é possível publicar um formulário sem campos.');
+      return;
+    }
+
     const novoFormulario = {
       titulo: titulo,
       descricao: descricao,
-      estado: 'Rascunho',
+      estado: acao,
       campos: campos
     };
 
-    console.log('A enviar para a Base de Dados:', novoFormulario);
-    setMensagem(`Sucesso! Formulário "${titulo}" gravado como Rascunho com ${campos.length} campo(s).`);
+    console.log(`A enviar para o Backend (${acao}):`, novoFormulario);
+    
+    // Simulação de sucesso (Futuramente será fetch para /forms)
+    setMensagem(`Sucesso! Formulário "${titulo}" ${acao === 'Publicado' ? 'Publicado' : 'gravado como Rascunho'} com ${campos.length} campo(s).`);
 
-    setTitulo('');
-    setDescricao('');
-    setCampos([]);
+    if (acao === 'Publicado') {
+      setTitulo('');
+      setDescricao('');
+      setCampos([]);
+    }
   };
 
   return (
@@ -94,12 +104,20 @@ function CriarFormulario() {
       <h2>Criar Novo Formulário</h2>
       
       {mensagem && (
-        <p style={{ color: mensagem.includes('Erro') ? 'red' : 'green', fontWeight: 'bold' }}>
+        <div style={{ 
+          padding: '10px', 
+          marginBottom: '20px', 
+          borderRadius: '4px', 
+          backgroundColor: mensagem.includes('Erro') ? '#ffebee' : '#e8f5e9',
+          color: mensagem.includes('Erro') ? '#c62828' : '#2e7d32',
+          border: `1px solid ${mensagem.includes('Erro') ? '#ef9a9a' : '#a5d6a7'}`,
+          fontWeight: 'bold'
+        }}>
           {mensagem}
-        </p>
+        </div>
       )}
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <form style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -242,12 +260,24 @@ function CriarFormulario() {
           )}
         </div>
 
-        <button 
-          type="submit" 
-          style={{ padding: '12px', fontSize: '16px', backgroundColor: '#0056b3', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px', marginTop: '10px' }}
-        >
-          Gravar Rascunho do Formulário
-        </button>
+        {/* Botões de Ação Final */}
+        <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+          <button 
+            type="button" 
+            onClick={(e) => handleSalvar(e, 'Rascunho')}
+            style={{ flex: 1, padding: '12px', fontSize: '16px', backgroundColor: '#6c757d', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
+          >
+            Gravar Rascunho
+          </button>
+          
+          <button 
+            type="button" 
+            onClick={(e) => handleSalvar(e, 'Publicado')}
+            style={{ flex: 1, padding: '12px', fontSize: '16px', backgroundColor: '#0056b3', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px', fontWeight: 'bold' }}
+          >
+            Publicar Formulário
+          </button>
+        </div>
       </form>
     </div>
   );
