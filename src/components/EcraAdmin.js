@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CriarFormulario from './CriarFormulario';
+import { useNavigate } from 'react-router-dom';
 
 function EcraAdmin() {
   const [formularios, setFormularios] = useState([]);
@@ -38,6 +39,8 @@ function EcraAdmin() {
     }
   };
 
+  const navigate = useNavigate();
+
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial' }}>
       <h2>Painel de Administração</h2>
@@ -65,6 +68,7 @@ function EcraAdmin() {
                   >
                     Editar
                   </button>
+                  
 
                   <button 
                     onClick={() => apagarFormulario(form._id)} // MongoDB usa _id em vez de id
@@ -77,6 +81,9 @@ function EcraAdmin() {
               </li>
             ))}
           </ul>
+          <button onClick={() => navigate('/editar-formulario')} style={{ padding: '12px', fontSize: '16px', backgroundColor: '#0056b3', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px', marginTop: '10px' }}>
+            Editar Formulário (Ir para Ecrã de Edição)
+          </button>
         </div>
       </div>
     </div>
