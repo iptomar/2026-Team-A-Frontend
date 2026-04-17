@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function CriarFormulario() {
+function CriarFormulario({ onFormularioCriado }) {
   // Estados para os dados base do formulário
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -12,6 +12,8 @@ function CriarFormulario() {
   const [novaEtiqueta, setNovaEtiqueta] = useState('');
   const [novoTipo, setNovoTipo] = useState('Texto Curto');
   const [novoObrigatorio, setNovoObrigatorio] = useState(false);
+  const [novaOpcao, setNovaOpcao] = useState('');
+  const [opcoesCampo, setOpcoesCampo] = useState([]);
 
   // Para lógica de Data (Adiar/Anticipar)
   const [tipoAlteracao, setTipoAlteracao] = useState('Adiar');
@@ -27,6 +29,9 @@ function CriarFormulario() {
 
   // Função para adicionar um novo campo à lista
   const adicionarCampo = () => {
+    const tiposComOpcoes = ['Dropdown', 'Radio Button', 'Checkbox'];
+    const novoTipoComOpcoes = tiposComOpcoes.includes(novoTipo);
+
     if (novaEtiqueta.trim() === '') {
       setMensagem('Erro: A etiqueta do campo é obrigatória.');
       return;
@@ -44,11 +49,17 @@ function CriarFormulario() {
       }
     }
 
+    if (novoTipoComOpcoes && opcoesCampo.length === 0) {
+      setMensagem('Erro: Deve adicionar pelo menos uma opção para este tipo de campo.');
+      return;
+    }
+
     const novoCampo = {
       id: Date.now(),
       etiqueta: novaEtiqueta,
       tipo: novoTipo,
       obrigatorio: novoObrigatorio,
+      opcoes: novoTipoComOpcoes ? opcoesCampo : [],
       // Propriedades extra se for do tipo Data
       detalhesData: novoTipo === 'Data' ? { tipoAlteracao, data: dataSelecionada } : null
     };
@@ -59,8 +70,29 @@ function CriarFormulario() {
     setNovaEtiqueta('');
     setNovoTipo('Texto Curto');
     setNovoObrigatorio(false);
+    setNovaOpcao('');
+    setOpcoesCampo([]);
     setDataSelecionada('');
     setMensagem('');
+  };
+
+  const adicionarOpcaoCampo = () => {
+    const valor = novaOpcao.trim();
+    if (!valor) {
+      setMensagem('Erro: A opção não pode ficar vazia.');
+      return;
+    }
+    if (opcoesCampo.includes(valor)) {
+      setMensagem('Erro: Esta opção já existe.');
+      return;
+    }
+    setOpcoesCampo([...opcoesCampo, valor]);
+    setNovaOpcao('');
+    setMensagem('');
+  };
+
+  const removerOpcaoCampo = (indice) => {
+    setOpcoesCampo(opcoesCampo.filter((_, index) => index !== indice));
   };
 
   const removerCampo = (id) => {
@@ -84,6 +116,10 @@ function CriarFormulario() {
 
     console.log('A enviar para a Base de Dados:', novoFormulario);
     setMensagem(`Sucesso! Formulário "${titulo}" gravado como Rascunho com ${campos.length} campo(s).`);
+
+    if (onFormularioCriado) {
+      onFormularioCriado(novoFormulario);
+    }
 
     setTitulo('');
     setDescricao('');
@@ -157,12 +193,23 @@ function CriarFormulario() {
                 <select
                   id="tipo"
                   value={novoTipo}
-                  onChange={(e) => setNovoTipo(e.target.value)}
+                  onChange={(e) => {
+                    const novoValor = e.target.value;
+                    const tiposComOpcoes = ['Dropdown', 'Radio Button', 'Checkbox'];
+                    if (!tiposComOpcoes.includes(novoValor)) {
+                      setOpcoesCampo([]);
+                      setNovaOpcao('');
+                    }
+                    setNovoTipo(novoValor);
+                  }}
                   style={{ padding: '8px', fontSize: '14px' }}
                 >
                   <option value="Texto Curto">Texto Curto</option>
                   <option value="Texto Longo">Texto Longo</option>
                   <option value="Data">Data (Alteração de Aula)</option>
+                  <option value="Dropdown">Dropdown</option>
+                  <option value="Radio Button">Radio Button</option>
+                  <option value="Checkbox">Checkbox</option>
                 </select>
               </div>
 
@@ -205,6 +252,43 @@ function CriarFormulario() {
                 </div>
               </div>
             )}
+
+            {/* SEÇÃO DINÂMICA: Apenas aparece para campos com opções */}
+            {['Dropdown', 'Radio Button', 'Checkbox'].includes(novoTipo) && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', backgroundColor: '#e9ecef', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column' }}>
+                    <label htmlFor="novaOpcao" style={{ fontSize: '13px', marginBottom: '5px' }}>Adicionar opção</label>
+                    <input
+                      id="novaOpcao"
+                      type="text"
+                      value={novaOpcao}
+                      onChange={(e) => setNovaOpcao(e.target.value)}
+                      placeholder="Ex: Opção A"
+                      style={{ padding: '8px', fontSize: '14px' }}
+                    />
+                  </div>
+                  <button type="button" onClick={adicionarOpcaoCampo} style={{ height: '38px', padding: '8px 12px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                    Adicionar Opção
+                  </button>
+                </div>
+                {opcoesCampo.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 'bold' }}>Opções atuais:</span>
+                    <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
+                      {opcoesCampo.map((opcao, index) => (
+                        <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                          <span>{opcao}</span>
+                          <button type="button" onClick={() => removerOpcaoCampo(index)} style={{ background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer' }}>
+                            Remover
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
             
             <button 
               type="button" 
@@ -231,6 +315,11 @@ function CriarFormulario() {
                           : campo.tipo})
                       </span>
                     </span>
+                    {campo.opcoes && campo.opcoes.length > 0 && (
+                      <span style={{ color: '#333', fontSize: '12px', marginLeft: '15px' }}>
+                        Opções: {campo.opcoes.join(', ')}
+                      </span>
+                    )}
                     <button
                       type="button"
                       onClick={() => removerCampo(campo.id)}

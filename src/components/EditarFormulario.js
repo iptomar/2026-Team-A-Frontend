@@ -6,6 +6,7 @@ function EditarFormulario() {
   const [descricao, setDescricao] = useState('');
   const [campos, setCampos] = useState([]); // Array para guardar as perguntas
   const [mensagem, setMensagem] = useState('');
+  const tiposComOpcoes = ['Dropdown', 'Radio Button', 'Checkbox'];
 
   // 1. CARREGAR OS DADOS (Critério de Aceitação 1)
   useEffect(() => {
@@ -15,7 +16,7 @@ function EditarFormulario() {
       titulo: 'Alteração de Horário - Engenharia Informática',
       descricao: 'Formulário para docentes.',
       campos: [
-        { id: Date.now(), rotulo: 'Motivo da alteração', tipo: 'texto', obrigatorio: true }
+        { id: Date.now(), rotulo: 'Motivo da alteração', tipo: 'Texto Curto', obrigatorio: true, opcoes: [], novaOpcao: '' }
       ]
     };
 
@@ -29,8 +30,10 @@ function EditarFormulario() {
     const novoCampo = {
       id: Date.now(), // ID temporário
       rotulo: '',
-      tipo: 'texto',
-      obrigatorio: false
+      tipo: 'Texto Curto',
+      obrigatorio: false,
+      opcoes: [],
+      novaOpcao: ''
     };
     setCampos([...campos, novoCampo]);
   };
@@ -44,7 +47,45 @@ function EditarFormulario() {
   const atualizarCampo = (id, propriedade, valor) => {
     const camposAtualizados = campos.map(campo => {
       if (campo.id === id) {
+        if (propriedade === 'tipo' && !tiposComOpcoes.includes(valor)) {
+          return { ...campo, [propriedade]: valor, opcoes: [], novaOpcao: '' };
+        }
         return { ...campo, [propriedade]: valor };
+      }
+      return campo;
+    });
+    setCampos(camposAtualizados);
+  };
+
+  const adicionarOpcaoNoCampo = (id) => {
+    const campo = campos.find((item) => item.id === id);
+    if (!campo) return;
+
+    const valor = (campo.novaOpcao || '').trim();
+    if (!valor) {
+      setMensagem('Erro: A opção não pode ficar vazia.');
+      return;
+    }
+    if (campo.opcoes.includes(valor)) {
+      setMensagem('Erro: Esta opção já existe.');
+      return;
+    }
+
+    const camposAtualizados = campos.map((item) => {
+      if (item.id === id) {
+        return { ...item, opcoes: [...(item.opcoes || []), valor], novaOpcao: '' };
+      }
+      return item;
+    });
+
+    setMensagem('');
+    setCampos(camposAtualizados);
+  };
+
+  const removerOpcaoDoCampo = (id, indice) => {
+    const camposAtualizados = campos.map((campo) => {
+      if (campo.id === id) {
+        return { ...campo, opcoes: (campo.opcoes || []).filter((_, index) => index !== indice) };
       }
       return campo;
     });
@@ -97,25 +138,61 @@ function EditarFormulario() {
           </div>
 
           {campos.map((campo, index) => (
-            <div key={campo.id} style={{ display: 'flex', gap: '10px', marginTop: '15px', padding: '10px', backgroundColor: '#f8f9fa' }}>
-              <span style={{ fontWeight: 'bold' }}>{index + 1}.</span>
-              <input 
-                type="text" value={campo.rotulo} onChange={(e) => atualizarCampo(campo.id, 'rotulo', e.target.value)}
-                placeholder="Ex: Qual a sala?" required style={{ flex: 1, padding: '5px' }}
-              />
-              <select value={campo.tipo} onChange={(e) => atualizarCampo(campo.id, 'tipo', e.target.value)} style={{ padding: '5px' }}>
-                <option value="texto">Texto Curto</option>
-                <option value="numero">Número</option>
-                <option value="data">Data</option>
-              </select>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <input type="checkbox" checked={campo.obrigatorio} onChange={(e) => atualizarCampo(campo.id, 'obrigatorio', e.target.checked)} />
-                Obrig.
-              </label>
-              <button type="button" onClick={() => removerCampo(campo.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '5px 10px' }}>
-                Apagar
-              </button>
-            </div>
+            <React.Fragment key={campo.id}>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '15px', padding: '10px', backgroundColor: '#f8f9fa' }}>
+                <span style={{ fontWeight: 'bold' }}>{index + 1}.</span>
+                <input 
+                  type="text" value={campo.rotulo} onChange={(e) => atualizarCampo(campo.id, 'rotulo', e.target.value)}
+                  placeholder="Ex: Qual a sala?" required style={{ flex: 1, padding: '5px' }}
+                />
+                <select value={campo.tipo} onChange={(e) => atualizarCampo(campo.id, 'tipo', e.target.value)} style={{ padding: '5px' }}>
+                  <option value="Texto Curto">Texto Curto</option>
+                  <option value="Texto Longo">Texto Longo</option>
+                  <option value="Data">Data</option>
+                  <option value="Dropdown">Dropdown</option>
+                  <option value="Radio Button">Radio Button</option>
+                  <option value="Checkbox">Checkbox</option>
+                </select>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <input type="checkbox" checked={campo.obrigatorio} onChange={(e) => atualizarCampo(campo.id, 'obrigatorio', e.target.checked)} />
+                  Obrig.
+                </label>
+                <button type="button" onClick={() => removerCampo(campo.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '5px 10px' }}>
+                  Apagar
+                </button>
+              </div>
+              {tiposComOpcoes.includes(campo.tipo) && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', padding: '10px', backgroundColor: '#e9ecef', borderRadius: '4px' }}>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      value={campo.novaOpcao || ''}
+                      onChange={(e) => atualizarCampo(campo.id, 'novaOpcao', e.target.value)}
+                      placeholder="Nova opção (Ex: Opção A)"
+                      style={{ flex: 1, padding: '5px' }}
+                    />
+                    <button type="button" onClick={() => adicionarOpcaoNoCampo(campo.id)} style={{ padding: '5px 10px', backgroundColor: '#17a2b8', color: 'white', border: 'none', cursor: 'pointer' }}>
+                      Adicionar Opção
+                    </button>
+                  </div>
+                  {campo.opcoes && campo.opcoes.length > 0 && (
+                    <div>
+                      <p style={{ margin: '0 0 5px 0', fontSize: '13px', fontWeight: 'bold' }}>Opções:</p>
+                      <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
+                        {campo.opcoes.map((opcao, index) => (
+                          <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                            <span>{opcao}</span>
+                            <button type="button" onClick={() => removerOpcaoDoCampo(campo.id, index)} style={{ background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer' }}>
+                              Remover
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </React.Fragment>
           ))}
           {campos.length === 0 && <p style={{ fontStyle: 'italic', color: '#666' }}>Ainda não adicionou nenhum campo.</p>}
         </div>
