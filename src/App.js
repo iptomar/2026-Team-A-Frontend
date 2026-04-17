@@ -5,6 +5,7 @@ import EcraAdmin from './components/EcraAdmin';
 import CriarFormulario from './components/CriarFormulario';
 import EcraProfessor from './components/EcraProfessor';
 import './App.css';
+import EditarFormulario from './components/EditarFormulario';
 
 // 1. Guard de Rotas (Protege páginas internas)
 const ProtectedRoute = ({ children }) => {
@@ -67,7 +68,7 @@ function App() {
         <Route path="/professor" element={<ProtectedRoute><Layout><EcraProfessor /></Layout></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><Layout><EcraAdmin /></Layout></ProtectedRoute>} />
         <Route path="/criar-formulario" element={<ProtectedRoute><Layout><CriarFormulario /></Layout></ProtectedRoute>} />
-
+        <Route path="/editar-formulario" element={<ProtectedRoute><Layout><EditarFormulario /></Layout></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

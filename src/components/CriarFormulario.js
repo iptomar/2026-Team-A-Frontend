@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function CriarFormulario() {
   // Estados para os dados base do formulário
@@ -88,6 +89,8 @@ function CriarFormulario() {
     setDescricao('');
     setCampos([]);
   };
+
+  const navigate = useNavigate();
 
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto', fontFamily: 'Arial' }}>
@@ -247,6 +250,9 @@ function CriarFormulario() {
           style={{ padding: '12px', fontSize: '16px', backgroundColor: '#0056b3', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px', marginTop: '10px' }}
         >
           Gravar Rascunho do Formulário
+        </button>
+        <button onClick={() => navigate('/editar-formulario')} style={{ padding: '12px', fontSize: '16px', backgroundColor: '#0056b3', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px', marginTop: '10px' }}>
+          Editar Formulário (Ir para Ecrã de Edição)
         </button>
       </form>
     </div>
