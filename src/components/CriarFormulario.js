@@ -17,6 +17,9 @@ function CriarFormulario() {
   const [tipoAlteracao, setTipoAlteracao] = useState('Adiar');
   const [dataSelecionada, setDataSelecionada] = useState('');
 
+  // Estado para controlar a pré-visualização
+  const [isPreview, setIsPreview] = useState(false);
+
   // Função para validar se a data é futura
   const isDataFutura = (data) => {
     const hoje = new Date();
@@ -94,7 +97,16 @@ function CriarFormulario() {
 
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto', fontFamily: 'Arial' }}>
-      <h2>Criar Novo Formulário</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+        <h2>{isPreview ? 'Modo de Leitura (Vista do Professor)' : 'Criar Novo Formulário'}</h2>
+        <button 
+          type="button" 
+          onClick={() => setIsPreview(!isPreview)}
+          style={{ padding: '10px 15px', backgroundColor: isPreview ? '#6c757d' : '#17a2b8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          {isPreview ? 'Voltar à Edição' : '👁 Pré-visualizar'}
+        </button>
+      </div>
       
       {mensagem && (
         <p style={{ color: mensagem.includes('Erro') ? 'red' : 'green', fontWeight: 'bold' }}>
@@ -102,7 +114,29 @@ function CriarFormulario() {
         </p>
       )}
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {isPreview ? (
+        <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#fff', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ borderBottom: '2px solid #eee', paddingBottom: '10px' }}>
+            <h1 style={{ margin: '0 0 10px 0', color: '#333' }}>{titulo || 'Sem Título'}</h1>
+            <p style={{ margin: 0, color: '#666' }}>{descricao || 'Sem descrição'}</p>
+          </div>
+          {campos.length === 0 ? (
+            <p style={{ fontStyle: 'italic', color: '#999' }}>Nenhum campo adicionado ainda.</p>
+          ) : (
+            campos.map((campo, index) => (
+              <div key={campo.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label style={{ fontWeight: 'bold', color: '#444' }}>
+                  {index + 1}. {campo.etiqueta} {campo.obrigatorio && <span style={{ color: 'red' }}>*</span>}
+                </label>
+                {campo.tipo === 'Texto Curto' && <input type="text" disabled placeholder="A sua resposta curta..." style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />}
+                {campo.tipo === 'Texto Longo' && <textarea disabled rows="3" placeholder="A sua resposta detalhada..." style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />}
+                {campo.tipo === 'Data' && <input type="date" disabled style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />}
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -254,7 +288,8 @@ function CriarFormulario() {
         <button onClick={() => navigate('/editar-formulario')} style={{ padding: '12px', fontSize: '16px', backgroundColor: '#0056b3', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px', marginTop: '10px' }}>
           Editar Formulário (Ir para Ecrã de Edição)
         </button>
-      </form>
+        </form>
+      )}
     </div>
   );
 }

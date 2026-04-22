@@ -7,6 +7,8 @@ function EditarFormulario() {
   const [campos, setCampos] = useState([]); // Array para guardar as perguntas
   const [mensagem, setMensagem] = useState('');
 
+  const [isPreview, setIsPreview] = useState(false);
+
   // 1. CARREGAR OS DADOS (Critério de Aceitação 1)
   useEffect(() => {
     // Aqui seria o fetch para: GET /api/formularios/1
@@ -69,10 +71,41 @@ function EditarFormulario() {
 
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <h2>Editar Formulário (Rascunho)</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2>{isPreview ? 'Modo de Leitura (Vista do Professor)' : 'Editar Formulário (Rascunho)'}</h2>
+        <button 
+          type="button"
+          onClick={() => setIsPreview(!isPreview)}
+          style={{ padding: '10px 20px', backgroundColor: isPreview ? '#6c757d' : '#17a2b8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          {isPreview ? 'Voltar à Edição' : '👁 Pré-visualizar'}
+        </button>
+      </div>
       {mensagem && <p style={{ color: 'green', fontWeight: 'bold' }}>{mensagem}</p>}
 
-      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {isPreview ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#fff' }}>
+          <div style={{ borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '10px' }}>
+            <h1 style={{ margin: '0 0 10px 0', color: '#333' }}>{titulo || 'Sem Título'}</h1>
+            <p style={{ margin: 0, color: '#666' }}>{descricao || 'Sem descrição'}</p>
+          </div>
+          {campos.length === 0 ? (
+            <p style={{ fontStyle: 'italic', color: '#999' }}>Nenhum campo adicionado.</p>
+          ) : (
+            campos.map((campo, index) => (
+              <div key={campo.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '15px' }}>
+                <label style={{ fontWeight: 'bold', color: '#444' }}>
+                  {index + 1}. {campo.rotulo || 'Pergunta sem texto'} {campo.obrigatorio && <span style={{ color: 'red' }}>*</span>}
+                </label>
+                {campo.tipo === 'texto' && <input type="text" placeholder="A sua resposta..." disabled style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />}
+                {campo.tipo === 'numero' && <input type="number" placeholder="Ex: 42" disabled style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />}
+                {campo.tipo === 'data' && <input type="date" disabled style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />}
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
+        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         {/* Dados Básicos */}
         <div style={{ padding: '15px', border: '1px solid #ccc', borderRadius: '5px' }}>
@@ -123,7 +156,8 @@ function EditarFormulario() {
         <button type="submit" style={{ padding: '12px', backgroundColor: '#0056b3', color: 'white', border: 'none', fontSize: '16px', borderRadius: '5px' }}>
           Guardar Progresso (Rascunho)
         </button>
-      </form>
+        </form>
+      )}
     </div>
   );
 }
