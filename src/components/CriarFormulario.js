@@ -10,6 +10,9 @@ function CriarFormulario() {
   const [campos, setCampos] = useState([]);
   const [novaEtiqueta, setNovaEtiqueta] = useState('');
   const [novoTipo, setNovoTipo] = useState('Texto Curto');
+  const [novoMinValue, setNovoMinValue] = useState('');
+  const [novoMaxValue, setNovoMaxValue] = useState('');
+  const [novoCharLimit, setNovoCharLimit] = useState('');
 
   // Função para adicionar um novo campo à lista
   const adicionarCampo = () => {
@@ -18,17 +21,52 @@ function CriarFormulario() {
       return;
     }
 
+    // Validações específicas para tipo Número
+    if (novoTipo === 'Número') {
+      if (novoMinValue === '' || novoMaxValue === '') {
+        setMensagem('Erro: Mínimo e Máximo são obrigatórios para campos Número.');
+        return;
+      }
+      if (parseFloat(novoMinValue) >= parseFloat(novoMaxValue)) {
+        setMensagem('Erro: Mínimo deve ser menor que Máximo.');
+        return;
+      }
+    }
+
+    // Validações específicas para tipo Texto
+    if (novoTipo.includes('Texto')) {
+      if (novoCharLimit === '') {
+        setMensagem('Erro: Limite de Caracteres é obrigatório para campos Texto.');
+        return;
+      }
+      if (parseInt(novoCharLimit) <= 0) {
+        setMensagem('Erro: Limite de Caracteres deve ser um número positivo.');
+        return;
+      }
+    }
+
     const novoCampo = {
       id: Date.now(), // ID temporário para identificação na lista
       etiqueta: novaEtiqueta,
       tipo: novoTipo
     };
 
+    // Adicionar metadados conforme o tipo
+    if (novoTipo === 'Número') {
+      novoCampo.min_value = parseFloat(novoMinValue);
+      novoCampo.max_value = parseFloat(novoMaxValue);
+    } else if (novoTipo.includes('Texto')) {
+      novoCampo.char_limit = parseInt(novoCharLimit);
+    }
+
     setCampos([...campos, novoCampo]);
     
     // Limpar os inputs de criação de campo
     setNovaEtiqueta('');
     setNovoTipo('Texto Curto');
+    setNovoMinValue('');
+    setNovoMaxValue('');
+    setNovoCharLimit('');
     setMensagem(''); 
   };
 
@@ -51,16 +89,37 @@ function CriarFormulario() {
       titulo: titulo,
       descricao: descricao,
       estado: 'Rascunho',
-      campos: campos
+      campos: campos.map(({ id, ...rest }) => rest) // Remove o ID temporário antes de enviar
     };
 
     console.log('A enviar para a Base de Dados:', novoFormulario);
-    setMensagem(`Sucesso! Formulário "${titulo}" gravado como Rascunho com ${campos.length} campo(s).`);
 
-    // Limpar o formulário após gravar
-    setTitulo('');
-    setDescricao('');
-    setCampos([]);
+    // Enviar para o backend
+    fetch('http://localhost:3000/forms', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(novoFormulario)
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erro ao guardar formulário no servidor');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setMensagem(`Sucesso! Formulário "${titulo}" gravado como Rascunho com ${campos.length} campo(s).`);
+        
+        // Limpar o formulário após gravar com sucesso
+        setTitulo('');
+        setDescricao('');
+        setCampos([]);
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        setMensagem(`Erro ao guardar: ${error.message}`);
+      });
   };
 
   return (
@@ -129,14 +188,65 @@ function CriarFormulario() {
               <select
                 id="tipo"
                 value={novoTipo}
-                onChange={(e) => setNovoTipo(e.target.value)}
+                onChange={(e) => {
+                  setNovoTipo(e.target.value);
+                  // Limpar valores de validação ao mudar tipo
+                  setNovoMinValue('');
+                  setNovoMaxValue('');
+                  setNovoCharLimit('');
+                }}
                 style={{ padding: '8px', fontSize: '14px' }}
               >
                 <option value="Texto Curto">Texto Curto</option>
                 <option value="Texto Longo">Texto Longo</option>
+                <option value="Número">Número</option>
                 <option value="Data">Data</option>
               </select>
             </div>
+
+            {/* Inputs Condicionais para Número */}
+            {novoTipo === 'Número' && (
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <label htmlFor="minValue" style={{ fontSize: '14px', marginBottom: '5px' }}>Mínimo</label>
+                  <input
+                    id="minValue"
+                    type="number"
+                    value={novoMinValue}
+                    onChange={(e) => setNovoMinValue(e.target.value)}
+                    placeholder="Ex: 0"
+                    style={{ padding: '8px', fontSize: '14px' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <label htmlFor="maxValue" style={{ fontSize: '14px', marginBottom: '5px' }}>Máximo</label>
+                  <input
+                    id="maxValue"
+                    type="number"
+                    value={novoMaxValue}
+                    onChange={(e) => setNovoMaxValue(e.target.value)}
+                    placeholder="Ex: 100"
+                    style={{ padding: '8px', fontSize: '14px' }}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Inputs Condicionais para Texto */}
+            {novoTipo.includes('Texto') && (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <label htmlFor="charLimit" style={{ fontSize: '14px', marginBottom: '5px' }}>Limite de Caracteres</label>
+                <input
+                  id="charLimit"
+                  type="number"
+                  value={novoCharLimit}
+                  onChange={(e) => setNovoCharLimit(e.target.value)}
+                  placeholder="Ex: 50"
+                  style={{ padding: '8px', fontSize: '14px' }}
+                />
+              </div>
+            )}
             
             <button 
               type="button" 
@@ -153,8 +263,21 @@ function CriarFormulario() {
               <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#555' }}>Campos no Rascunho:</h4>
               <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
                 {campos.map((campo) => (
-                  <li key={campo.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 10px', backgroundColor: '#fff', border: '1px solid #ddd', marginBottom: '5px', borderRadius: '4px' }}>
-                    <span><strong>{campo.etiqueta}</strong> <span style={{ color: '#666', fontSize: '12px' }}>({campo.tipo})</span></span>
+                  <li key={campo.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 10px', backgroundColor: '#fff', border: '1px solid #ddd', marginBottom: '5px', borderRadius: '4px' }}>
+                    <div>
+                      <strong>{campo.etiqueta}</strong> 
+                      <span style={{ color: '#666', fontSize: '12px' }}>({campo.tipo})</span>
+                      {campo.tipo === 'Número' && (
+                        <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
+                          Min: {campo.min_value}, Max: {campo.max_value}
+                        </div>
+                      )}
+                      {campo.tipo.includes('Texto') && (
+                        <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
+                          Limite: {campo.char_limit} caracteres
+                        </div>
+                      )}
+                    </div>
                     <button
                       type="button"
                       onClick={() => removerCampo(campo.id)}
