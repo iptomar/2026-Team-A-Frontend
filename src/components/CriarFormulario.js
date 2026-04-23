@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function CriarFormulario() {
-  // --- 1. Metadados do Formulário ---
-  const [titulo, setTitulo] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [mensagem, setMensagem] = useState("");
+function CriarFormulario({ onFormularioCriado }) {
+  // Estados para os dados base do formulário
+  const [titulo, setTitulo] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const [mensagem, setMensagem] = useState('');
   const [loading, setLoading] = useState(false);
 
   // --- 2. Configuração de Novos Campos ---
@@ -13,6 +13,8 @@ function CriarFormulario() {
   const [novaEtiqueta, setNovaEtiqueta] = useState("");
   const [novoTipo, setNovoTipo] = useState("Texto Curto");
   const [novoObrigatorio, setNovoObrigatorio] = useState(false);
+  const [novaOpcao, setNovaOpcao] = useState('');
+  const [opcoesCampo, setOpcoesCampo] = useState([]);
 
   // Validações específicas do campo
   const [novoMinValue, setNovoMinValue] = useState("");
@@ -33,56 +35,56 @@ function CriarFormulario() {
     return dataInserida > hoje;
   };
 
-  const adicionarCampo = () => {
-    if (novaEtiqueta.trim() === "") {
-      setMensagem("Erro: A etiqueta do campo é obrigatória.");
+const adicionarCampo = () => {
+    // 1. Validação Única de Etiqueta
+    if (novaEtiqueta.trim() === '') {
+      setMensagem('Erro: A etiqueta do campo é obrigatória.');
       return;
     }
 
+    const tiposComOpcoes = ['Dropdown', 'Radio Button', 'Checkbox'];
+    const novoTipoComOpcoes = tiposComOpcoes.includes(novoTipo);
+
+    // 2. Validação de Data
     if (novoTipo === "Data") {
-      if (!dataSelecionada) {
-        setMensagem("Erro: Deve selecionar uma data.");
-        return;
-      }
-      if (!isDataFutura(dataSelecionada)) {
-        setMensagem("Erro: A data deve ser superior ao dia de hoje.");
+      if (!dataSelecionada || !isDataFutura(dataSelecionada)) {
+        setMensagem("Erro: Deve selecionar uma data futura válida.");
         return;
       }
     }
 
-    // Validações específicas para tipo Número
+    // 3. Validação de Número
     if (novoTipo === 'Número') {
-      if (novoMinValue === '' || novoMaxValue === '') {
-        setMensagem('Erro: Mínimo e Máximo são obrigatórios para campos Número.');
-        return;
-      }
-      if (parseFloat(novoMinValue) >= parseFloat(novoMaxValue)) {
-        setMensagem('Erro: Mínimo deve ser menor que Máximo.');
+      if (novoMinValue === '' || novoMaxValue === '' || parseFloat(novoMinValue) >= parseFloat(novoMaxValue)) {
+        setMensagem('Erro: Verifique os valores de Mínimo e Máximo.');
         return;
       }
     }
 
-    // Validações específicas para tipo Texto
+    // 4. Validação de Texto
     if (novoTipo.includes('Texto')) {
-      if (novoCharLimit === '') {
-        setMensagem('Erro: Limite de Caracteres é obrigatório para campos Texto.');
-        return;
-      }
-      if (parseInt(novoCharLimit) <= 0) {
-        setMensagem('Erro: Limite de Caracteres deve ser um número positivo.');
+      if (novoCharLimit === '' || parseInt(novoCharLimit) <= 0) {
+        setMensagem('Erro: O Limite de Caracteres deve ser um número positivo.');
         return;
       }
     }
 
+    if (novoTipoComOpcoes && opcoesCampo.length === 0) {
+      setMensagem('Erro: Adicione pelo menos uma opção.');
+      return;
+    }
+
+    // 5. Criação do Objeto (Sem chaves duplicadas)
     const novoCampo = {
       id: Date.now(),
       etiqueta: novaEtiqueta,
       tipo: novoTipo,
       obrigatorio: novoObrigatorio,
       detalhesData: novoTipo === "Data" ? { tipoAlteracao, data: dataSelecionada } : null,
+      opcoes: novoTipoComOpcoes ? opcoesCampo : [],
     };
 
-    // Adicionar metadados conforme o tipo
+    // 6. Adicionar metadados extras
     if (novoTipo === 'Número') {
       novoCampo.min_value = parseFloat(novoMinValue);
       novoCampo.max_value = parseFloat(novoMaxValue);
@@ -90,6 +92,7 @@ function CriarFormulario() {
       novoCampo.char_limit = parseInt(novoCharLimit);
     }
 
+    // 7. Atualizar Estado e Resetar campos
     setCampos([...campos, novoCampo]);
     setNovaEtiqueta("");
     setNovoTipo("Texto Curto");
@@ -98,7 +101,28 @@ function CriarFormulario() {
     setNovoMinValue("");
     setNovoMaxValue("");
     setNovoCharLimit("");
+    setNovaOpcao('');
+    setOpcoesCampo([]);
     setMensagem("");
+  };
+
+  const adicionarOpcaoCampo = () => {
+    const valor = novaOpcao.trim();
+    if (!valor) {
+      setMensagem('Erro: A opção não pode ficar vazia.');
+      return;
+    }
+    if (opcoesCampo.includes(valor)) {
+      setMensagem('Erro: Esta opção já existe.');
+      return;
+    }
+    setOpcoesCampo([...opcoesCampo, valor]);
+    setNovaOpcao('');
+    setMensagem('');
+  };
+
+  const removerOpcaoCampo = (indice) => {
+    setOpcoesCampo(opcoesCampo.filter((_, index) => index !== indice));
   };
 
   const removerCampo = (id) => {
@@ -157,6 +181,13 @@ function CriarFormulario() {
     } finally {
       setLoading(false);
     }
+    if (onFormularioCriado) {
+      onFormularioCriado(novoFormulario);
+    }
+
+    setTitulo('');
+    setDescricao('');
+    setCampos([]);
   };
 
   const navigate = useNavigate();
@@ -280,6 +311,13 @@ function CriarFormulario() {
                     setNovoMinValue('');
                     setNovoMaxValue('');
                     setNovoCharLimit('');
+                    const novoValor = e.target.value;
+                    const tiposComOpcoes = ['Dropdown', 'Radio Button', 'Checkbox'];
+                    if (!tiposComOpcoes.includes(novoValor)) {
+                      setOpcoesCampo([]);
+                      setNovaOpcao('');
+                    }
+                    setNovoTipo(novoValor);
                   }}
                   style={{ padding: '8px', fontSize: '14px' }}
                   disabled={loading}
@@ -288,6 +326,10 @@ function CriarFormulario() {
                   <option value="Texto Longo">Texto Longo</option>
                   <option value="Número">Número</option>
                   <option value="Data">Data</option>
+<option value="DataAlteracao">Data (Alteração de Aula)</option>
+                  <option value="Dropdown">Dropdown</option>
+                  <option value="Radio Button">Radio Button</option>
+                  <option value="Checkbox">Checkbox</option>
                 </select>
               </div>
 
@@ -381,8 +423,45 @@ function CriarFormulario() {
               </div>
             )}
 
-            <button
-              type="button"
+            {/* SEÇÃO DINÂMICA: Apenas aparece para campos com opções */}
+            {['Dropdown', 'Radio Button', 'Checkbox'].includes(novoTipo) && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', backgroundColor: '#e9ecef', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column' }}>
+                    <label htmlFor="novaOpcao" style={{ fontSize: '13px', marginBottom: '5px' }}>Adicionar opção</label>
+                    <input
+                      id="novaOpcao"
+                      type="text"
+                      value={novaOpcao}
+                      onChange={(e) => setNovaOpcao(e.target.value)}
+                      placeholder="Ex: Opção A"
+                      style={{ padding: '8px', fontSize: '14px' }}
+                    />
+                  </div>
+                  <button type="button" onClick={adicionarOpcaoCampo} style={{ height: '38px', padding: '8px 12px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                    Adicionar Opção
+                  </button>
+                </div>
+                {opcoesCampo.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 'bold' }}>Opções atuais:</span>
+                    <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
+                      {opcoesCampo.map((opcao, index) => (
+                        <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                          <span>{opcao}</span>
+                          <button type="button" onClick={() => removerOpcaoCampo(index)} style={{ background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer' }}>
+                            Remover
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <button 
+              type="button" 
               onClick={adicionarCampo}
               style={{ alignSelf: 'flex-start', padding: '9px 15px', backgroundColor: '#28a745', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '4px', marginTop: '10px' }}
               disabled={loading}
@@ -402,7 +481,12 @@ function CriarFormulario() {
                   <li key={campo.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 10px', backgroundColor: '#fff', border: '1px solid #ddd', marginBottom: '5px', borderRadius: '4px' }}>
                     <div>
                       <strong>{campo.etiqueta}</strong>
-                      <span style={{ color: '#666', fontSize: '12px' }}>({campo.tipo})</span>
+                      {campo.obrigatorio && <span style={{ color: 'red', marginLeft: '3px' }}>*</span>}
+                      <span style={{ color: '#666', fontSize: '12px' }}>
+                        ({campo.tipo === 'Data' 
+                          ? `${campo.detalhesData.tipoAlteracao} para ${campo.detalhesData.data}` 
+                          : campo.tipo})
+                      </span>
                       {campo.tipo === 'Número' && (
                         <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
                           Min: {campo.min_value}, Max: {campo.max_value}
@@ -412,6 +496,11 @@ function CriarFormulario() {
                         <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>
                           Limite: {campo.char_limit} caracteres
                         </div>
+                      )}
+                      {campo.opcoes && campo.opcoes.length > 0 && (
+                        <span style={{ color: '#333', fontSize: '12px', marginLeft: '15px' }}>
+                          Opções: {campo.opcoes.join(', ')}
+                        </span>
                       )}
                     </div>
                     <button
