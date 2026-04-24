@@ -8,6 +8,8 @@ function EditarFormulario() {
   const [mensagem, setMensagem] = useState('');
 
   const [isPreview, setIsPreview] = useState(false);
+  const [previewValues, setPreviewValues] = useState({});
+  const [previewErrors, setPreviewErrors] = useState({});
 
   // 1. CARREGAR OS DADOS (Critério de Aceitação 1)
   useEffect(() => {
@@ -53,6 +55,26 @@ function EditarFormulario() {
     setCampos(camposAtualizados);
   };
 
+  const handlePreviewSubmit = (e) => {
+    e.preventDefault();
+    const errors = {};
+    let hasErrors = false;
+    campos.forEach((campo) => {
+      const valor = previewValues[campo.id];
+      if (campo.obrigatorio && (!valor || valor.trim() === "")) {
+        errors[campo.id] = "Este campo é obrigatório.";
+        hasErrors = true;
+      }
+    });
+    if (hasErrors) {
+      setPreviewErrors(errors);
+      setMensagem("Erro: Por favor, corrija os erros no formulário de teste.");
+    } else {
+      setPreviewErrors({});
+      setMensagem("Simulação de submissão concluída com sucesso!");
+    }
+  };
+
   // 4. GUARDAR O PROGRESSO COMO RASCUNHO (Critério de Aceitação 3)
   const handleSave = (e) => {
     e.preventDefault();
@@ -84,26 +106,59 @@ function EditarFormulario() {
       {mensagem && <p style={{ color: 'green', fontWeight: 'bold' }}>{mensagem}</p>}
 
       {isPreview ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#fff' }}>
-          <div style={{ borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '10px' }}>
-            <h1 style={{ margin: '0 0 10px 0', color: '#333' }}>{titulo || 'Sem Título'}</h1>
-            <p style={{ margin: 0, color: '#666' }}>{descricao || 'Sem descrição'}</p>
-          </div>
-          {campos.length === 0 ? (
-            <p style={{ fontStyle: 'italic', color: '#999' }}>Nenhum campo adicionado.</p>
-          ) : (
-            campos.map((campo, index) => (
-              <div key={campo.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '15px' }}>
-                <label style={{ fontWeight: 'bold', color: '#444' }}>
-                  {index + 1}. {campo.rotulo || 'Pergunta sem texto'} {campo.obrigatorio && <span style={{ color: 'red' }}>*</span>}
-                </label>
-                {campo.tipo === 'texto' && <input type="text" placeholder="A sua resposta..." disabled style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />}
-                {campo.tipo === 'numero' && <input type="number" placeholder="Ex: 42" disabled style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />}
-                {campo.tipo === 'data' && <input type="date" disabled style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />}
-              </div>
-            ))
-          )}
-        </div>
+          <form onSubmit={handlePreviewSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px', border: '1px solid #ccc', borderRadius: '8px',
+        backgroundColor: '#fff' }}>
+            <div style={{ borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '10px' }}>
+              <h1 style={{ margin: '0 0 10px 0', color: '#333' }}>{titulo || 'Sem Título'}</h1>
+              <p style={{ margin: 0, color: '#666' }}>{descricao || 'Sem descrição'}</p>
+            </div>
+            {campos.length === 0 ? (
+                <p style={{ fontStyle: 'italic', color: '#999' }}>Nenhum campo adicionado.</p>
+            ) : (
+                campos.map((campo, index) => (
+                    <div key={campo.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '15px' }}>
+                      <label style={{ fontWeight: 'bold', color: '#444' }}>
+                        {index + 1}. {campo.rotulo || 'Pergunta sem texto'} {campo.obrigatorio && <span style={{ color: 'red' }}>*</span>}
+                      </label>
+
+                   {campo.tipo === 'texto' && (
+                         <input
+                         type="text"
+                         placeholder="A sua resposta..."
+                         style={{ padding: '10px', borderRadius: '4px', border: previewErrors[campo.id] ? '2px solid red' : '1px solid #ccc' }}
+                         onChange={(e) => setPreviewValues({...previewValues, [campo.id]: e.target.value})}
+                       />
+                     )}
+                   {campo.tipo === 'numero' && (
+                         <input
+                         type="number"
+                         placeholder="Ex: 42"
+                         style={{ padding: '10px', borderRadius: '4px', border: previewErrors[campo.id] ? '2px solid red' : '1px solid #ccc' }}
+                         onChange={(e) => setPreviewValues({...previewValues, [campo.id]: e.target.value})}
+                       />
+                     )}
+
+                   {campo.tipo === 'data' && (
+                         <input
+                         type="date"
+                         style={{ padding: '10px', borderRadius: '4px', border: previewErrors[campo.id] ? '2px solid red' : '1px solid #ccc' }}
+                         onChange={(e) => setPreviewValues({...previewValues, [campo.id]: e.target.value})}
+                       />
+                     )}
+
+                   {previewErrors[campo.id] && (
+                         <span style={{ color: 'red', fontSize: '12px' }}>{previewErrors[campo.id]}</span>
+                     )}
+                 </div>
+               ))
+             )}
+             {campos.length > 0 && (
+                   <button type="submit" style={{ padding: '12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer'
+  }}>
+                   Submeter (Simulação)
+                 </button>
+               )}
+           </form>
       ) : (
         <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
