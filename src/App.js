@@ -42,17 +42,45 @@ const Layout = ({ children }) => {
     window.location.href = '/';
   };
 
-  const user = JSON.parse(localStorage.getItem('user') || '{"name":"Utilizador"}');
+  const userString = localStorage.getItem('user');
+  const user = userString ? JSON.parse(userString) : { name: 'Utilizador' };
+
+  // LER AS DEFINIÇÕES VISUAIS GUARDADAS
+  // Se não houver cor escolhida, usa o cinzento escuro padrão do React (#282c34)
+  const corPrincipal = localStorage.getItem('corPrincipal') || '#282c34'; 
+  const logo = localStorage.getItem('logo'); // Pode estar null se o Admin não carregou nada
 
   return (
     <div className="App">
-      <div style={{ textAlign: 'right', padding: '10px', backgroundColor: '#f8f9fa' }}>
+      <div style={{ textAlign: 'right', padding: '10px', backgroundColor: '#f8f9fa', color: 'black' }}>
         <span>Sessão: <strong>{user.name}</strong></span>
         <button onClick={handleLogout} style={{ marginLeft: '10px' }}>Sair</button>
       </div>
-      <header className="App-header">
-        <h1>Sistema de Gestão de Horários - IPT</h1>
+      
+      {/* 2. APLICAR A COR E O LOGÓTIPO AO CABEÇALHO */}
+      <header 
+        className="App-header" 
+        style={{ 
+          backgroundColor: corPrincipal, 
+          padding: logo ? '20px' : '40px', // Ajusta o espaço vertical se houver imagem
+          minHeight: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        {/* Só mostra a tag da imagem se o logótipo existir na memória */}
+        {logo && (
+          <img 
+            src={logo} 
+            alt="Logótipo da Instituição" 
+            style={{ maxHeight: '80px', marginBottom: '15px', objectFit: 'contain' }} 
+          />
+        )}
+        <h1 style={{ margin: 0, fontSize: '24px' }}>Sistema de Gestão de Horários - IPT</h1>
       </header>
+      
       <main style={{ padding: '20px' }}>{children}</main>
     </div>
   );

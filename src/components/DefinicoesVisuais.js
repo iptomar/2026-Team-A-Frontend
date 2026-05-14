@@ -33,6 +33,12 @@ function DefinicoesVisuais() {
     };
     
     console.log('A enviar para a Base de Dados:', definicoes);
+    
+    localStorage.setItem('corPrincipal', corPrincipal);
+    if (logoApresentacao) {
+      localStorage.setItem('logo', logoApresentacao);
+    }
+    
     setMensagem('Definições visuais guardadas com sucesso!');
     // Espera 1,5 segundos para o Admin ler a mensagem e depois volta para trás
     setTimeout(() => {
