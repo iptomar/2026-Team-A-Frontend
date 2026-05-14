@@ -1,68 +1,116 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function Login({ onLogin }) {
-  // Estados para guardar o que o utilizador escreve e as mensagens de erro
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Evita que a página recarregue ao submeter o formulário
-    
-    // Simulação de verificação de credenciais (Mock)
-    // Mais tarde, isto será substituído por uma chamada à API (Backend)
-    if (email === 'admin@ipt.pt' && password === '123456') {
-      setError(''); // Limpa os erros
-      onLogin({ role: 'admin', name: 'Administrador' }); // Autentica como Admin
-    } else if (email === 'professor@ipt.pt' && password === '123456') {
-      setError(''); // Limpa os erros
-      onLogin({ role: 'professor', name: 'Professor' }); // Autentica como Professor
-    } else {
-      // Mostra a mensagem visual de erro se falhar
-      setError('Credenciais inválidas. Tente novamente.');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Guarda o token e dados do utilizador
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Notifica o componente pai para redirecionar
+        onLogin(data.user);
+      } else {
+        setError(data.error || 'Erro ao iniciar sessão.');
+      }
+    } catch (err) {
+      setError('Erro de ligação ao servidor. Verifique se o backend está a correr.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '100px auto', padding: '30px', border: '1px solid #ddd', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-      <h2 style={{ textAlign: 'center', color: '#333' }}>Login - IPT</h2>
-      
-      {/* Mensagem de Erro Visual */}
-      {error && (
-        <div style={{ backgroundColor: '#ffcccc', color: '#cc0000', padding: '10px', borderRadius: '4px', marginBottom: '15px', textAlign: 'center' }}>
-          {error}
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '80vh' 
+    }}>
+      <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <h2 style={{ color: 'var(--primary-green)', marginBottom: '0.5rem' }}>Bem-vindo</h2>
+          <p style={{ color: 'var(--text-muted)' }}>Inicie sessão para aceder ao sistema</p>
         </div>
-      )}
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Email / Username:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="Ex: admin@ipt.pt ou professor@ipt.pt"
-            style={{ width: '100%', padding: '10px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
+        {error && (
+          <div style={{ 
+            backgroundColor: 'var(--error-bg)', 
+            color: 'var(--error-text)', 
+            padding: '10px', 
+            borderRadius: 'var(--radius-md)', 
+            marginBottom: '1rem',
+            fontSize: '0.9rem',
+            textAlign: 'center',
+            fontWeight: '600'
+          }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div>
+            <label style={{ fontWeight: '600', display: 'block', marginBottom: '5px' }}>Email</label>
+            <input
+              type="email"
+              className="form-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="exemplo@ipt.pt"
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontWeight: '600', display: 'block', marginBottom: '5px' }}>Palavra-passe</label>
+            <input
+              type="password"
+              className="form-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            className="btn-primary" 
+            style={{ padding: '12px', fontSize: '1rem', marginTop: '10px' }}
+            disabled={loading}
+          >
+            {loading ? 'A autenticar...' : 'Entrar no Sistema'}
+          </button>
+        </form>
+
+        <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.9rem' }}>
+          Não tem conta? <Link to="/register" style={{ color: 'var(--primary-green)', fontWeight: 'bold', textDecoration: 'none' }}>Crie uma nova conta</Link>
         </div>
-        
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Palavra-passe:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="******"
-            style={{ width: '100%', padding: '10px', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
+
+        <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          © 2026 - Instituto Politécnico de Tomar
         </div>
-        
-        <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>
-          Entrar
-        </button>
-      </form>
+      </div>
     </div>
   );
 }
