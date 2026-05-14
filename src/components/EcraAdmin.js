@@ -43,7 +43,28 @@ function EcraAdmin() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial' }}>
-      <h2>Painel de Administração</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2>Painel de Administração</h2>
+        
+        {/* Botao de Definições Visuais */}
+        <button 
+          onClick={() => navigate('/definicoes-visuais')}
+          style={{ 
+            padding: '10px 20px', 
+            backgroundColor: '#17a2b8',
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          🎨 Personalizar Visual (Logo/Cores)
+        </button>
+      </div>
       <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', marginTop: '30px' }}>
         
         <div style={{ flex: 1, minWidth: '300px' }}>
