@@ -1,36 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import SelecaoFormularios from './SelecaoFormularios';
 
 function EcraProfessor() {
-  const [formularios, setFormularios] = useState([]);
   const [formSelecionado, setFormSelecionado] = useState(null);
   const [respostas, setRespostas] = useState({});
   const [erros, setErros] = useState({});
-  const [loading, setLoading] = useState(true);
 
   // Dados de exemplo para ocupação (Mock)
   const ocupacaoExistente = [
     { sala: 'Sala 101', data: '2026-05-20' },
     { sala: 'Auditório A', data: '2026-05-25' }
   ];
-
-  const carregarFormularios = async () => {
-    setLoading(true);
-    try {
-      const resposta = await fetch('http://localhost:3000/api/forms');
-      if (resposta.ok) {
-        const dados = await resposta.json();
-        setFormularios(dados.filter(f => f.estado === 'Publicado'));
-      }
-    } catch (erro) {
-      console.error('Erro ao carregar:', erro);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    carregarFormularios();
-  }, []);
 
   // LÓGICA DE VALIDAÇÃO REFINADA
   const validarCampos = (novasRespostas) => {
@@ -183,45 +163,7 @@ function EcraProfessor() {
     );
   }
 
-  return (
-    <div>
-      <div style={{ marginBottom: '2rem' }}>
-        <h2>Formulários Disponíveis</h2>
-        <p style={{ color: 'var(--text-muted)' }}>Selecione um formulário para iniciar o preenchimento.</p>
-      </div>
-      
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px' }}>A carregar formulários...</div>
-      ) : formularios.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-          Não há formulários publicados de momento.
-        </div>
-      ) : (
-        <div className="grid-container">
-          {formularios.map((form) => (
-            <div key={form._id} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <h3 style={{ marginBottom: '0.5rem' }}>{form.titulo}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                  {form.descricao || 'Sem descrição disponível.'}
-                </p>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="status-badge status-publicado">Disponível</span>
-                <button 
-                  className="btn-primary"
-                  onClick={() => setFormSelecionado(form)}
-                  style={{ padding: '8px 15px' }}
-                >
-                  Preencher
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  return <SelecaoFormularios onSelectForm={setFormSelecionado} />;
 }
 
 export default EcraProfessor;

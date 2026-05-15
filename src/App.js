@@ -87,6 +87,11 @@ function App() {
             <Layout><EcraProfessor /></Layout>
           </ProtectedRoute>
         } />
+        <Route path="/meus-pedidos" element={
+          <ProtectedRoute roleRequired="professor">
+            <Layout><OsMeusPedidos /></Layout>
+          </ProtectedRoute>
+        } />
 
         {/* Rotas do Administrador */}
         <Route path="/admin" element={
