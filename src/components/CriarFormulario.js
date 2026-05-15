@@ -207,19 +207,39 @@ const adicionarCampo = () => {
       {mensagem && (
         <div
           style={{
-            padding: "10px",
+            padding: "15px",
             marginBottom: "20px",
             borderRadius: "4px",
             backgroundColor: mensagem.includes("Erro") ? "#ffebee" : "#e8f5e9",
             color: mensagem.includes("Erro") ? "#c62828" : "#2e7d32",
             border: `1px solid ${mensagem.includes("Erro") ? "#ef9a9a" : "#a5d6a7"}`,
             fontWeight: "bold",
+            textAlign: "center",
+            position: 'relative'
           }}
         >
           {mensagem}
+          <button 
+            type="button"
+            onClick={() => setMensagem('')} 
+            style={{ 
+              position: 'absolute', 
+              right: '10px', 
+              top: '50%', 
+              transform: 'translateY(-50%)', 
+              background: 'none', 
+              border: 'none', 
+              color: 'inherit', 
+              cursor: 'pointer',
+              fontSize: '20px',
+              fontWeight: 'bold'
+            }}
+            title="Fechar mensagem"
+          >
+            ×
+          </button>
         </div>
       )}
-
       {isPreview ? (
         <div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#fff', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{ borderBottom: '2px solid #eee', paddingBottom: '10px' }}>
@@ -529,11 +549,11 @@ const adicionarCampo = () => {
                 backgroundColor: '#6c757d',
                 color: 'white',
                 border: 'none',
-                cursor: loading ? 'not-allowed' : 'pointer',
+                cursor: (loading || mensagem.includes("Erro")) ? 'not-allowed' : 'pointer',
                 borderRadius: '4px',
-                opacity: loading ? 0.7 : 1,
+                opacity: (loading || mensagem.includes("Erro")) ? 0.7 : 1,
               }}
-              disabled={loading}
+              disabled={loading || mensagem.includes("Erro")}
             >
               {loading ? 'A processar...' : 'Gravar Rascunho'}
             </button>
@@ -548,12 +568,12 @@ const adicionarCampo = () => {
                 backgroundColor: '#0056b3',
                 color: 'white',
                 border: 'none',
-                cursor: loading ? 'not-allowed' : 'pointer',
+                cursor: (loading || mensagem.includes("Erro")) ? 'not-allowed' : 'pointer',
                 borderRadius: '4px',
                 fontWeight: 'bold',
-                opacity: loading ? 0.7 : 1,
+                opacity: (loading || mensagem.includes("Erro")) ? 0.7 : 1,
               }}
-              disabled={loading}
+              disabled={loading || mensagem.includes("Erro")}
             >
               {loading ? 'A processar...' : 'Publicar Formulário'}
             </button>

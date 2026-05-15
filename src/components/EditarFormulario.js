@@ -122,7 +122,42 @@ function EditarFormulario() {
           {isPreview ? 'Voltar à Edição' : '👁 Pré-visualizar'}
         </button>
       </div>
-      {mensagem && <p style={{ color: 'green', fontWeight: 'bold' }}>{mensagem}</p>}
+      {mensagem && (
+        <div
+          style={{
+            padding: "15px",
+            marginBottom: "20px",
+            borderRadius: "4px",
+            backgroundColor: mensagem.includes("Erro") ? "#ffebee" : "#e8f5e9",
+            color: mensagem.includes("Erro") ? "#c62828" : "#2e7d32",
+            border: `1px solid ${mensagem.includes("Erro") ? "#ef9a9a" : "#a5d6a7"}`,
+            fontWeight: "bold",
+            textAlign: "center",
+            position: 'relative'
+          }}
+        >
+          {mensagem}
+          <button 
+            type="button"
+            onClick={() => setMensagem('')} 
+            style={{ 
+              position: 'absolute', 
+              right: '10px', 
+              top: '50%', 
+              transform: 'translateY(-50%)', 
+              background: 'none', 
+              border: 'none', 
+              color: 'inherit', 
+              cursor: 'pointer',
+              fontSize: '20px',
+              fontWeight: 'bold'
+            }}
+            title="Fechar mensagem"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {isPreview ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#fff' }}>
@@ -230,7 +265,20 @@ function EditarFormulario() {
           {campos.length === 0 && <p style={{ fontStyle: 'italic', color: '#666' }}>Ainda não adicionou nenhum campo.</p>}
         </div>
 
-        <button type="submit" style={{ padding: '12px', backgroundColor: '#0056b3', color: 'white', border: 'none', fontSize: '16px', borderRadius: '5px' }}>
+        <button 
+          type="submit" 
+          style={{ 
+            padding: '12px', 
+            backgroundColor: '#0056b3', 
+            color: 'white', 
+            border: 'none', 
+            fontSize: '16px', 
+            borderRadius: '5px',
+            cursor: (mensagem && mensagem.includes('Erro')) ? 'not-allowed' : 'pointer',
+            opacity: (mensagem && mensagem.includes('Erro')) ? 0.7 : 1
+          }}
+          disabled={mensagem && mensagem.includes('Erro')}
+        >
           Guardar Progresso (Rascunho)
         </button>
         </form>

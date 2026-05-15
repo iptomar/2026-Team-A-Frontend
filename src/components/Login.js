@@ -29,8 +29,35 @@ function Login({ onLogin }) {
       
       {/* Mensagem de Erro Visual */}
       {error && (
-        <div style={{ backgroundColor: '#ffcccc', color: '#cc0000', padding: '10px', borderRadius: '4px', marginBottom: '15px', textAlign: 'center' }}>
+        <div style={{ 
+          backgroundColor: '#ffcccc', 
+          color: '#cc0000', 
+          padding: '10px', 
+          borderRadius: '4px', 
+          marginBottom: '15px', 
+          textAlign: 'center',
+          position: 'relative'
+        }}>
           {error}
+          <button 
+            type="button"
+            onClick={() => setError('')} 
+            style={{ 
+              position: 'absolute', 
+              right: '10px', 
+              top: '50%', 
+              transform: 'translateY(-50%)', 
+              background: 'none', 
+              border: 'none', 
+              color: 'inherit', 
+              cursor: 'pointer',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}
+            title="Fechar erro"
+          >
+            ×
+          </button>
         </div>
       )}
 
@@ -59,7 +86,21 @@ function Login({ onLogin }) {
           />
         </div>
         
-        <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' }}>
+        <button 
+          type="submit" 
+          style={{ 
+            width: '100%', 
+            padding: '12px', 
+            backgroundColor: '#0056b3', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '4px', 
+            cursor: error ? 'not-allowed' : 'pointer', 
+            fontSize: '16px',
+            opacity: error ? 0.7 : 1
+          }}
+          disabled={!!error}
+        >
           Entrar
         </button>
       </form>
