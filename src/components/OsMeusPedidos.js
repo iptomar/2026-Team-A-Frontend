@@ -28,12 +28,12 @@ function OsMeusPedidos() {
     carregarPedidos();
   }, []);
 
-  const getStatusColor = (status) => {
+  const getStatusClass = (status) => {
     switch (status) {
-      case 'Aprovado': return 'var(--success-text)';
-      case 'Rejeitado': return 'var(--error-text)';
-      case 'Pendente': return 'var(--text-muted)';
-      default: return 'inherit';
+      case 'Aprovado': return 'status-publicado';
+      case 'Pendente': return 'status-rascunho';
+      case 'Rejeitado': return 'status-inativo';
+      default: return '';
     }
   };
 
@@ -72,13 +72,7 @@ function OsMeusPedidos() {
                   <td style={{ padding: '15px', fontWeight: '500' }}>{pedido.tituloFormulario}</td>
                   <td style={{ padding: '15px' }}>{new Date(pedido.dataSubmissao).toLocaleDateString('pt-PT')}</td>
                   <td style={{ padding: '15px' }}>
-                    <span style={{ 
-                      fontWeight: '700', 
-                      color: getStatusColor(pedido.estado),
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      backgroundColor: pedido.estado === 'Pendente' ? '#f0f0f0' : 'transparent'
-                    }}>
+                    <span className={`status-badge ${getStatusClass(pedido.estado)}`}>
                       {pedido.estado}
                     </span>
                   </td>

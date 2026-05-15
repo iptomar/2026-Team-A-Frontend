@@ -56,8 +56,8 @@
 }
 
 .status-publicado { background: #e8f5e9; color: #2e7d32; }
-.status-rascunho { background: #fff3e0; color: #ef6c00; }
-.status-inativo { background: #eceff1; color: #455a64; }
+.status-rascunho { background: #fff8e1; color: #f9a825; }
+.status-inativo { background: #ffebee; color: #c62828; }
 
 .form-input {
   width: 100%;
