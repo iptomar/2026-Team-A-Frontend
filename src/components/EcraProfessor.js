@@ -7,6 +7,7 @@ function EcraProfessor() {
   const [erros, setErros] = useState({});
   const [loading, setLoading] = useState(true);
 
+  // Dados de exemplo para ocupação (Mock)
   const ocupacaoExistente = [
     { sala: 'Sala 101', data: '2026-05-20' },
     { sala: 'Auditório A', data: '2026-05-25' }
@@ -18,7 +19,6 @@ function EcraProfessor() {
       const resposta = await fetch('http://localhost:3000/api/forms');
       if (resposta.ok) {
         const dados = await resposta.json();
-        // Filtra apenas os publicados para o professor
         setFormularios(dados.filter(f => f.estado === 'Publicado'));
       }
     } catch (erro) {
@@ -32,36 +32,50 @@ function EcraProfessor() {
     carregarFormularios();
   }, []);
 
+  // LÓGICA DE VALIDAÇÃO REFINADA
   const validarCampos = (novasRespostas) => {
     const novosErros = {};
+    
+    // 1. Procurar campos de Sala e Data no formulário atual
+    const campoSala = formSelecionado.campos.find(c => 
+      c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room')
+    );
+    const campoData = formSelecionado.campos.find(c => c.tipo === 'Data');
+
+    // 2. Validar Ocupação de Sala
+    if (campoSala && campoData) {
+      const salaId = campoSala._id || campoSala.id;
+      const dataId = campoData._id || campoData.id;
+      
+      const salaValue = novasRespostas[salaId];
+      const dataValue = novasRespostas[dataId];
+
+      if (salaValue && dataValue) {
+        const ocupada = ocupacaoExistente.some(o => 
+          o.sala.toLowerCase() === salaValue.toLowerCase() && o.data === dataValue
+        );
+        if (ocupada) {
+          novosErros[salaId] = 'Sala ocupada nesta data!';
+        }
+      }
+    }
+
+    // 3. Validar Datas Futuras (para todos os campos do tipo Data)
     formSelecionado.campos.forEach(campo => {
       if (campo.tipo === 'Data') {
-        const valorData = novasRespostas[campo.id];
+        const campoId = campo._id || campo.id;
+        const valorData = novasRespostas[campoId];
         if (valorData) {
           const hoje = new Date();
           hoje.setHours(0, 0, 0, 0);
           const dataInserida = new Date(valorData);
           if (dataInserida < hoje) {
-            novosErros[campo.id] = 'Data inválida (selecione uma data futura)';
+            novosErros[campoId] = 'Data inválida (selecione uma data futura)';
           }
         }
       }
     });
 
-    const campoSala = formSelecionado.campos.find(c => c.etiqueta.toLowerCase().includes('sala'));
-    const campoData = formSelecionado.campos.find(c => c.tipo === 'Data');
-
-    if (campoSala && campoData) {
-      const salaValue = novasRespostas[campoSala.id];
-      const dataValue = novasRespostas[campoData.id];
-
-      if (salaValue && dataValue) {
-        const ocupada = ocupacaoExistente.some(o => o.sala === salaValue && o.data === dataValue);
-        if (ocupada) {
-          novosErros[campoSala.id] = 'Sala ocupada';
-        }
-      }
-    }
     setErros(novosErros);
   };
 
@@ -89,30 +103,47 @@ function EcraProfessor() {
           </div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            {formSelecionado.campos.map((campo) => (
-              <div key={campo._id || campo.id}>
-                <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>{campo.etiqueta}</label>
-                
-                <input 
-                  className="form-input"
-                  type={campo.tipo === 'Data' ? 'date' : 'text'} 
-                  onChange={(e) => handleInputChange(campo._id || campo.id, e.target.value)}
-                  style={{ borderColor: erros[campo._id || campo.id] ? 'var(--error-text)' : 'var(--border-color)' }}
-                />
+            {formSelecionado.campos.map((campo) => {
+              const campoId = campo._id || campo.id;
+              const temErro = !!erros[campoId];
 
-                {erros[campo._id || campo.id] && (
-                  <span style={{ color: 'var(--error-text)', fontSize: '0.85rem', fontWeight: '600', marginTop: '5px', display: 'block' }}>
-                    ⚠ {erros[campo._id || campo.id]}
-                  </span>
-                )}
-              </div>
-            ))}
+              return (
+                <div key={campoId}>
+                  <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                    {campo.etiqueta} {campo.obrigatorio && <span style={{ color: 'red' }}>*</span>}
+                  </label>
+                  
+                  <input 
+                    className="form-input"
+                    type={campo.tipo === 'Data' ? 'date' : 'text'} 
+                    onChange={(e) => handleInputChange(campoId, e.target.value)}
+                    style={{ 
+                      borderColor: temErro ? '#e74c3c' : 'var(--border-color)',
+                      borderWidth: temErro ? '2px' : '1px'
+                    }}
+                    placeholder={campo.tipo === 'Data' ? '' : 'Introduza aqui...'}
+                  />
+
+                  {temErro && (
+                    <span style={{ 
+                      color: '#e74c3c', 
+                      fontSize: '0.85rem', 
+                      fontWeight: 'bold', 
+                      marginTop: '5px', 
+                      display: 'block' 
+                    }}>
+                      ⚠ {erros[campoId]}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
 
             <button 
               disabled={Object.keys(erros).length > 0}
               className="btn-primary"
               style={{ padding: '15px', fontSize: '1.1rem' }}
-              onClick={() => alert('Formulário enviado com sucesso!')}
+              onClick={() => alert('Requisição enviada com sucesso!')}
             >
               Submeter Requisição
             </button>

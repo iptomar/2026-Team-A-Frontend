@@ -8,9 +8,19 @@ import EcraProfessor from './components/EcraProfessor';
 import './App.css';
 import EditarFormulario from './components/EditarFormulario';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, roleRequired }) => {
   const token = localStorage.getItem('token');
-  if (!token) return <Navigate to="/" replace />;
+  const userString = localStorage.getItem('user');
+  
+  if (!token || !userString) return <Navigate to="/" replace />;
+  
+  const user = JSON.parse(userString);
+  
+  // Se for exigido um cargo específico e o utilizador não o tiver, redireciona
+  if (roleRequired && user.role !== roleRequired) {
+    return <Navigate to={user.role === 'admin' ? '/admin' : '/professor'} replace />;
+  }
+  
   return children;
 };
 
@@ -59,10 +69,31 @@ function App() {
       <Routes>
         <Route path="/" element={<HomeRedirect />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/professor" element={<ProtectedRoute><Layout><EcraProfessor /></Layout></ProtectedRoute>} />
-        <Route path="/admin" element={<ProtectedRoute><Layout><EcraAdmin /></Layout></ProtectedRoute>} />
-        <Route path="/criar-formulario" element={<ProtectedRoute><Layout><CriarFormulario /></Layout></ProtectedRoute>} />
-        <Route path="/editar-formulario" element={<ProtectedRoute><Layout><EditarFormulario /></Layout></ProtectedRoute>} />
+        
+        {/* Rota do Professor */}
+        <Route path="/professor" element={
+          <ProtectedRoute roleRequired="professor">
+            <Layout><EcraProfessor /></Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* Rotas do Administrador */}
+        <Route path="/admin" element={
+          <ProtectedRoute roleRequired="admin">
+            <Layout><EcraAdmin /></Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/criar-formulario" element={
+          <ProtectedRoute roleRequired="admin">
+            <Layout><CriarFormulario /></Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/editar-formulario" element={
+          <ProtectedRoute roleRequired="admin">
+            <Layout><EditarFormulario /></Layout>
+          </ProtectedRoute>
+        } />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
