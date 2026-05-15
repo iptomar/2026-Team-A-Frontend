@@ -85,6 +85,36 @@ function EcraProfessor() {
     validarCampos(novasRespostas);
   };
 
+  const handleSubmeter = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const resposta = await fetch('http://localhost:3000/api/submissoes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          formularioId: formSelecionado._id,
+          tituloFormulario: formSelecionado.titulo,
+          respostas: respostas
+        })
+      });
+
+      if (resposta.ok) {
+        alert('Pedido submetido com sucesso!');
+        setFormSelecionado(null);
+        setRespostas({});
+      } else {
+        const errorData = await resposta.json();
+        alert('Erro ao submeter: ' + (errorData.error || 'Erro desconhecido'));
+      }
+    } catch (erro) {
+      console.error('Erro na submissão:', erro);
+      alert('Erro de ligação ao servidor.');
+    }
+  };
+
   if (formSelecionado) {
     return (
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -143,7 +173,7 @@ function EcraProfessor() {
               disabled={Object.keys(erros).length > 0}
               className="btn-primary"
               style={{ padding: '15px', fontSize: '1.1rem' }}
-              onClick={() => alert('Requisição enviada com sucesso!')}
+              onClick={handleSubmeter}
             >
               Submeter Requisição
             </button>
