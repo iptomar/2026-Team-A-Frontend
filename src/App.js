@@ -5,6 +5,7 @@ import Register from './components/Register';
 import EcraAdmin from './components/EcraAdmin';
 import CriarFormulario from './components/CriarFormulario';
 import EcraProfessor from './components/EcraProfessor';
+import OsMeusPedidos from './components/OsMeusPedidos';
 import './App.css';
 import EditarFormulario from './components/EditarFormulario';
 
@@ -42,7 +43,17 @@ const Layout = ({ children }) => {
   return (
     <div className="App">
       <nav className="navbar">
-        <h1 className="navbar-brand">Gestão Horários IPT</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+          <h1 className="navbar-brand" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+            Gestão Horários IPT
+          </h1>
+          {user.role === 'professor' && (
+            <div className="nav-links">
+              <button className="btn-secondary" onClick={() => window.location.href = '/professor'}>Formulários</button>
+              <button className="btn-secondary" onClick={() => window.location.href = '/meus-pedidos'}>Os Meus Pedidos</button>
+            </div>
+          )}
+        </div>
         <div className="user-section">
           <span className="user-info">Sessão: <strong>{user.email}</strong> ({user.role})</span>
           <button className="btn-logout" onClick={handleLogout}>Sair</button>
@@ -60,6 +71,7 @@ function App() {
         <Route path="/" element={<HomeRedirect />} />
         <Route path="/register" element={<Register />} />
         <Route path="/professor" element={<ProtectedRoute><Layout><EcraProfessor /></Layout></ProtectedRoute>} />
+        <Route path="/meus-pedidos" element={<ProtectedRoute><Layout><OsMeusPedidos /></Layout></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><Layout><EcraAdmin /></Layout></ProtectedRoute>} />
         <Route path="/criar-formulario" element={<ProtectedRoute><Layout><CriarFormulario /></Layout></ProtectedRoute>} />
         <Route path="/editar-formulario" element={<ProtectedRoute><Layout><EditarFormulario /></Layout></ProtectedRoute>} />
