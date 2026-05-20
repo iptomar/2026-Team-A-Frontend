@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import SelecaoFormularios from './SelecaoFormularios';
+import React, { useState, useEffect } from 'react';
 
 function EcraProfessor() {
+  const [formularios, setFormularios] = useState([]);
   const [formSelecionado, setFormSelecionado] = useState(null);
   const [respostas, setRespostas] = useState({});
   const [erros, setErros] = useState({});
+  const [loading, setLoading] = useState(true);
 
   // Dados de exemplo para ocupação (Mock)
   const ocupacaoExistente = [
@@ -12,15 +13,34 @@ function EcraProfessor() {
     { sala: 'Auditório A', data: '2026-05-25' }
   ];
 
+  const carregarFormularios = async () => {
+    setLoading(true);
+    try {
+      const resposta = await fetch('http://localhost:3000/api/forms');
+      if (resposta.ok) {
+        const dados = await resposta.json();
+        setFormularios(dados.filter(f => f.estado === 'Publicado'));
+      }
+    } catch (erro) {
+      console.error('Erro ao carregar:', erro);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    carregarFormularios();
+  }, []);
+
   // LÓGICA DE VALIDAÇÃO REFINADA
   const validarCampos = (novasRespostas) => {
     const novosErros = {};
     
     // 1. Procurar campos de Sala e Data no formulário atual
-    const campoSala = formSelecionado.campos.find(c => 
+    const campoSala = formSelecionado?.campos.find(c => 
       c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room')
     );
-    const campoData = formSelecionado.campos.find(c => c.tipo === 'Data');
+    const campoData = formSelecionado?.campos.find(c => c.tipo === 'Data');
 
     // 2. Validar Ocupação de Sala
     if (campoSala && campoData) {
@@ -41,7 +61,7 @@ function EcraProfessor() {
     }
 
     // 3. Validar Datas Futuras (para todos os campos do tipo Data)
-    formSelecionado.campos.forEach(campo => {
+    formSelecionado?.campos.forEach(campo => {
       if (campo.tipo === 'Data') {
         const campoId = campo._id || campo.id;
         const valorData = novasRespostas[campoId];
@@ -64,6 +84,15 @@ function EcraProfessor() {
     setRespostas(novasRespostas);
     validarCampos(novasRespostas);
   };
+
+  // Lógica Matemática: Verifica se o formulário está completo e sem erros
+  const podeSubmeter = formSelecionado && formSelecionado.campos.every(campo => {
+    const valor = respostas[campo._id || campo.id];
+    const preenchido = valor !== undefined && valor !== null && String(valor).trim() !== '';
+    const validacaoObrigatorio = campo.obrigatorio ? preenchido : true;
+    const semErroNoCampo = !erros[campo._id || campo.id];
+    return validacaoObrigatorio && semErroNoCampo;
+  });
 
   const handleSubmeter = async () => {
     try {
@@ -135,13 +164,7 @@ function EcraProfessor() {
                   />
 
                   {temErro && (
-                    <span style={{ 
-                      color: '#e74c3c', 
-                      fontSize: '0.85rem', 
-                      fontWeight: 'bold', 
-                      marginTop: '5px', 
-                      display: 'block' 
-                    }}>
+                    <span style={{ color: '#e74c3c', fontSize: '0.85rem', fontWeight: 'bold', marginTop: '5px', display: 'block' }}>
                       ⚠ {erros[campoId]}
                     </span>
                   )}
@@ -150,9 +173,14 @@ function EcraProfessor() {
             })}
 
             <button 
-              disabled={Object.keys(erros).length > 0}
+              disabled={!podeSubmeter}
               className="btn-primary"
-              style={{ padding: '15px', fontSize: '1.1rem' }}
+              style={{ 
+                padding: '15px', 
+                fontSize: '1.1rem',
+                opacity: podeSubmeter ? 1 : 0.6,
+                cursor: podeSubmeter ? 'pointer' : 'not-allowed'
+              }}
               onClick={handleSubmeter}
             >
               Submeter Requisição
@@ -163,7 +191,45 @@ function EcraProfessor() {
     );
   }
 
-  return <SelecaoFormularios onSelectForm={setFormSelecionado} />;
+  return (
+    <div>
+      <div style={{ marginBottom: '2rem' }}>
+        <h2>Formulários Disponíveis</h2>
+        <p style={{ color: 'var(--text-muted)' }}>Selecione um formulário para iniciar o preenchimento.</p>
+      </div>
+      
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '40px' }}>A carregar formulários...</div>
+      ) : formularios.length === 0 ? (
+        <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+          Não há formulários publicados de momento.
+        </div>
+      ) : (
+        <div className="grid-container">
+          {formularios.map((form) => (
+            <div key={form._id} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <h3 style={{ marginBottom: '0.5rem' }}>{form.titulo}</h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                  {form.descricao || 'Sem descrição disponível.'}
+                </p>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span className="status-badge status-publicado">Disponível</span>
+                <button 
+                  className="btn-primary"
+                  onClick={() => setFormSelecionado(form)}
+                  style={{ padding: '8px 15px' }}
+                >
+                  Preencher
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default EcraProfessor;
