@@ -6,6 +6,7 @@ import EcraAdmin from './components/EcraAdmin';
 import CriarFormulario from './components/CriarFormulario';
 import EcraProfessor from './components/EcraProfessor';
 import OsMeusPedidos from './components/OsMeusPedidos';
+import GerirPedidos from './components/GerirPedidos';
 import './App.css';
 import EditarFormulario from './components/EditarFormulario';
 
@@ -63,6 +64,12 @@ const Layout = ({ children }) => {
               <button className="btn-secondary" onClick={() => window.location.href = '/meus-pedidos'}>Os Meus Pedidos</button>
             </div>
           )}
+          {user.role === 'admin' && (
+            <div className="nav-links">
+              <button className="btn-secondary" onClick={() => window.location.href = '/admin'}>Gerir Formulários</button>
+              <button className="btn-secondary" onClick={() => window.location.href = '/gerir-pedidos'}>Gerir Pedidos</button>
+            </div>
+          )}
         </div>
         <div className="user-section">
           <span className="user-info">Sessão: <strong>{user.email}</strong> ({user.role})</span>
@@ -107,6 +114,11 @@ function App() {
         <Route path="/editar-formulario" element={
           <ProtectedRoute roleRequired="admin">
             <Layout><EditarFormulario /></Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/gerir-pedidos" element={
+          <ProtectedRoute roleRequired="admin">
+            <Layout><GerirPedidos /></Layout>
           </ProtectedRoute>
         } />
 
