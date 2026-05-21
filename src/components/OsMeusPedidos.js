@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function OsMeusPedidos() {
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState('Pendente');
   const [ordenacaoData, setOrdenacaoData] = useState('desc');
+  const navigate = useNavigate();
 
   const carregarPedidos = async () => {
     setLoading(true);
@@ -123,7 +125,7 @@ function OsMeusPedidos() {
                     <button 
                       className="btn-secondary" 
                       style={{ padding: '5px 10px', fontSize: '0.85rem' }}
-                      onClick={() => alert('Visualizar detalhes do pedido ' + pedido._id)}
+                      onClick={() => navigate(`/detalhes-pedido/${pedido._id}`)}
                     >
                       Ver Detalhes
                     </button>

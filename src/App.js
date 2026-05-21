@@ -7,6 +7,7 @@ import CriarFormulario from './components/CriarFormulario';
 import EcraProfessor from './components/EcraProfessor';
 import OsMeusPedidos from './components/OsMeusPedidos';
 import GerirPedidos from './components/GerirPedidos';
+import DetalhesPedido from './components/DetalhesPedido';
 import './App.css';
 import EditarFormulario from './components/EditarFormulario';
 import DefinicoesVisuais from './components/DefinicoesVisuais';
@@ -127,6 +128,11 @@ function App() {
         <Route path="/meus-pedidos" element={
           <ProtectedRoute roleRequired="professor">
             <Layout><OsMeusPedidos /></Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/detalhes-pedido/:id" element={
+          <ProtectedRoute roleRequired="professor">
+            <Layout><DetalhesPedido /></Layout>
           </ProtectedRoute>
         } />
 
