@@ -131,6 +131,10 @@ function EcraProfessor() {
   };
 
   if (formSelecionado) {
+    // Aplicar cor e logo do formulário se existirem
+    const corTema = formSelecionado.corPrincipal || '#282c34';
+    const logoTema = formSelecionado.logo || localStorage.getItem('logo');
+
     return (
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <button 
@@ -141,72 +145,68 @@ function EcraProfessor() {
           ← Voltar aos Formulários
         </button>
         
-        {submetidoComSucesso ? (
-          <div className="card" style={{ 
-            backgroundColor: '#e8f5e9', 
-            border: '1px solid #c8e6c9', 
-            textAlign: 'center', 
-            padding: '40px' 
-          }}>
-            <div style={{ fontSize: '50px', marginBottom: '20px' }}>✅</div>
-            <h2 style={{ color: '#2e7d32' }}>Pedido Submetido com Sucesso!</h2>
-            <p style={{ color: '#388e3c' }}>A sua requisição foi guardada na base de dados e será analisada pela administração.</p>
-            <p style={{ marginTop: '20px', fontSize: '0.9rem', color: '#666' }}>A redirecionar para a lista...</p>
+        <div className="card" style={{ borderTop: `6px solid ${corTema}` }}>
+          <div style={{ borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', paddingBottom: '1rem', textAlign: 'center' }}>
+            {logoTema && (
+              <img src={logoTema} alt="Logo" style={{ maxHeight: '60px', marginBottom: '1rem' }} />
+            )}
+            <h2 style={{ color: corTema }}>{formSelecionado.titulo}</h2>
+            <p style={{ color: 'var(--text-muted)', margin: 0 }}>{formSelecionado.descricao}</p>
           </div>
-        ) : (
-          <div className="card">
-            <div style={{ borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', paddingBottom: '1rem' }}>
-              <h2>{formSelecionado.titulo}</h2>
-              <p style={{ color: 'var(--text-muted)', margin: 0 }}>{formSelecionado.descricao}</p>
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              {formSelecionado.campos.map((campo) => {
-                const campoId = campo._id || campo.id;
-                const temErro = !!erros[campoId];
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            {formSelecionado.campos.map((campo) => {
+              const campoId = campo._id || campo.id;
+              const temErro = !!erros[campoId];
 
-                return (
-                  <div key={campoId}>
-                    <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                      {campo.etiqueta} {campo.obrigatorio && <span style={{ color: 'red' }}>*</span>}
-                    </label>
-                    
-                    <input 
-                      className="form-input"
-                      type={campo.tipo === 'Data' ? 'date' : 'text'} 
-                      onChange={(e) => handleInputChange(campoId, e.target.value)}
-                      style={{ 
-                        borderColor: temErro ? '#e74c3c' : 'var(--border-color)',
-                        borderWidth: temErro ? '2px' : '1px'
-                      }}
-                      placeholder={campo.tipo === 'Data' ? '' : 'Introduza aqui...'}
-                    />
+              return (
+                <div key={campoId}>
+                  <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                    {campo.etiqueta} {campo.obrigatorio && <span style={{ color: 'red' }}>*</span>}
+                  </label>
+                  
+                  <input 
+                    className="form-input"
+                    type={campo.tipo === 'Data' ? 'date' : 'text'} 
+                    value={respostas[campoId] || ''}
+                    onChange={(e) => handleInputChange(campoId, e.target.value)}
+                    style={{ 
+                      borderColor: temErro ? '#e74c3c' : 'var(--border-color)',
+                      borderWidth: temErro ? '2px' : '1px',
+                      outlineColor: corTema
+                    }}
+                    placeholder={campo.tipo === 'Data' ? '' : 'Introduza aqui...'}
+                  />
 
-                    {temErro && (
-                      <span style={{ color: '#e74c3c', fontSize: '0.85rem', fontWeight: 'bold', marginTop: '5px', display: 'block' }}>
-                        ⚠ {erros[campoId]}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
+                  {temErro && (
+                    <span style={{ color: '#e74c3c', fontSize: '0.85rem', fontWeight: 'bold', marginTop: '5px', display: 'block' }}>
+                      ⚠ {erros[campoId]}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
 
-              <button 
-                disabled={!podeSubmeter}
-                className="btn-primary"
-                style={{ 
-                  padding: '15px', 
-                  fontSize: '1.1rem',
-                  opacity: podeSubmeter ? 1 : 0.6,
-                  cursor: podeSubmeter ? 'pointer' : 'not-allowed'
-                }}
-                onClick={handleSubmeter}
-              >
-                Submeter Requisição
-              </button>
-            </div>
+            <button 
+              disabled={!podeSubmeter}
+              className="btn-primary"
+              style={{ 
+                padding: '15px', 
+                fontSize: '1.1rem',
+                backgroundColor: podeSubmeter ? corTema : '#ccc',
+                opacity: podeSubmeter ? 1 : 0.6,
+                cursor: podeSubmeter ? 'pointer' : 'not-allowed',
+                border: 'none',
+                color: 'white',
+                borderRadius: 'var(--radius-md)',
+                fontWeight: 'bold'
+              }}
+              onClick={handleSubmeter}
+            >
+              Submeter Requisição
+            </button>
           </div>
-        )}
+        </div>
       </div>
     );
   }

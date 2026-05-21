@@ -54,13 +54,38 @@ const Layout = ({ children }) => {
 
   // LER AS DEFINIÇÕES VISUAIS GUARDADAS
   // Se não houver cor escolhida, usa o cinzento escuro padrão do React (#282c34)
-  const corPrincipal = localStorage.getItem('corPrincipal') || '#282c34'; 
-  const logo = localStorage.getItem('logo'); // Pode estar null se o Admin não carregou nada
+  const [corPrincipal, setCorPrincipal] = React.useState(localStorage.getItem('corPrincipal') || '#282c34'); 
+  const [logo, setLogo] = React.useState(localStorage.getItem('logo')); 
+
+  React.useEffect(() => {
+    const carregarVisual = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/settings/visual');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.corPrincipal) {
+            setCorPrincipal(data.corPrincipal);
+            localStorage.setItem('corPrincipal', data.corPrincipal);
+          }
+          if (data.logo) {
+            setLogo(data.logo);
+            localStorage.setItem('logo', data.logo);
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao carregar visual:', err);
+      }
+    };
+
+    if (!localStorage.getItem('corPrincipal') || !localStorage.getItem('logo')) {
+      carregarVisual();
+    }
+  }, []);
 
   return (
     <div className="App">
       {/* Navbar com fundo branco */}
-      <nav className="navbar" style={{ backgroundColor: '#ffffff' }}>
+      <nav className="navbar" style={{ backgroundColor: '#ffffff', borderTop: `4px solid ${corPrincipal}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
           
           {/* Logótipo ao lado do título */}

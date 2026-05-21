@@ -47,7 +47,9 @@ function CriarFormulario({ onFormularioCriado }) {
       titulo,
       descricao,
       estado: acao,
-      campos: campos.map(({ id, ...rest }) => rest)
+      campos: campos.map(({ id, ...rest }) => rest),
+      corPrincipal: localStorage.getItem('corPrincipal') || '#282c34',
+      logo: localStorage.getItem('logo') || null
     };
 
     try {
