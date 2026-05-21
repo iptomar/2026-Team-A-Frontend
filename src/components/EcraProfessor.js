@@ -10,7 +10,10 @@ function EcraProfessor() {
   // Dados de exemplo para ocupação (Mock)
   const ocupacaoExistente = [
     { sala: 'Sala 101', data: '2026-05-20' },
-    { sala: 'Auditório A', data: '2026-05-25' }
+    { sala: 'Sala 101', data: '2026-05-21' },
+    { sala: 'Auditório A', data: '2026-05-25' },
+    { sala: 'Laboratório 2', data: '2026-06-01' },
+    { sala: 'Sala 202', data: '2026-05-22' }
   ];
 
   const carregarFormularios = async () => {
