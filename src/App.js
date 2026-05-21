@@ -10,6 +10,7 @@ import GerirPedidos from './components/GerirPedidos';
 import './App.css';
 import EditarFormulario from './components/EditarFormulario';
 import DefinicoesVisuais from './components/DefinicoesVisuais';
+import EcraCoordenador from './components/EcraCoordenador'; 
 
 const ProtectedRoute = ({ children, roleRequired }) => {
   const token = localStorage.getItem('token');
@@ -33,14 +34,12 @@ const HomeRedirect = () => {
 
   if (token && userString) {
     const user = JSON.parse(userString);
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/professor'} replace />;
+    if (user.role === 'admin') return <Navigate to="/admin" replace />;
+    if (user.role === 'coordenador') return <Navigate to="/coordenador" replace />; 
+    return <Navigate to="/professor" replace />;
   }
   
-  const handleLogin = () => {
-    window.location.href = '/';
-  };
-
-  return <Login onLogin={handleLogin} />;
+  return <Login onLogin={() => window.location.href = '/'} />;
 };
 
 const Layout = ({ children }) => {
@@ -91,6 +90,13 @@ const Layout = ({ children }) => {
               <button className="btn-secondary" onClick={() => window.location.href = '/gerir-pedidos'}>Gerir Pedidos</button>
             </div>
           )}
+          {user.role === 'coordenador' && (
+            <div className="nav-links">
+              <button className="btn-secondary" onClick={() => window.location.href = '/coordenador'}>Dashboard Coordenador</button>
+              <button className="btn-secondary" onClick={() => window.location.href = '/gerir-pedidos'}>Gerir Pedidos</button>
+            </div>
+          )}
+        
         </div>
 
         {/* secção de utilizador da equipa com o botão de Sair */}
@@ -148,6 +154,7 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
         <Route path="/definicoes-visuais" element={<ProtectedRoute><Layout><DefinicoesVisuais /></Layout></ProtectedRoute>} />
+        <Route path="/coordenador" element={<ProtectedRoute><Layout><EcraCoordenador /></Layout></ProtectedRoute>} />
       </Routes>
     </Router>
   );

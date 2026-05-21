@@ -110,10 +110,13 @@ function EditarFormulario() {
     setMensagem('Progresso guardado com sucesso (Continua em Rascunho).');
   };
 
+
+  const corPrincipal = localStorage.getItem('corPrincipal') || '#0056b3';
+
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2>{isPreview ? 'Modo de Leitura (Vista do Professor)' : 'Editar Formulário (Rascunho)'}</h2>
+        <h2 style={{ color: corPrincipal }}>{isPreview ? 'Modo de Leitura (Vista do Professor)' : 'Editar Formulário (Rascunho)'}</h2>
         <button 
           type="button"
           onClick={() => setIsPreview(!isPreview)}
@@ -269,7 +272,7 @@ function EditarFormulario() {
           type="submit" 
           style={{ 
             padding: '12px', 
-            backgroundColor: '#0056b3', 
+            backgroundColor: corPrincipal, 
             color: 'white', 
             border: 'none', 
             fontSize: '16px', 
