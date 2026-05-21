@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 function OsMeusPedidos() {
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filtroEstado, setFiltroEstado] = useState('Todos');
+  const [filtroEstado, setFiltroEstado] = useState('Pendente');
   const [ordenacaoData, setOrdenacaoData] = useState('desc');
 
   const carregarPedidos = async () => {
@@ -69,8 +69,8 @@ function OsMeusPedidos() {
             style={{ padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--border-color)' }}
           >
             <option value="Todos">Todos</option>
-            <option value="Aprovado">Aprovado</option>
             <option value="Pendente">Pendente</option>
+            <option value="Aprovado">Aprovado</option>
             <option value="Rejeitado">Rejeitado</option>
           </select>
         </div>
@@ -83,7 +83,7 @@ function OsMeusPedidos() {
             onClick={() => setOrdenacaoData((current) => (current === 'desc' ? 'asc' : 'desc'))}
             style={{ padding: '8px 12px', minWidth: 'max-content' }}
           >
-            {ordenacaoData === 'desc' ? 'Mais recentes primeiro' : 'Mais antigos primeiro'}
+            {ordenacaoData === 'desc' ? 'Mais recentes' : 'Mais antigos'}
           </button>
         </div>
       </div>
@@ -96,15 +96,15 @@ function OsMeusPedidos() {
         </div>
       ) : pedidosFiltrados.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-          Nenhum pedido corresponde ao filtro selecionado.
+          Nenhum pedido correspondente ao filtro "{filtroEstado}".
         </div>
       ) : (
         <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid var(--border-color)' }}>
               <tr>
-                <th style={{ padding: '15px' }}>Título do Pedido</th>
-                <th style={{ padding: '15px' }}>Data de Submissão</th>
+                <th style={{ padding: '15px' }}>Nome</th>
+                <th style={{ padding: '15px' }}>Data</th>
                 <th style={{ padding: '15px' }}>Estado</th>
                 <th style={{ padding: '15px' }}>Ações</th>
               </tr>
