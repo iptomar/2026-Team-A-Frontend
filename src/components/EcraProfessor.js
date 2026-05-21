@@ -94,6 +94,8 @@ function EcraProfessor() {
     return validacaoObrigatorio && semErroNoCampo;
   });
 
+  const [submetidoComSucesso, setSubmetidoComSucesso] = useState(false);
+
   const handleSubmeter = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -111,9 +113,13 @@ function EcraProfessor() {
       });
 
       if (resposta.ok) {
-        alert('Pedido submetido com sucesso!');
-        setFormSelecionado(null);
+        setSubmetidoComSucesso(true);
         setRespostas({});
+        // Voltar à lista após 3 segundos
+        setTimeout(() => {
+          setFormSelecionado(null);
+          setSubmetidoComSucesso(false);
+        }, 3000);
       } else {
         const errorData = await resposta.json();
         alert('Erro ao submeter: ' + (errorData.error || 'Erro desconhecido'));
@@ -128,65 +134,79 @@ function EcraProfessor() {
     return (
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <button 
-          onClick={() => { setFormSelecionado(null); setErros({}); setRespostas({}); }} 
+          onClick={() => { setFormSelecionado(null); setErros({}); setRespostas({}); setSubmetidoComSucesso(false); }} 
           className="btn-logout"
           style={{ marginBottom: '20px' }}
         >
           ← Voltar aos Formulários
         </button>
         
-        <div className="card">
-          <div style={{ borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', paddingBottom: '1rem' }}>
-            <h2>{formSelecionado.titulo}</h2>
-            <p style={{ color: 'var(--text-muted)', margin: 0 }}>{formSelecionado.descricao}</p>
+        {submetidoComSucesso ? (
+          <div className="card" style={{ 
+            backgroundColor: '#e8f5e9', 
+            border: '1px solid #c8e6c9', 
+            textAlign: 'center', 
+            padding: '40px' 
+          }}>
+            <div style={{ fontSize: '50px', marginBottom: '20px' }}>✅</div>
+            <h2 style={{ color: '#2e7d32' }}>Pedido Submetido com Sucesso!</h2>
+            <p style={{ color: '#388e3c' }}>A sua requisição foi guardada na base de dados e será analisada pela administração.</p>
+            <p style={{ marginTop: '20px', fontSize: '0.9rem', color: '#666' }}>A redirecionar para a lista...</p>
           </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            {formSelecionado.campos.map((campo) => {
-              const campoId = campo._id || campo.id;
-              const temErro = !!erros[campoId];
+        ) : (
+          <div className="card">
+            <div style={{ borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', paddingBottom: '1rem' }}>
+              <h2>{formSelecionado.titulo}</h2>
+              <p style={{ color: 'var(--text-muted)', margin: 0 }}>{formSelecionado.descricao}</p>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              {formSelecionado.campos.map((campo) => {
+                const campoId = campo._id || campo.id;
+                const temErro = !!erros[campoId];
 
-              return (
-                <div key={campoId}>
-                  <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                    {campo.etiqueta} {campo.obrigatorio && <span style={{ color: 'red' }}>*</span>}
-                  </label>
-                  
-                  <input 
-                    className="form-input"
-                    type={campo.tipo === 'Data' ? 'date' : 'text'} 
-                    onChange={(e) => handleInputChange(campoId, e.target.value)}
-                    style={{ 
-                      borderColor: temErro ? '#e74c3c' : 'var(--border-color)',
-                      borderWidth: temErro ? '2px' : '1px'
-                    }}
-                    placeholder={campo.tipo === 'Data' ? '' : 'Introduza aqui...'}
-                  />
+                return (
+                  <div key={campoId}>
+                    <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                      {campo.etiqueta} {campo.obrigatorio && <span style={{ color: 'red' }}>*</span>}
+                    </label>
+                    
+                    <input 
+                      className="form-input"
+                      type={campo.tipo === 'Data' ? 'date' : 'text'} 
+                      onChange={(e) => handleInputChange(campoId, e.target.value)}
+                      style={{ 
+                        borderColor: temErro ? '#e74c3c' : 'var(--border-color)',
+                        borderWidth: temErro ? '2px' : '1px'
+                      }}
+                      placeholder={campo.tipo === 'Data' ? '' : 'Introduza aqui...'}
+                    />
 
-                  {temErro && (
-                    <span style={{ color: '#e74c3c', fontSize: '0.85rem', fontWeight: 'bold', marginTop: '5px', display: 'block' }}>
-                      ⚠ {erros[campoId]}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+                    {temErro && (
+                      <span style={{ color: '#e74c3c', fontSize: '0.85rem', fontWeight: 'bold', marginTop: '5px', display: 'block' }}>
+                        ⚠ {erros[campoId]}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
 
-            <button 
-              disabled={!podeSubmeter}
-              className="btn-primary"
-              style={{ 
-                padding: '15px', 
-                fontSize: '1.1rem',
-                opacity: podeSubmeter ? 1 : 0.6,
-                cursor: podeSubmeter ? 'pointer' : 'not-allowed'
-              }}
-              onClick={handleSubmeter}
-            >
-              Submeter Requisição
-            </button>
+              <button 
+                disabled={!podeSubmeter}
+                className="btn-primary"
+                style={{ 
+                  padding: '15px', 
+                  fontSize: '1.1rem',
+                  opacity: podeSubmeter ? 1 : 0.6,
+                  cursor: podeSubmeter ? 'pointer' : 'not-allowed'
+                }}
+                onClick={handleSubmeter}
+              >
+                Submeter Requisição
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }
