@@ -7,7 +7,7 @@ function EcraCoordenador() {
   // Chamada assíncrona real à API local do backend
   const carregarDadosDoServidor = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/formularios');
+      const response = await fetch('http://localhost:3000/api/formularios');
       if (response.ok) {
         const data = await response.json();
         setFormularios(data);
