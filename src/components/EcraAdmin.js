@@ -67,15 +67,38 @@ function EcraAdmin() {
           <h2>Painel de Administração</h2>
           <p style={{ color: 'var(--text-muted)' }}>Gerir formulários e configurações do sistema.</p>
         </div>
-        <button 
-          className="btn-primary" 
-          onClick={() => navigate('/criar-formulario')}
-          style={{ padding: '12px 25px' }}
-        >
-          + Criar Novo Formulário
-        </button>
+        
+        {/* Agrupamento dos botões de ação do topo */}
+        <div style={{ display: 'flex', gap: '15px' }}>
+          <button 
+            onClick={() => navigate('/definicoes-visuais')}
+            style={{ 
+              padding: '12px 20px', 
+              backgroundColor: '#17a2b8',
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '4px', 
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            🎨 Personalizar Visual
+          </button>
+
+          <button 
+            className="btn-primary" 
+            onClick={() => navigate('/criar-formulario')}
+            style={{ padding: '12px 25px' }}
+          >
+            + Criar Novo Formulário
+          </button>
+        </div>
       </div>
 
+      {/* Lista de formulários usando a estrutura de tabela da equipa */}
       <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
         {loading ? (
           <div style={{ padding: '40px', textAlign: 'center' }}>A carregar formulários...</div>
@@ -106,7 +129,7 @@ function EcraAdmin() {
                       <button 
                         className="btn-logout" 
                         style={{ padding: '5px 12px' }}
-                        onClick={() => navigate('/editar-formulario')}
+                        onClick={() => navigate(`/editar-formulario/${form._id}`)}
                         disabled={form.estado === 'Publicado'}
                       >
                         Editar
@@ -126,6 +149,8 @@ function EcraAdmin() {
             </tbody>
           </table>
         )}
+        
+        {/* Mensagem caso não existam formulários */}
         {!loading && formularios.length === 0 && (
           <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
             Nenhum formulário encontrado na base de dados.

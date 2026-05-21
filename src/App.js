@@ -9,6 +9,7 @@ import OsMeusPedidos from './components/OsMeusPedidos';
 import GerirPedidos from './components/GerirPedidos';
 import './App.css';
 import EditarFormulario from './components/EditarFormulario';
+import DefinicoesVisuais from './components/DefinicoesVisuais';
 
 const ProtectedRoute = ({ children, roleRequired }) => {
   const token = localStorage.getItem('token');
@@ -49,21 +50,41 @@ const Layout = ({ children }) => {
   };
 
   const userString = localStorage.getItem('user');
-  const user = userString ? JSON.parse(userString) : { email: 'Utilizador' };
+  const user = userString ? JSON.parse(userString) : { name: 'Utilizador' };
+
+  // LER AS DEFINIÇÕES VISUAIS GUARDADAS
+  // Se não houver cor escolhida, usa o cinzento escuro padrão do React (#282c34)
+  const corPrincipal = localStorage.getItem('corPrincipal') || '#282c34'; 
+  const logo = localStorage.getItem('logo'); // Pode estar null se o Admin não carregou nada
 
   return (
     <div className="App">
-      <nav className="navbar">
+      {/* Navbar com corPrincipal no fundo */}
+      <nav className="navbar" style={{ backgroundColor: corPrincipal }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <h1 className="navbar-brand" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+          
+          {/* Logótipo ao lado do título */}
+          {logo && (
+            <img 
+              src={logo} 
+              alt="Logótipo da Instituição" 
+              style={{ maxHeight: '40px', objectFit: 'contain', cursor: 'pointer' }} 
+              onClick={() => window.location.href = '/'}
+            />
+          )}
+
+  
+          <h1 className="navbar-brand" style={{ cursor: 'pointer', margin: 0 }} onClick={() => window.location.href = '/'}>
             Gestão Horários IPT
           </h1>
+
           {user.role === 'professor' && (
             <div className="nav-links">
               <button className="btn-secondary" onClick={() => window.location.href = '/professor'}>Formulários</button>
               <button className="btn-secondary" onClick={() => window.location.href = '/meus-pedidos'}>Os Meus Pedidos</button>
             </div>
           )}
+
           {user.role === 'admin' && (
             <div className="nav-links">
               <button className="btn-secondary" onClick={() => window.location.href = '/admin'}>Gerir Formulários</button>
@@ -71,11 +92,14 @@ const Layout = ({ children }) => {
             </div>
           )}
         </div>
+
+        {/* secção de utilizador da equipa com o botão de Sair */}
         <div className="user-section">
-          <span className="user-info">Sessão: <strong>{user.email}</strong> ({user.role})</span>
+          <span className="user-info">Sessão: <strong>{user.name || user.email}</strong> ({user.role})</span>
           <button className="btn-logout" onClick={handleLogout}>Sair</button>
         </div>
       </nav>
+
       <main className="main-content">{children}</main>
     </div>
   );
@@ -123,6 +147,7 @@ function App() {
         } />
 
         <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/definicoes-visuais" element={<ProtectedRoute><Layout><DefinicoesVisuais /></Layout></ProtectedRoute>} />
       </Routes>
     </Router>
   );
