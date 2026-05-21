@@ -10,6 +10,9 @@ function GerirPedidos() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('user'));
+      console.log('DEBUG: Carregando pedidos para utilizador:', user?.role);
+      
       const resposta = await fetch('http://localhost:3000/api/submissoes/todos', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -17,7 +20,11 @@ function GerirPedidos() {
       });
       if (resposta.ok) {
         const dados = await resposta.json();
+        console.log('DEBUG: Pedidos recebidos do servidor:', dados);
         setPedidos(dados);
+      } else {
+        const errorData = await resposta.json().catch(() => ({}));
+        console.error('Resposta do servidor não foi OK:', resposta.status, errorData);
       }
     } catch (erro) {
       console.error('Erro ao carregar pedidos:', erro);
@@ -41,9 +48,12 @@ function GerirPedidos() {
 
   const pedidosFiltrados = pedidos.filter((pedido) => {
     const correspondeEstado = filtroEstado === 'Todos' || pedido.estado === filtroEstado;
-    const correspondeNome = pedido.tituloFormulario.toLowerCase().includes(pesquisaNome.toLowerCase());
+    const titulo = pedido.tituloFormulario || '';
+    const correspondeNome = titulo.toLowerCase().includes(pesquisaNome.toLowerCase());
     return correspondeEstado && correspondeNome;
   });
+
+  console.log('DEBUG: Pedidos filtrados para exibição:', pedidosFiltrados.length);
 
   return (
     <div>

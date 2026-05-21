@@ -21,9 +21,15 @@ const ProtectedRoute = ({ children, roleRequired }) => {
   
   const user = JSON.parse(userString);
   
-  // Se for exigido um cargo específico e o utilizador não o tiver, redireciona
-  if (roleRequired && user.role !== roleRequired) {
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/professor'} replace />;
+  // Se for exigido um cargo específico (ou lista de cargos) e o utilizador não o tiver, redireciona
+  if (roleRequired) {
+    const roles = Array.isArray(roleRequired) ? roleRequired : [roleRequired];
+    if (!roles.includes(user.role)) {
+      // Redirecionamento inteligente baseado no cargo atual
+      if (user.role === 'admin') return <Navigate to="/admin" replace />;
+      if (user.role === 'coordenador') return <Navigate to="/coordenador" replace />;
+      return <Navigate to="/professor" replace />;
+    }
   }
   
   return children;
@@ -52,8 +58,6 @@ const Layout = ({ children }) => {
   const userString = localStorage.getItem('user');
   const user = userString ? JSON.parse(userString) : { name: 'Utilizador' };
 
-  // LER AS DEFINIÇÕES VISUAIS GUARDADAS
-  // Se não houver cor escolhida, usa o cinzento escuro padrão do React (#282c34)
   const [corPrincipal, setCorPrincipal] = React.useState(localStorage.getItem('corPrincipal') || '#282c34'); 
   const [logo, setLogo] = React.useState(localStorage.getItem('logo')); 
 
@@ -84,11 +88,8 @@ const Layout = ({ children }) => {
 
   return (
     <div className="App">
-      {/* Navbar com fundo branco */}
       <nav className="navbar" style={{ backgroundColor: '#ffffff', borderTop: `4px solid ${corPrincipal}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          
-          {/* Logótipo ao lado do título */}
           {logo && (
             <img 
               src={logo} 
@@ -98,7 +99,6 @@ const Layout = ({ children }) => {
             />
           )}
 
-  
           <h1 className="navbar-brand" style={{ cursor: 'pointer', margin: 0 }} onClick={() => window.location.href = '/'}>
             Gestão Horários IPT
           </h1>
@@ -110,22 +110,16 @@ const Layout = ({ children }) => {
             </div>
           )}
 
-          {user.role === 'admin' && (
+          {(user.role === 'admin' || user.role === 'coordenador') && (
             <div className="nav-links">
-              <button className="btn-secondary" onClick={() => window.location.href = '/admin'}>Gerir Formulários</button>
+              <button className="btn-secondary" onClick={() => window.location.href = user.role === 'admin' ? '/admin' : '/coordenador'}>
+                {user.role === 'admin' ? 'Gerir Formulários' : 'Dashboard Coordenador'}
+              </button>
               <button className="btn-secondary" onClick={() => window.location.href = '/gerir-pedidos'}>Gerir Pedidos</button>
             </div>
           )}
-          {user.role === 'coordenador' && (
-            <div className="nav-links">
-              <button className="btn-secondary" onClick={() => window.location.href = '/coordenador'}>Dashboard Coordenador</button>
-              <button className="btn-secondary" onClick={() => window.location.href = '/gerir-pedidos'}>Gerir Pedidos</button>
-            </div>
-          )}
-        
         </div>
 
-        {/* secção de utilizador da equipa com o botão de Sair */}
         <div className="user-section">
           <span className="user-info">Sessão: <strong>{user.name || user.email}</strong> ({user.role})</span>
           <button className="btn-logout" onClick={handleLogout}>Sair</button>
@@ -144,7 +138,6 @@ function App() {
         <Route path="/" element={<HomeRedirect />} />
         <Route path="/register" element={<Register />} />
         
-        {/* Rota do Professor */}
         <Route path="/professor" element={
           <ProtectedRoute roleRequired="professor">
             <Layout><EcraProfessor /></Layout>
@@ -161,7 +154,6 @@ function App() {
           </ProtectedRoute>
         } />
 
-        {/* Rotas do Administrador */}
         <Route path="/admin" element={
           <ProtectedRoute roleRequired="admin">
             <Layout><EcraAdmin /></Layout>
@@ -178,14 +170,19 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/gerir-pedidos" element={
-          <ProtectedRoute roleRequired="admin">
+          <ProtectedRoute roleRequired={['admin', 'coordenador']}>
             <Layout><GerirPedidos /></Layout>
           </ProtectedRoute>
         } />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
         <Route path="/definicoes-visuais" element={<ProtectedRoute><Layout><DefinicoesVisuais /></Layout></ProtectedRoute>} />
-        <Route path="/coordenador" element={<ProtectedRoute><Layout><EcraCoordenador /></Layout></ProtectedRoute>} />
+        <Route path="/coordenador" element={
+          <ProtectedRoute roleRequired={['admin', 'coordenador']}>
+            <Layout><EcraCoordenador /></Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
