@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 function OsMeusPedidos() {
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filtroEstado, setFiltroEstado] = useState('Todos');
+  const [ordenacaoData, setOrdenacaoData] = useState('desc');
 
   const carregarPedidos = async () => {
     setLoading(true);
@@ -37,9 +39,17 @@ function OsMeusPedidos() {
     }
   };
 
+  const pedidosFiltrados = pedidos
+    .filter((pedido) => filtroEstado === 'Todos' || pedido.estado === filtroEstado)
+    .sort((a, b) => {
+      const dataA = new Date(a.dataSubmissao).getTime();
+      const dataB = new Date(b.dataSubmissao).getTime();
+      return ordenacaoData === 'asc' ? dataA - dataB : dataB - dataA;
+    });
+
   return (
     <div>
-      <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2>Os Meus Pedidos</h2>
           <p style={{ color: 'var(--text-muted)' }}>Consulte aqui o estado das suas submissões.</p>
@@ -49,11 +59,44 @@ function OsMeusPedidos() {
         </button>
       </div>
 
+      <div style={{ marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <label htmlFor="filtroEstado" style={{ fontWeight: '500' }}>Filtrar por estado:</label>
+          <select
+            id="filtroEstado"
+            value={filtroEstado}
+            onChange={(e) => setFiltroEstado(e.target.value)}
+            style={{ padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--border-color)' }}
+          >
+            <option value="Todos">Todos</option>
+            <option value="Aprovado">Aprovado</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Rejeitado">Rejeitado</option>
+          </select>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span style={{ fontWeight: '500' }}>Ordenar por data:</span>
+          <button
+            className="btn-secondary"
+            type="button"
+            onClick={() => setOrdenacaoData((current) => (current === 'desc' ? 'asc' : 'desc'))}
+            style={{ padding: '8px 12px', minWidth: 'max-content' }}
+          >
+            {ordenacaoData === 'desc' ? 'Mais recentes primeiro' : 'Mais antigos primeiro'}
+          </button>
+        </div>
+      </div>
+
       {loading ? (
         <div style={{ textAlign: 'center', padding: '40px' }}>A carregar os seus pedidos...</div>
       ) : pedidos.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
           Ainda não efetuou nenhum pedido.
+        </div>
+      ) : pedidosFiltrados.length === 0 ? (
+        <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+          Nenhum pedido corresponde ao filtro selecionado.
         </div>
       ) : (
         <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
@@ -67,7 +110,7 @@ function OsMeusPedidos() {
               </tr>
             </thead>
             <tbody>
-              {pedidos.map((pedido) => (
+              {pedidosFiltrados.map((pedido) => (
                 <tr key={pedido._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                   <td style={{ padding: '15px', fontWeight: '500' }}>{pedido.tituloFormulario}</td>
                   <td style={{ padding: '15px' }}>{new Date(pedido.dataSubmissao).toLocaleDateString('pt-PT')}</td>

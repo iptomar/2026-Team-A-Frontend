@@ -59,8 +59,8 @@ const Layout = ({ children }) => {
 
   return (
     <div className="App">
-      {/* Navbar com corPrincipal no fundo */}
-      <nav className="navbar" style={{ backgroundColor: corPrincipal }}>
+      {/* Navbar com fundo branco */}
+      <nav className="navbar" style={{ backgroundColor: '#ffffff' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
           
           {/* Logótipo ao lado do título */}
