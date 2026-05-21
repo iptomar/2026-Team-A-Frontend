@@ -22,28 +22,41 @@ function DefinicoesVisuais() {
     }
   };
 
-  const handleGuardar = (e) => {
+  const handleGuardar = async (e) => {
     e.preventDefault();
-    
-    //O PUT PARA A BD É AQUI
     
     const definicoes = {
       corPrincipal: corPrincipal,
       logo: logoApresentacao
     };
     
-    console.log('A enviar para a Base de Dados:', definicoes);
-    
-    localStorage.setItem('corPrincipal', corPrincipal);
-    if (logoApresentacao) {
-      localStorage.setItem('logo', logoApresentacao);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3000/api/settings/visual', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(definicoes)
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao guardar definições no servidor.');
+      }
+
+      localStorage.setItem('corPrincipal', corPrincipal);
+      if (logoApresentacao) {
+        localStorage.setItem('logo', logoApresentacao);
+      }
+      
+      setMensagem('Definições visuais guardadas com sucesso!');
+      setTimeout(() => {
+        navigate(-1);
+      }, 1000);
+    } catch (err) {
+      setMensagem('Erro: ' + err.message);
     }
-    
-    setMensagem('Definições visuais guardadas com sucesso!');
-    // Espera 1,5 segundos para o Admin ler a mensagem e depois volta para trás
-    setTimeout(() => {
-      navigate(-1); // navigate(-1) para voltar exatamente à página anterior do histórico
-    }, 500);
   };
 
   return (

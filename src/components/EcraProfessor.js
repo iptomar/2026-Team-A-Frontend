@@ -125,6 +125,10 @@ function EcraProfessor() {
   };
 
   if (formSelecionado) {
+    // Aplicar cor e logo do formulário se existirem
+    const corTema = formSelecionado.corPrincipal || '#282c34';
+    const logoTema = formSelecionado.logo || localStorage.getItem('logo');
+
     return (
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <button 
@@ -135,9 +139,12 @@ function EcraProfessor() {
           ← Voltar aos Formulários
         </button>
         
-        <div className="card">
-          <div style={{ borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', paddingBottom: '1rem' }}>
-            <h2>{formSelecionado.titulo}</h2>
+        <div className="card" style={{ borderTop: `6px solid ${corTema}` }}>
+          <div style={{ borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', paddingBottom: '1rem', textAlign: 'center' }}>
+            {logoTema && (
+              <img src={logoTema} alt="Logo" style={{ maxHeight: '60px', marginBottom: '1rem' }} />
+            )}
+            <h2 style={{ color: corTema }}>{formSelecionado.titulo}</h2>
             <p style={{ color: 'var(--text-muted)', margin: 0 }}>{formSelecionado.descricao}</p>
           </div>
           
@@ -158,7 +165,8 @@ function EcraProfessor() {
                     onChange={(e) => handleInputChange(campoId, e.target.value)}
                     style={{ 
                       borderColor: temErro ? '#e74c3c' : 'var(--border-color)',
-                      borderWidth: temErro ? '2px' : '1px'
+                      borderWidth: temErro ? '2px' : '1px',
+                      outlineColor: corTema
                     }}
                     placeholder={campo.tipo === 'Data' ? '' : 'Introduza aqui...'}
                   />
@@ -178,8 +186,13 @@ function EcraProfessor() {
               style={{ 
                 padding: '15px', 
                 fontSize: '1.1rem',
+                backgroundColor: podeSubmeter ? corTema : '#ccc',
                 opacity: podeSubmeter ? 1 : 0.6,
-                cursor: podeSubmeter ? 'pointer' : 'not-allowed'
+                cursor: podeSubmeter ? 'pointer' : 'not-allowed',
+                border: 'none',
+                color: 'white',
+                borderRadius: 'var(--radius-md)',
+                fontWeight: 'bold'
               }}
               onClick={handleSubmeter}
             >
