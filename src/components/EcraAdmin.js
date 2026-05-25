@@ -52,13 +52,32 @@ function EcraAdmin() {
     }
   };
 
+  const arquivarFormulario = async (id) => {
+    if (!window.confirm('Tem a certeza que deseja arquivar este formulário? Esta ação é irreversível.')) return;
+    try {
+      const resposta = await fetch(`http://localhost:3000/api/forms/${id}/arquivar`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (resposta.ok) {
+        alert('Formulário arquivado com sucesso!');
+        carregarFormularios();
+      }
+    } catch (erro) {
+      console.error('Erro ao arquivar:', erro);
+    }
+  };
+
   const getStatusClass = (estado) => {
     switch (estado) {
       case 'Publicado': return 'status-publicado';
       case 'Rascunho': return 'status-rascunho';
+      case 'Arquivado': return 'status-inativo'; 
       default: return 'status-inativo';
     }
   };
+
+
 
   return (
     <div>
@@ -130,15 +149,25 @@ function EcraAdmin() {
                         className="btn-logout" 
                         style={{ padding: '5px 12px' }}
                         onClick={() => navigate(`/editar-formulario/${form._id}`)}
-                        disabled={form.estado === 'Publicado'}
+                        disabled={form.estado === 'Publicado'  || form.estado === 'Arquivado'}
                       >
                         Editar
                       </button>
+                      {/* Apenas para formulários Publicados */}
+                      {form.estado === 'Publicado' && (
+                        <button
+                          className="btn-primary"
+                          style={{ padding: '5px 12px', backgroundColor: '#6c757d' }}
+                          onClick={() => arquivarFormulario(form._id)}
+                        >
+                          Arquivar
+                        </button>
+                      )}
                       <button 
                         className="btn-logout" 
-                        style={{ padding: '5px 12px', color: form.estado === 'Publicado' ? '#ccc' : 'var(--error-text)' }}
+                        style={{ padding: '5px 12px', color: (form.estado === 'Publicado' || form.estado === 'Arquivado') ? '#ccc' : 'var(--error-text)' }}
                         onClick={() => apagarFormulario(form._id)}
-                        disabled={form.estado === 'Publicado'}
+                        disabled={form.estado === 'Publicado' || form.estado === 'Arquivado'}
                       >
                         Apagar
                       </button>
