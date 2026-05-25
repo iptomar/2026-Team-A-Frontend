@@ -52,10 +52,34 @@ function EcraAdmin() {
     }
   };
 
+  const arquivarFormulario = async (id) => {
+    if (!window.confirm('Tem a certeza que deseja arquivar este formulário? Deixará de estar visível para os professores.')) return;
+    try {
+      const resposta = await fetch(`http://localhost:3000/api/forms/${id}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}` 
+        },
+        body: JSON.stringify({ estado: 'Arquivado' })
+      });
+      if (resposta.ok) {
+        alert('Formulário arquivado com sucesso!');
+        carregarFormularios();
+      } else {
+        const data = await resposta.json();
+        alert(`Erro: ${data.error}`);
+      }
+    } catch (erro) {
+      console.error('Erro ao arquivar:', erro);
+    }
+  };
+
   const getStatusClass = (estado) => {
     switch (estado) {
       case 'Publicado': return 'status-publicado';
       case 'Rascunho': return 'status-rascunho';
+      case 'Arquivado': return 'status-inativo';
       default: return 'status-inativo';
     }
   };
@@ -128,17 +152,25 @@ function EcraAdmin() {
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                       <button 
                         className="btn-logout" 
+                        style={{ padding: '5px 12px', color: form.estado !== 'Publicado' ? '#ccc' : '#e67e22' }}
+                        onClick={() => arquivarFormulario(form._id)}
+                        disabled={form.estado !== 'Publicado'}
+                      >
+                        Arquivar
+                      </button>
+                      <button 
+                        className="btn-logout" 
                         style={{ padding: '5px 12px' }}
                         onClick={() => navigate(`/editar-formulario/${form._id}`)}
-                        disabled={form.estado === 'Publicado'}
+                        disabled={form.estado === 'Publicado' || form.estado === 'Arquivado'}
                       >
                         Editar
                       </button>
                       <button 
                         className="btn-logout" 
-                        style={{ padding: '5px 12px', color: form.estado === 'Publicado' ? '#ccc' : 'var(--error-text)' }}
+                        style={{ padding: '5px 12px', color: (form.estado === 'Publicado' || form.estado === 'Arquivado') ? '#ccc' : 'var(--error-text)' }}
                         onClick={() => apagarFormulario(form._id)}
-                        disabled={form.estado === 'Publicado'}
+                        disabled={form.estado === 'Publicado' || form.estado === 'Arquivado'}
                       >
                         Apagar
                       </button>

@@ -11,7 +11,7 @@ const SelecaoFormularios = ({ onSelectForm }) => {
         const resposta = await fetch('http://localhost:3000/api/forms');
         if (resposta.ok) {
           const dados = await resposta.json();
-          // Apenas formulários que estão no estado 'Publicado'
+          // Apenas formulários que estão no estado 'Publicado' (exclui 'Rascunho' e 'Arquivado')
           setFormularios(dados.filter(f => f.estado === 'Publicado'));
         }
       } catch (erro) {

@@ -124,6 +124,11 @@ function App() {
             <Layout><EcraProfessor /></Layout>
           </ProtectedRoute>
         } />
+        <Route path="/professor/preencher/:id" element={
+          <ProtectedRoute roleRequired="professor">
+            <Layout><EcraProfessor /></Layout>
+          </ProtectedRoute>
+        } />
         <Route path="/meus-pedidos" element={
           <ProtectedRoute roleRequired="professor">
             <Layout><OsMeusPedidos /></Layout>

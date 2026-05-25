@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function EcraProfessor() {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [formularios, setFormularios] = useState([]);
   const [formSelecionado, setFormSelecionado] = useState(null);
   const [respostas, setRespostas] = useState({});
@@ -19,7 +22,25 @@ function EcraProfessor() {
       const resposta = await fetch('http://localhost:3000/api/forms');
       if (resposta.ok) {
         const dados = await resposta.json();
+        // Filtrar formulários arquivados na lista geral
         setFormularios(dados.filter(f => f.estado === 'Publicado'));
+        
+        // Se houver um ID na URL, tentar carregar esse formulário específico
+        if (id) {
+          const formPorId = dados.find(f => f._id === id);
+          if (formPorId) {
+            // VERIFICAÇÃO DE ARQUIVADO: Se estiver arquivado, impede acesso direto
+            if (formPorId.estado === 'Arquivado') {
+              alert('Este formulário já não está disponível.');
+              navigate('/professor');
+            } else {
+              setFormSelecionado(formPorId);
+            }
+          } else {
+            alert('Formulário não encontrado.');
+            navigate('/professor');
+          }
+        }
       }
     } catch (erro) {
       console.error('Erro ao carregar:', erro);
@@ -30,7 +51,7 @@ function EcraProfessor() {
 
   useEffect(() => {
     carregarFormularios();
-  }, []);
+  }, [id]);
 
   // LÓGICA DE VALIDAÇÃO REFINADA
   const validarCampos = (novasRespostas) => {
@@ -112,6 +133,7 @@ function EcraProfessor() {
 
       if (resposta.ok) {
         alert('Pedido submetido com sucesso!');
+        navigate('/professor');
         setFormSelecionado(null);
         setRespostas({});
       } else {
@@ -128,7 +150,7 @@ function EcraProfessor() {
     return (
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <button 
-          onClick={() => { setFormSelecionado(null); setErros({}); setRespostas({}); }} 
+          onClick={() => { navigate('/professor'); setFormSelecionado(null); setErros({}); setRespostas({}); }} 
           className="btn-logout"
           style={{ marginBottom: '20px' }}
         >
@@ -218,7 +240,7 @@ function EcraProfessor() {
                 <span className="status-badge status-publicado">Disponível</span>
                 <button 
                   className="btn-primary"
-                  onClick={() => setFormSelecionado(form)}
+                  onClick={() => navigate(`/professor/preencher/${form._id}`)}
                   style={{ padding: '8px 15px' }}
                 >
                   Preencher
