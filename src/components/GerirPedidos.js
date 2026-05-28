@@ -60,7 +60,7 @@ function GerirPedidos() {
   return (
     <div>
       <div style={{ marginBottom: '2rem' }}>
-        <h2>Gestão de Pedidos (Coordenador)</h2>
+        <h2>Gestão de Pedidos</h2>
         <p style={{ color: 'var(--text-muted)' }}>Motor de filtragem e visualização de submissões.</p>
       </div>
 

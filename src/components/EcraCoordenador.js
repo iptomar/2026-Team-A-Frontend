@@ -3,21 +3,35 @@ import { agruparFormulariosPorCategoria } from '../utils/formUtils';
 
 function EcraCoordenador() {
   const [formularios, setFormularios] = useState([]);
+  const [estatisticas, setEstatisticas] = useState({ total: 0, pendentes: 0, aprovados: 0, taxaAprovacao: 0 });
   const [loading, setLoading] = useState(true);
 
-  // Chamada assíncrona real à API local do backend
+  // Estados para Filtros Avançados
+  const [filtroNome, setFiltroNome] = useState('');
+  const [filtroEstado, setFiltroEstado] = useState('Todos');
+
   const carregarDadosDoServidor = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/formularios');
-      if (response.ok) {
-        const data = await response.json();
+      const token = localStorage.getItem('token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+
+      // 1. Carregar Formulários (Usando a mesma API do Admin para consistência)
+      const resForms = await fetch('http://localhost:3000/api/forms', { headers });
+      if (resForms.ok) {
+        const data = await resForms.json();
         setFormularios(data);
-      } else {
-        console.error('O servidor respondeu com um erro ao obter os formulários.');
       }
+
+      // 2. Carregar Estatísticas (KPIs)
+      const resStats = await fetch('http://localhost:3000/api/submissoes/estatisticas', { headers });
+      if (resStats.ok) {
+        const stats = await resStats.json();
+        setEstatisticas(stats);
+      }
+
       setLoading(false);
     } catch (error) {
-      console.error('Erro de ligação com a API do backend:', error);
+      console.error('Erro de ligação com a API:', error);
       setLoading(false);
     }
   };
@@ -26,13 +40,74 @@ function EcraCoordenador() {
     carregarDadosDoServidor();
   }, []);
 
-  const formulariosAgrupados = useMemo(() => agruparFormulariosPorCategoria(formularios), [formularios]);
+  const formulariosFiltrados = useMemo(() => {
+    return formularios.filter(f => {
+      const matchNome = f.titulo.toLowerCase().includes(filtroNome.toLowerCase());
+      const matchEstado = filtroEstado === 'Todos' || f.estado === filtroEstado;
+      return matchNome && matchEstado;
+    });
+  }, [formularios, filtroNome, filtroEstado]);
+
+  const formulariosAgrupados = useMemo(() => agruparFormulariosPorCategoria(formulariosFiltrados), [formulariosFiltrados]);
+
+  const kpiStyle = {
+    flex: 1,
+    minWidth: '200px',
+    padding: '25px',
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px'
+  };
 
   return (
     <div>
       <div style={{ marginBottom: '2rem' }}>
         <h2>Dashboard de Coordenação</h2>
-        <p style={{ color: 'var(--text-muted)' }}>Acompanhamento em tempo real dos formulários criados no sistema.</p>
+        <p style={{ color: 'var(--text-muted)' }}>Visão analítica e acompanhamento do sistema SmartForms.</p>
+      </div>
+
+      {/* SECÇÃO DE KPIs */}
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
+        <div className="card" style={kpiStyle}>
+          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>Total de Submissões</span>
+          <span style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-main)' }}>{estatisticas.total}</span>
+        </div>
+        <div className="card" style={{ ...kpiStyle, borderLeft: '5px solid #f39c12' }}>
+          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>Pedidos Pendentes</span>
+          <span style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#f39c12' }}>{estatisticas.pendentes}</span>
+        </div>
+        <div className="card" style={{ ...kpiStyle, borderLeft: '5px solid var(--primary-green)' }}>
+          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>Taxa de Aprovação</span>
+          <span style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary-green)' }}>{estatisticas.taxaAprovacao}%</span>
+        </div>
+      </div>
+
+      {/* BARRA DE FILTROS */}
+      <div className="card" style={{ marginBottom: '2rem', display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: '250px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.85rem' }}>Pesquisar Formulário</label>
+          <input 
+            type="text" 
+            className="form-input" 
+            placeholder="Ex: Requisição de Material..." 
+            value={filtroNome}
+            onChange={(e) => setFiltroNome(e.target.value)}
+          />
+        </div>
+        <div style={{ width: '200px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '0.85rem' }}>Estado</label>
+          <select 
+            className="form-input" 
+            value={filtroEstado}
+            onChange={(e) => setFiltroEstado(e.target.value)}
+          >
+            <option value="Todos">Todos os Estados</option>
+            <option value="Publicado">Publicado</option>
+            <option value="Rascunho">Rascunho</option>
+            <option value="Arquivado">Arquivado</option>
+          </select>
+        </div>
       </div>
 
       <div>

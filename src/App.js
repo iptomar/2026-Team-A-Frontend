@@ -10,7 +10,6 @@ import GerirPedidos from './components/GerirPedidos';
 import DetalhesPedido from './components/DetalhesPedido';
 import './App.css';
 import EditarFormulario from './components/EditarFormulario';
-import DefinicoesVisuais from './components/DefinicoesVisuais';
 import EcraCoordenador from './components/EcraCoordenador'; 
 
 const ProtectedRoute = ({ children, roleRequired }) => {
@@ -58,8 +57,18 @@ const Layout = ({ children }) => {
   const userString = localStorage.getItem('user');
   const user = userString ? JSON.parse(userString) : { name: 'Utilizador' };
 
-  const [corPrincipal, setCorPrincipal] = React.useState(localStorage.getItem('corPrincipal') || '#282c34'); 
+  const [corPrincipal, setCorPrincipal] = React.useState(localStorage.getItem('corPrincipal') || '#28a745'); 
   const [logo, setLogo] = React.useState(localStorage.getItem('logo')); 
+  const [theme, setTheme] = React.useState(localStorage.getItem('theme') || 'light');
+
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   React.useEffect(() => {
     const carregarVisual = async () => {
@@ -88,7 +97,7 @@ const Layout = ({ children }) => {
 
   return (
     <div className="App">
-      <nav className="navbar" style={{ backgroundColor: '#ffffff', borderTop: `4px solid ${corPrincipal}` }}>
+      <nav className="navbar" style={{ backgroundColor: 'var(--navbar-bg)', borderBottom: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
           {logo && (
             <img 
@@ -99,8 +108,8 @@ const Layout = ({ children }) => {
             />
           )}
 
-          <h1 className="navbar-brand" style={{ cursor: 'pointer', margin: 0 }} onClick={() => window.location.href = '/'}>
-            Gestão Horários IPT
+          <h1 className="navbar-brand" style={{ cursor: 'pointer', margin: 0, color: 'var(--text-main)' }} onClick={() => window.location.href = '/'}>
+            SmartForms
           </h1>
 
           {user.role === 'professor' && (
@@ -112,21 +121,36 @@ const Layout = ({ children }) => {
 
           {(user.role === 'admin' || user.role === 'coordenador') && (
             <div className="nav-links">
-              <button className="btn-secondary" onClick={() => window.location.href = user.role === 'admin' ? '/admin' : '/coordenador'}>
-                {user.role === 'admin' ? 'Gerir Formulários' : 'Dashboard Coordenador'}
+              {user.role === 'admin' && (
+                <button className="btn-secondary" onClick={() => window.location.href = '/admin'}>
+                  Gerir Formulários
+                </button>
+              )}
+              <button className="btn-secondary" onClick={() => window.location.href = '/coordenador'}>
+                Dashboard Coordenador
               </button>
-              <button className="btn-secondary" onClick={() => window.location.href = '/gerir-pedidos'}>Gerir Pedidos</button>
+              <button className="btn-secondary" onClick={() => window.location.href = '/gerir-pedidos'}>
+                Gerir Pedidos
+              </button>
             </div>
           )}
         </div>
 
-        <div className="user-section">
-          <span className="user-info">Sessão: <strong>{user.name || user.email}</strong> ({user.role})</span>
+        <div className="user-section" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <button 
+            onClick={toggleTheme} 
+            className="btn-secondary" 
+            style={{ padding: '5px 10px', fontSize: '1.2rem', border: 'none' }}
+            title="Alternar Modo Claro/Escuro"
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+          <span className="user-info" style={{ color: 'var(--text-main)' }}>Sessão: <strong>{user.name || user.email}</strong> ({user.role})</span>
           <button className="btn-logout" onClick={handleLogout}>Sair</button>
         </div>
       </nav>
 
-      <main className="main-content">{children}</main>
+      <main className="main-content" style={{ padding: '2rem' }}>{children}</main>
     </div>
   );
 };
@@ -175,7 +199,6 @@ function App() {
           </ProtectedRoute>
         } />
 
-        <Route path="/definicoes-visuais" element={<ProtectedRoute><Layout><DefinicoesVisuais /></Layout></ProtectedRoute>} />
         <Route path="/coordenador" element={
           <ProtectedRoute roleRequired={['admin', 'coordenador']}>
             <Layout><EcraCoordenador /></Layout>

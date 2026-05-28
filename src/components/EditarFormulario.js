@@ -141,7 +141,7 @@ function EditarFormulario() {
           titulo,
           descricao,
           categoria: categoria.trim() || 'Sem categoria',
-          estado: 'Rascunho',
+          estado,
           campos: campos.map(c => ({
             etiqueta: c.etiqueta,
             tipo: c.tipo,
@@ -165,7 +165,7 @@ function EditarFormulario() {
 
   if (loading) return <div style={{ padding: '40px', textAlign: 'center' }}>A carregar...</div>;
 
-  const corPrincipal = localStorage.getItem('corPrincipal') || '#0056b3';
+  const corPrincipal = localStorage.getItem('corPrincipal') || '#28a745';
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
@@ -241,6 +241,7 @@ function EditarFormulario() {
                   <option value="Texto Curto">Texto Curto</option>
                   <option value="Texto Longo">Texto Longo</option>
                   <option value="Data">Data</option>
+                  <option value="Hora">Hora</option>
                   <option value="Dropdown">Dropdown</option>
                   <option value="Radio Button">Radio Button</option>
                   <option value="Checkbox">Checkbox</option>
@@ -288,7 +289,7 @@ function EditarFormulario() {
 
         {!isReadOnly && (
           <button type="submit" className="btn-primary" style={{ padding: '15px', fontSize: '1.1rem' }}>
-            Guardar Alterações (Rascunho)
+            Guardar Alterações ({estado})
           </button>
         )}
       </form>

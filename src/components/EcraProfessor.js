@@ -7,15 +7,22 @@ function EcraProfessor() {
   const [respostas, setRespostas] = useState({});
   const [erros, setErros] = useState({});
   const [loading, setLoading] = useState(true);
+  const [ocupacaoReal, setOcupacaoReal] = useState([]);
 
-  // Dados de exemplo para ocupação (Mock)
-  const ocupacaoExistente = [
-    { sala: 'Sala 101', data: '2026-05-20' },
-    { sala: 'Sala 101', data: '2026-05-21' },
-    { sala: 'Auditório A', data: '2026-05-25' },
-    { sala: 'Laboratório 2', data: '2026-06-01' },
-    { sala: 'Sala 202', data: '2026-05-22' }
-  ];
+  const carregarOcupacao = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const resposta = await fetch('http://localhost:3000/api/submissoes/ocupacao', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (resposta.ok) {
+        const dados = await resposta.json();
+        setOcupacaoReal(dados);
+      }
+    } catch (erro) {
+      console.error('Erro ao carregar ocupação:', erro);
+    }
+  };
 
   const carregarFormularios = async () => {
     setLoading(true);
@@ -34,39 +41,75 @@ function EcraProfessor() {
 
   useEffect(() => {
     carregarFormularios();
+    carregarOcupacao();
   }, []);
 
   const formulariosAgrupados = useMemo(() => agruparFormulariosPorCategoria(formularios), [formularios]);
 
-  // LÓGICA DE VALIDAÇÃO REFINADA
+  // LÓGICA DE VALIDAÇÃO REFINADA (SMART)
   const validarCampos = (novasRespostas) => {
     const novosErros = {};
     
-    // 1. Procurar campos de Sala e Data no formulário atual
+    // 1. Procurar campos de Sala, Data e Horário no formulário atual
     const campoSala = formSelecionado?.campos.find(c => 
       c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room')
     );
     const campoData = formSelecionado?.campos.find(c => c.tipo === 'Data');
+    
+    const campoInicio = formSelecionado?.campos.find(c => 
+      c.etiqueta.toLowerCase().includes('início') || c.etiqueta.toLowerCase().includes('inicio') || c.etiqueta.toLowerCase().includes('entrada')
+    );
+    const campoFim = formSelecionado?.campos.find(c => 
+      c.etiqueta.toLowerCase().includes('fim') || c.etiqueta.toLowerCase().includes('saída') || c.etiqueta.toLowerCase().includes('saida')
+    );
 
-    // 2. Validar Ocupação de Sala
+    // 2. Validar Ocupação de Sala (Real com Overlap de Horas)
     if (campoSala && campoData) {
       const salaId = campoSala._id || campoSala.id;
       const dataId = campoData._id || campoData.id;
+      const inicioId = campoInicio?._id || campoInicio?.id;
+      const fimId = campoFim?._id || campoFim?.id;
       
       const salaValue = novasRespostas[salaId];
       const dataValue = novasRespostas[dataId];
+      const inicioValue = inicioId ? novasRespostas[inicioId] : null;
+      const fimValue = fimId ? novasRespostas[fimId] : null;
 
       if (salaValue && dataValue) {
-        const ocupada = ocupacaoExistente.some(o => 
-          o.sala.toLowerCase() === salaValue.toLowerCase() && o.data === dataValue
-        );
-        if (ocupada) {
-          novosErros[salaId] = 'Sala ocupada nesta data!';
+        const conflito = ocupacaoReal.find(o => {
+          // Mesma sala e mesmo dia?
+          if (o.sala.toLowerCase() === salaValue.toLowerCase() && o.data === dataValue) {
+            // Se ambos tiverem horas definidas, verificamos overlap
+            if (inicioValue && fimValue && o.inicio && o.fim) {
+              return (inicioValue < o.fim && fimValue > o.inicio);
+            }
+            // Se um deles não tiver horas (ex: reserva de dia inteiro), assumimos conflito
+            return true;
+          }
+          return false;
+        });
+
+        if (conflito) {
+          const infoHoras = (conflito.inicio && conflito.fim) ? ` das ${conflito.inicio} às ${conflito.fim}` : ' (dia inteiro)';
+          novosErros[salaId] = `Sala já reservada neste dia${infoHoras}!`;
         }
       }
     }
 
-    // 3. Validar Datas Futuras (para todos os campos do tipo Data)
+    // 3. Validar Horários (Fim > Início)
+    if (campoInicio && campoFim) {
+      const inicioId = campoInicio._id || campoInicio.id;
+      const fimId = campoFim._id || campoFim.id;
+      
+      const inicioValue = novasRespostas[inicioId];
+      const fimValue = novasRespostas[fimId];
+
+      if (inicioValue && fimValue && inicioValue >= fimValue) {
+        novosErros[fimId] = 'A hora de fim deve ser posterior à de início.';
+      }
+    }
+
+    // 4. Validar Datas Futuras (para todos os campos do tipo Data)
     formSelecionado?.campos.forEach(campo => {
       if (campo.tipo === 'Data') {
         const campoId = campo._id || campo.id;
@@ -136,9 +179,31 @@ function EcraProfessor() {
     }
   };
 
+  if (submetidoComSucesso) {
+    return (
+      <div style={{ maxWidth: '600px', margin: '100px auto', textAlign: 'center' }}>
+        <div className="card" style={{ padding: '50px', borderTop: '8px solid var(--primary-green)' }}>
+          <div style={{ fontSize: '5rem', marginBottom: '20px' }}>✅</div>
+          <h2 style={{ color: 'var(--text-main)', marginBottom: '1rem' }}>Submissão Concluída!</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', lineHeight: '1.6' }}>
+            O seu pedido foi registado com sucesso no sistema <strong>SmartForms</strong>.<br />
+            Será redirecionado para a lista de formulários em instantes.
+          </p>
+          <button 
+            className="btn-primary" 
+            style={{ marginTop: '30px' }}
+            onClick={() => { setFormSelecionado(null); setSubmetidoComSucesso(false); }}
+          >
+            Voltar Agora
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (formSelecionado) {
     // Aplicar cor e logo do formulário se existirem
-    const corTema = formSelecionado.corPrincipal || '#282c34';
+    const corTema = formSelecionado.corPrincipal || '#28a745';
     const logoTema = formSelecionado.logo || localStorage.getItem('logo');
 
     return (
@@ -173,7 +238,7 @@ function EcraProfessor() {
                   
                   <input 
                     className="form-input"
-                    type={campo.tipo === 'Data' ? 'date' : 'text'} 
+                    type={campo.tipo === 'Data' ? 'date' : campo.tipo === 'Hora' ? 'time' : campo.tipo === 'Número' ? 'number' : 'text'} 
                     value={respostas[campoId] || ''}
                     onChange={(e) => handleInputChange(campoId, e.target.value)}
                     style={{ 
@@ -181,7 +246,7 @@ function EcraProfessor() {
                       borderWidth: temErro ? '2px' : '1px',
                       outlineColor: corTema
                     }}
-                    placeholder={campo.tipo === 'Data' ? '' : 'Introduza aqui...'}
+                    placeholder={campo.tipo === 'Data' || campo.tipo === 'Hora' ? '' : 'Introduza aqui...'}
                   />
 
                   {temErro && (
@@ -251,7 +316,10 @@ function EcraProfessor() {
                       <span className="status-badge status-publicado">Disponível</span>
                       <button 
                         className="btn-primary"
-                        onClick={() => setFormSelecionado(form)}
+                        onClick={() => {
+                          setFormSelecionado(form);
+                          carregarOcupacao();
+                        }}
                         style={{ padding: '8px 15px' }}
                       >
                         Preencher

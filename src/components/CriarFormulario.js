@@ -50,7 +50,7 @@ function CriarFormulario({ onFormularioCriado }) {
       categoria: categoria.trim() || 'Sem categoria',
       estado: acao,
       campos: campos.map(({ id, ...rest }) => rest),
-      corPrincipal: localStorage.getItem('corPrincipal') || '#282c34',
+      corPrincipal: localStorage.getItem('corPrincipal') || '#28a745',
       logo: localStorage.getItem('logo') || null
     };
 
@@ -208,6 +208,7 @@ function CriarFormulario({ onFormularioCriado }) {
                     <option value="Texto Longo">Texto Longo</option>
                     <option value="Número">Número</option>
                     <option value="Data">Data</option>
+                    <option value="Hora">Hora</option>
                   </select>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', height: '45px' }}>

@@ -1,4 +1,5 @@
 :root {
+  /* Cores Light Mode (Padrão) */
   --primary-green: #28a745;
   --primary-hover: #218838;
   --bg-color: #f4f7f6;
@@ -8,10 +9,56 @@
   --error-bg: #fff5f5;
   --error-text: #e74c3c;
   --border-color: #dee2e6;
+  --navbar-bg: #ffffff;
+  --input-bg: #ffffff;
+  --skeleton-bg: #e1e4e8;
+  
   --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
   --radius-md: 8px;
   --radius-lg: 12px;
+}
+
+[data-theme='dark'] {
+  --bg-color: #1a1a1a;
+  --card-bg: #2d2d2d;
+  --text-main: #f0f0f0;
+  --text-muted: #a0a0a0;
+  --border-color: #404040;
+  --navbar-bg: #252525;
+  --input-bg: #383838;
+  --skeleton-bg: #404040;
+  --error-bg: #3d1a1a;
+}
+
+/* Skeleton Loading Animation */
+@keyframes skeleton-loading {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.skeleton {
+  background-color: var(--skeleton-bg);
+  border-radius: 4px;
+  animation: skeleton-loading 1.5s infinite ease-in-out;
+}
+
+.skeleton-text {
+  height: 1rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.skeleton-card {
+  height: 150px;
+  width: 100%;
+}
+
+.skeleton-row {
+  height: 40px;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
 * {

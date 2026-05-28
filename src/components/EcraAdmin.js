@@ -95,6 +95,44 @@ function EcraAdmin() {
     }
   };
 
+  const despublicarFormulario = async (id) => {
+    if (!window.confirm('Deseja retirar este formulário de circulação e voltá-lo para Rascunho? Isto permitirá editá-lo novamente.')) return;
+    try {
+      const resposta = await fetch(`http://localhost:3000/api/forms/${id}/despublicar`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (resposta.ok) {
+        alert('Formulário revertido para Rascunho!');
+        carregarFormularios();
+      } else {
+        const data = await resposta.json();
+        alert(`Erro: ${data.error}`);
+      }
+    } catch (erro) {
+      console.error('Erro ao despublicar:', erro);
+    }
+  };
+
+  const publicarFormulario = async (id) => {
+    if (!window.confirm('Deseja publicar este formulário? Ele ficará visível para todos os professores.')) return;
+    try {
+      const resposta = await fetch(`http://localhost:3000/api/forms/${id}/publicar`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (resposta.ok) {
+        alert('Formulário publicado com sucesso!');
+        carregarFormularios();
+      } else {
+        const data = await resposta.json();
+        alert(`Erro: ${data.error}`);
+      }
+    } catch (erro) {
+      console.error('Erro ao publicar:', erro);
+    }
+  };
+
   const getStatusClass = (estado) => {
     switch (estado) {
       case 'Publicado': return 'status-publicado';
@@ -117,24 +155,6 @@ function EcraAdmin() {
         {/* Agrupamento dos botões de ação do topo */}
         <div style={{ display: 'flex', gap: '15px' }}>
           <button 
-            onClick={() => navigate('/definicoes-visuais')}
-            style={{ 
-              padding: '12px 20px', 
-              backgroundColor: '#17a2b8',
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '4px', 
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            🎨 Personalizar Visual
-          </button>
-
-          <button 
             className="btn-primary" 
             onClick={() => navigate('/criar-formulario')}
             style={{ padding: '12px 25px' }}
@@ -147,7 +167,16 @@ function EcraAdmin() {
       {/* Lista de formulários agrupada por categoria */}
       <div>
         {loading ? (
-          <div className="card" style={{ padding: '40px', textAlign: 'center' }}>A carregar formulários...</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {[1, 2, 3].map(i => (
+              <div key={i} className="card" style={{ padding: '20px' }}>
+                <div className="skeleton skeleton-text" style={{ width: '30%', height: '24px', marginBottom: '20px' }}></div>
+                <div className="skeleton skeleton-row"></div>
+                <div className="skeleton skeleton-row"></div>
+                <div className="skeleton skeleton-row"></div>
+              </div>
+            ))}
+          </div>
         ) : (
           Object.entries(formulariosAgrupados).map(([categoria, itens]) => (
             <section key={categoria} style={{ marginBottom: '2rem' }}>
@@ -186,6 +215,15 @@ function EcraAdmin() {
                             >
                               Clonar
                             </button>
+                            {form.estado === 'Rascunho' && (
+                              <button 
+                                className="btn-primary" 
+                                style={{ padding: '5px 12px', backgroundColor: '#28a745' }}
+                                onClick={() => publicarFormulario(form._id)}
+                              >
+                                Publicar
+                              </button>
+                            )}
                             <button 
                               className="btn-logout" 
                               style={{ padding: '5px 12px' }}
@@ -196,22 +234,32 @@ function EcraAdmin() {
                             </button>
                             {/* Apenas para formulários Publicados */}
                             {form.estado === 'Publicado' && (
-                              <button
-                                className="btn-primary"
-                                style={{ padding: '5px 12px', backgroundColor: '#6c757d' }}
-                                onClick={() => arquivarFormulario(form._id)}
+                              <>
+                                <button
+                                  className="btn-secondary"
+                                  style={{ padding: '5px 12px', fontSize: '0.85rem' }}
+                                  onClick={() => despublicarFormulario(form._id)}
+                                >
+                                  Retirar para Rascunho
+                                </button>
+                                <button
+                                  className="btn-primary"
+                                  style={{ padding: '5px 12px', backgroundColor: '#6c757d' }}
+                                  onClick={() => arquivarFormulario(form._id)}
+                                >
+                                  Arquivar
+                                </button>
+                              </>
+                            )}
+                            {form.estado !== 'Publicado' && form.estado !== 'Arquivado' && (
+                              <button 
+                                className="btn-logout" 
+                                style={{ padding: '5px 12px', color: 'var(--error-text)' }}
+                                onClick={() => apagarFormulario(form._id)}
                               >
-                                Arquivar
+                                Apagar
                               </button>
                             )}
-                            <button 
-                              className="btn-logout" 
-                              style={{ padding: '5px 12px', color: (form.estado === 'Publicado' || form.estado === 'Arquivado') ? '#ccc' : 'var(--error-text)' }}
-                              onClick={() => apagarFormulario(form._id)}
-                              disabled={form.estado === 'Publicado' || form.estado === 'Arquivado'}
-                            >
-                              Apagar
-                            </button>
                           </div>
                         </td>
                       </tr>

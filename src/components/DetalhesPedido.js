@@ -150,7 +150,7 @@ function DetalhesPedido() {
                   className="btn-primary" 
                   onClick={() => handleUpdateStatus('Aprovado')}
                   disabled={processando}
-                  style={{ padding: '5px 15px', fontSize: '0.85rem' }}
+                  style={{ padding: '5px 15px', fontSize: '0.85rem', backgroundColor: '#28a745' }}
                 >
                   Aprovar
                 </button>
