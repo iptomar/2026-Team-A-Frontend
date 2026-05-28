@@ -164,7 +164,7 @@ function App() {
             <Layout><CriarFormulario /></Layout>
           </ProtectedRoute>
         } />
-        <Route path="/editar-formulario" element={
+        <Route path="/editar-formulario/:id" element={
           <ProtectedRoute roleRequired="admin">
             <Layout><EditarFormulario /></Layout>
           </ProtectedRoute>
