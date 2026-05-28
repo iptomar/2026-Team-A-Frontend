@@ -6,6 +6,7 @@ function EditarFormulario() {
   const navigate = useNavigate();
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [categoria, setCategoria] = useState('');
   const [campos, setCampos] = useState([]);
   const [estado, setEstado] = useState('Rascunho');
   const [mensagem, setMensagem] = useState('');
@@ -26,6 +27,7 @@ function EditarFormulario() {
           const dados = await resposta.json();
           setTitulo(dados.titulo);
           setDescricao(dados.descricao);
+          setCategoria(dados.categoria || 'Sem categoria');
           setEstado(dados.estado);
           // Converter campos do backend (etiqueta) para o formato do frontend (rotulo) se necessário
           // Mas vamos usar etiqueta consistentemente se possível. 
@@ -138,6 +140,7 @@ function EditarFormulario() {
         body: JSON.stringify({
           titulo,
           descricao,
+          categoria: categoria.trim() || 'Sem categoria',
           estado: 'Rascunho',
           campos: campos.map(c => ({
             etiqueta: c.etiqueta,
@@ -198,6 +201,17 @@ function EditarFormulario() {
             <textarea 
               value={descricao} onChange={(e) => setDescricao(e.target.value)} 
               disabled={isReadOnly} rows="3" className="form-input"
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px' }}>Categoria</label>
+            <input
+              type="text"
+              value={categoria}
+              onChange={(e) => setCategoria(e.target.value)}
+              disabled={isReadOnly}
+              placeholder="Ex: Infraestrutura, Material, Espaço"
+              className="form-input"
             />
           </div>
         </div>

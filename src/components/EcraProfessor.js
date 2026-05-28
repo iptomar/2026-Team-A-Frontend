@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { agruparFormulariosPorCategoria } from '../utils/formUtils';
 
 function EcraProfessor() {
   const [formularios, setFormularios] = useState([]);
@@ -34,6 +35,8 @@ function EcraProfessor() {
   useEffect(() => {
     carregarFormularios();
   }, []);
+
+  const formulariosAgrupados = useMemo(() => agruparFormulariosPorCategoria(formularios), [formularios]);
 
   // LÓGICA DE VALIDAÇÃO REFINADA
   const validarCampos = (novasRespostas) => {
@@ -228,26 +231,36 @@ function EcraProfessor() {
           Não há formulários publicados de momento.
         </div>
       ) : (
-        <div className="grid-container">
-          {formularios.map((form) => (
-            <div key={form._id} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <h3 style={{ marginBottom: '0.5rem' }}>{form.titulo}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                  {form.descricao || 'Sem descrição disponível.'}
-                </p>
+        <div>
+          {Object.entries(formulariosAgrupados).map(([categoria, itens]) => (
+            <section key={categoria} style={{ marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1rem' }}>
+                <h3 style={{ margin: 0 }}>{categoria}</h3>
+                <span className="status-badge status-publicado">{itens.length} formulário(s)</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="status-badge status-publicado">Disponível</span>
-                <button 
-                  className="btn-primary"
-                  onClick={() => setFormSelecionado(form)}
-                  style={{ padding: '8px 15px' }}
-                >
-                  Preencher
-                </button>
+              <div className="grid-container">
+                {itens.map((form) => (
+                  <div key={form._id} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div>
+                      <h3 style={{ marginBottom: '0.5rem' }}>{form.titulo}</h3>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                        {form.descricao || 'Sem descrição disponível.'}
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span className="status-badge status-publicado">Disponível</span>
+                      <button 
+                        className="btn-primary"
+                        onClick={() => setFormSelecionado(form)}
+                        style={{ padding: '8px 15px' }}
+                      >
+                        Preencher
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
+            </section>
           ))}
         </div>
       )}

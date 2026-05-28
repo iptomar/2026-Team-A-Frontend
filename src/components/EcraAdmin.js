@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { agruparFormulariosPorCategoria } from '../utils/formUtils';
 
 function EcraAdmin() {
   const [formularios, setFormularios] = useState([]);
@@ -30,6 +31,8 @@ function EcraAdmin() {
   useEffect(() => {
     carregarFormularios();
   }, []);
+
+  const formulariosAgrupados = useMemo(() => agruparFormulariosPorCategoria(formularios), [formularios]);
 
   const apagarFormulario = async (id) => {
     if (!window.confirm('Tem a certeza que deseja apagar este formulário?')) return;
@@ -141,78 +144,88 @@ function EcraAdmin() {
         </div>
       </div>
 
-      {/* Lista de formulários usando a estrutura de tabela da equipa */}
-      <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+      {/* Lista de formulários agrupada por categoria */}
+      <div>
         {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center' }}>A carregar formulários...</div>
+          <div className="card" style={{ padding: '40px', textAlign: 'center' }}>A carregar formulários...</div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '1px solid var(--border-color)' }}>
-                <th style={{ padding: '15px 20px' }}>Título do Formulário</th>
-                <th style={{ padding: '15px 20px' }}>Estado</th>
-                <th style={{ padding: '15px 20px' }}>Data Criacão</th>
-                <th style={{ padding: '15px 20px', textAlign: 'right' }}>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {formularios.map((form) => (
-                <tr key={form._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '15px 20px', fontWeight: '600' }}>{form.titulo}</td>
-                  <td style={{ padding: '15px 20px' }}>
-                    <span className={`status-badge ${getStatusClass(form.estado)}`}>
-                      {form.estado}
-                    </span>
-                  </td>
-                  <td style={{ padding: '15px 20px', color: 'var(--text-muted)' }}>
-                    {new Date(form.dataCriacao || form.createdAt).toLocaleDateString()}
-                  </td>
-                  <td style={{ padding: '15px 20px', textAlign: 'right' }}>
-                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                      <button 
-                        className="btn-primary" 
-                        style={{ padding: '5px 12px', backgroundColor: '#28a745' }}
-                        onClick={() => clonarFormulario(form._id)}
-                      >
-                        Clonar
-                      </button>
-                      <button 
-                        className="btn-logout" 
-                        style={{ padding: '5px 12px' }}
-                        onClick={() => navigate(`/editar-formulario/${form._id}`)}
-                        disabled={form.estado === 'Publicado'  || form.estado === 'Arquivado'}
-                      >
-                        Editar
-                      </button>
-                      {/* Apenas para formulários Publicados */}
-                      {form.estado === 'Publicado' && (
-                        <button
-                          className="btn-primary"
-                          style={{ padding: '5px 12px', backgroundColor: '#6c757d' }}
-                          onClick={() => arquivarFormulario(form._id)}
-                        >
-                          Arquivar
-                        </button>
-                      )}
-                      <button 
-                        className="btn-logout" 
-                        style={{ padding: '5px 12px', color: (form.estado === 'Publicado' || form.estado === 'Arquivado') ? '#ccc' : 'var(--error-text)' }}
-                        onClick={() => apagarFormulario(form._id)}
-                        disabled={form.estado === 'Publicado' || form.estado === 'Arquivado'}
-                      >
-                        Apagar
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          Object.entries(formulariosAgrupados).map(([categoria, itens]) => (
+            <section key={categoria} style={{ marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1rem' }}>
+                <h3 style={{ margin: 0 }}>{categoria}</h3>
+                <span className="status-badge status-publicado">{itens.length} formulário(s)</span>
+              </div>
+              <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '1px solid var(--border-color)' }}>
+                      <th style={{ padding: '15px 20px' }}>Título do Formulário</th>
+                      <th style={{ padding: '15px 20px' }}>Estado</th>
+                      <th style={{ padding: '15px 20px' }}>Data Criacão</th>
+                      <th style={{ padding: '15px 20px', textAlign: 'right' }}>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {itens.map((form) => (
+                      <tr key={form._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '15px 20px', fontWeight: '600' }}>{form.titulo}</td>
+                        <td style={{ padding: '15px 20px' }}>
+                          <span className={`status-badge ${getStatusClass(form.estado)}`}>
+                            {form.estado}
+                          </span>
+                        </td>
+                        <td style={{ padding: '15px 20px', color: 'var(--text-muted)' }}>
+                          {new Date(form.dataCriacao || form.createdAt).toLocaleDateString()}
+                        </td>
+                        <td style={{ padding: '15px 20px', textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                            <button 
+                              className="btn-primary" 
+                              style={{ padding: '5px 12px', backgroundColor: '#28a745' }}
+                              onClick={() => clonarFormulario(form._id)}
+                            >
+                              Clonar
+                            </button>
+                            <button 
+                              className="btn-logout" 
+                              style={{ padding: '5px 12px' }}
+                              onClick={() => navigate(`/editar-formulario/${form._id}`)}
+                              disabled={form.estado === 'Publicado'  || form.estado === 'Arquivado'}
+                            >
+                              Editar
+                            </button>
+                            {/* Apenas para formulários Publicados */}
+                            {form.estado === 'Publicado' && (
+                              <button
+                                className="btn-primary"
+                                style={{ padding: '5px 12px', backgroundColor: '#6c757d' }}
+                                onClick={() => arquivarFormulario(form._id)}
+                              >
+                                Arquivar
+                              </button>
+                            )}
+                            <button 
+                              className="btn-logout" 
+                              style={{ padding: '5px 12px', color: (form.estado === 'Publicado' || form.estado === 'Arquivado') ? '#ccc' : 'var(--error-text)' }}
+                              onClick={() => apagarFormulario(form._id)}
+                              disabled={form.estado === 'Publicado' || form.estado === 'Arquivado'}
+                            >
+                              Apagar
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          ))
         )}
         
         {/* Mensagem caso não existam formulários */}
         {!loading && formularios.length === 0 && (
-          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+          <div className="card" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
             Nenhum formulário encontrado na base de dados.
           </div>
         )}

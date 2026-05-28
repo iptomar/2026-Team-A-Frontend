@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 function CriarFormulario({ onFormularioCriado }) {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [categoria, setCategoria] = useState('');
   const [mensagem, setMensagem] = useState('');
   const [loading, setLoading] = useState(false);
   const [campos, setCampos] = useState([]);
@@ -46,6 +47,7 @@ function CriarFormulario({ onFormularioCriado }) {
     const novoFormulario = {
       titulo,
       descricao,
+      categoria: categoria.trim() || 'Sem categoria',
       estado: acao,
       campos: campos.map(({ id, ...rest }) => rest),
       corPrincipal: localStorage.getItem('corPrincipal') || '#282c34',
@@ -170,6 +172,15 @@ function CriarFormulario({ onFormularioCriado }) {
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
                   placeholder="Instruções para o preenchimento..."
+                />
+              </div>
+              <div>
+                <label style={{ fontWeight: '600' }}>Categoria</label>
+                <input
+                  className="form-input"
+                  value={categoria}
+                  onChange={(e) => setCategoria(e.target.value)}
+                  placeholder="Ex: Infraestrutura, Material, Espaço"
                 />
               </div>
             </div>
