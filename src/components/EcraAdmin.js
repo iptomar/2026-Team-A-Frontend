@@ -45,10 +45,34 @@ function EcraAdmin() {
         carregarFormularios();
       } else {
         const data = await resposta.json();
-        alert(`Erro: ${data.error}`);
+        // Mostrar a mensagem de erro específica do backend (ex: pedidos pendentes)
+        alert(`Erro: ${data.error || 'Não foi possível apagar o formulário.'}`);
       }
     } catch (erro) {
       console.error('Erro ao apagar:', erro);
+      alert('Erro de rede ao tentar apagar o formulário.');
+    }
+  };
+
+  const clonarFormulario = async (id) => {
+    if (!window.confirm('Deseja criar uma cópia deste formulário?')) return;
+    try {
+      const resposta = await fetch(`http://localhost:3000/api/forms/${id}/clonar`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${localStorage.getItem('token')}` 
+        }
+      });
+      if (resposta.ok) {
+        alert('Formulário clonado com sucesso! A cópia foi criada como rascunho.');
+        carregarFormularios();
+      } else {
+        const data = await resposta.json();
+        alert(`Erro ao clonar: ${data.error}`);
+      }
+    } catch (erro) {
+      console.error('Erro ao clonar:', erro);
+      alert('Erro de rede ao tentar clonar o formulário.');
     }
   };
 
@@ -145,6 +169,13 @@ function EcraAdmin() {
                   </td>
                   <td style={{ padding: '15px 20px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                      <button 
+                        className="btn-primary" 
+                        style={{ padding: '5px 12px', backgroundColor: '#28a745' }}
+                        onClick={() => clonarFormulario(form._id)}
+                      >
+                        Clonar
+                      </button>
                       <button 
                         className="btn-logout" 
                         style={{ padding: '5px 12px' }}
