@@ -7,6 +7,11 @@ function DetalhesPedido() {
   const [pedido, setPedido] = useState(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
+  const [processando, setProcessando] = useState(false);
+
+  const userString = localStorage.getItem('user');
+  const user = userString ? JSON.parse(userString) : null;
+  const isAdminOrCoordenador = user && (user.role === 'admin' || user.role === 'coordenador');
 
   useEffect(() => {
     const carregarDetalhes = async () => {
@@ -37,12 +42,51 @@ function DetalhesPedido() {
     carregarDetalhes();
   }, [id]);
 
+  const handleUpdateStatus = async (novoEstado) => {
+    if (!window.confirm(`Tem a certeza que deseja definir o estado como ${novoEstado}?`)) return;
+
+    setProcessando(true);
+    try {
+      const token = localStorage.getItem('token');
+      const resposta = await fetch(`http://localhost:3000/api/submissoes/${id}/estado`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ estado: novoEstado })
+      });
+
+      if (resposta.ok) {
+        const dados = await resposta.json();
+        setPedido(dados);
+        alert(`Pedido ${novoEstado} com sucesso!`);
+      } else {
+        const errorData = await resposta.json();
+        alert(errorData.error || 'Erro ao atualizar estado.');
+      }
+    } catch (err) {
+      console.error('Erro:', err);
+      alert('Erro de ligação ao servidor.');
+    } finally {
+      setProcessando(false);
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'Aprovado': return 'var(--success-text)';
       case 'Rejeitado': return 'var(--error-text)';
       case 'Pendente': return 'var(--text-muted)';
       default: return 'inherit';
+    }
+  };
+
+  const handleBack = () => {
+    if (isAdminOrCoordenador) {
+      navigate('/gerir-pedidos');
+    } else {
+      navigate('/meus-pedidos');
     }
   };
 
@@ -54,8 +98,8 @@ function DetalhesPedido() {
     return (
       <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
         <p style={{ color: 'var(--error-text)', fontWeight: 'bold' }}>{erro}</p>
-        <button className="btn-secondary" onClick={() => navigate('/meus-pedidos')}>
-          Voltar para Meus Pedidos
+        <button className="btn-secondary" onClick={handleBack}>
+          Voltar
         </button>
       </div>
     );
@@ -66,11 +110,11 @@ function DetalhesPedido() {
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
       <button 
-        onClick={() => navigate('/meus-pedidos')} 
+        onClick={handleBack} 
         className="btn-logout"
         style={{ marginBottom: '20px' }}
       >
-        ← Voltar aos Meus Pedidos
+        ← Voltar
       </button>
 
       <div className="card">
@@ -85,19 +129,42 @@ function DetalhesPedido() {
           <div>
             <h2 style={{ margin: 0 }}>{pedido.tituloFormulario}</h2>
             <p style={{ color: 'var(--text-muted)', marginTop: '5px' }}>
-              Submetido em: {new Date(pedido.dataSubmissao).toLocaleString('pt-PT')}
+              Submetido por: <strong>{pedido.professor?.email || 'N/A'}</strong> em {new Date(pedido.dataSubmissao).toLocaleString('pt-PT')}
             </p>
           </div>
-          <span style={{ 
-            fontWeight: '700', 
-            color: getStatusColor(pedido.estado),
-            padding: '8px 16px',
-            borderRadius: '20px',
-            backgroundColor: pedido.estado === 'Pendente' ? '#f0f0f0' : 'rgba(0,0,0,0.05)',
-            fontSize: '0.9rem'
-          }}>
-            {pedido.estado}
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
+            <span style={{ 
+              fontWeight: '700', 
+              color: getStatusColor(pedido.estado),
+              padding: '8px 16px',
+              borderRadius: '20px',
+              backgroundColor: pedido.estado === 'Pendente' ? '#f0f0f0' : 'rgba(0,0,0,0.05)',
+              fontSize: '0.9rem'
+            }}>
+              {pedido.estado}
+            </span>
+            
+            {isAdminOrCoordenador && pedido.estado === 'Pendente' && (
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                  className="btn-primary" 
+                  onClick={() => handleUpdateStatus('Aprovado')}
+                  disabled={processando}
+                  style={{ padding: '5px 15px', fontSize: '0.85rem' }}
+                >
+                  Aprovar
+                </button>
+                <button 
+                  className="btn-logout" 
+                  onClick={() => handleUpdateStatus('Rejeitado')}
+                  disabled={processando}
+                  style={{ padding: '5px 15px', fontSize: '0.85rem' }}
+                >
+                  Rejeitar
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

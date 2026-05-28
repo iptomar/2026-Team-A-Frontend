@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function GerirPedidos() {
+  const navigate = useNavigate();
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState('Pendente');
@@ -128,7 +130,7 @@ function GerirPedidos() {
                     <button 
                       className="btn-secondary" 
                       style={{ padding: '5px 10px', fontSize: '0.85rem' }}
-                      onClick={() => alert('Analisar pedido: ' + pedido.tituloFormulario)}
+                      onClick={() => navigate(`/detalhes-pedido/${pedido._id}`)}
                     >
                       Analisar
                     </button>

@@ -149,7 +149,7 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/detalhes-pedido/:id" element={
-          <ProtectedRoute roleRequired="professor">
+          <ProtectedRoute roleRequired={['professor', 'admin', 'coordenador']}>
             <Layout><DetalhesPedido /></Layout>
           </ProtectedRoute>
         } />
