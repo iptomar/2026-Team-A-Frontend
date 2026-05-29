@@ -172,7 +172,7 @@ function DetalhesPedido() {
             pedido.formulario.campos.map((campo) => {
               const valor = pedido.respostas[campo._id] || 'Não preenchido';
               return (
-                <div key={campo._id} style={{ padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+                <div key={campo._id} style={{ padding: '15px', backgroundColor: 'var(--muted-bg)', borderRadius: '8px' }}>
                   <label style={{ fontWeight: '600', display: 'block', color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '5px' }}>
                     {campo.etiqueta.toUpperCase()}
                   </label>

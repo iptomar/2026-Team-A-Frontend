@@ -140,7 +140,7 @@ const Layout = ({ children }) => {
           <button 
             onClick={toggleTheme} 
             className="btn-secondary" 
-            style={{ padding: '5px 10px', fontSize: '1.2rem', border: 'none' }}
+            style={{ padding: '5px 10px', fontSize: '1.2rem', border: '1px solid transparent' }}
             title="Alternar Modo Claro/Escuro"
           >
             {theme === 'light' ? '🌙' : '☀️'}

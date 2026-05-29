@@ -15,6 +15,11 @@
   font-weight: 700;
   color: var(--primary-green);
   margin: 0;
+  transition: opacity 0.2s ease;
+}
+
+.navbar-brand:hover {
+  opacity: 0.8;
 }
 
 .user-section {
@@ -33,10 +38,11 @@
   padding: 5px 15px;
   border-radius: var(--radius-md);
   color: var(--text-muted);
+  transition: all 0.2s ease;
 }
 
 .btn-logout:hover {
-  background-color: #f8f9fa;
+  background-color: var(--muted-bg);
   color: var(--error-text);
   border-color: var(--error-text);
 }
@@ -55,9 +61,9 @@
   font-weight: 600;
 }
 
-.status-publicado { background: #e8f5e9; color: #2e7d32; }
-.status-rascunho { background: #fff8e1; color: #f9a825; }
-.status-inativo { background: #ffebee; color: #c62828; }
+.status-publicado { background: var(--success-bg); color: var(--success-text); }
+.status-rascunho { background: var(--warning-bg); color: var(--warning-text); }
+.status-inativo { background: var(--error-bg); color: var(--error-text); }
 
 .form-input {
   width: 100%;

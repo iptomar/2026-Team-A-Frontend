@@ -125,28 +125,26 @@ function EcraCoordenador() {
               <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
-                    <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '1px solid var(--border-color)' }}>
-                      <th style={{ padding: '15px 20px' }}>Título do Formulário</th>
-                      <th style={{ padding: '15px 20px' }}>Estado Atual</th>
-                      <th style={{ padding: '15px 20px' }}>Data de Criação</th>
+                    <tr style={{ backgroundColor: 'var(--muted-bg)', borderBottom: '1px solid var(--border-color)' }}>
+                      <th style={{ padding: '15px 20px' }}>Formulário</th>
+                      <th style={{ padding: '15px 20px' }}>Estado</th>
+                      <th style={{ padding: '15px 20px' }}>Data</th>
+                      <th style={{ padding: '15px 20px' }}>Ações</th>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {itens.map((form) => (
+                    </thead>
+                    <tbody>
+                    {formularios.slice(0, 5).map((form) => (
                       <tr key={form._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                         <td style={{ padding: '15px 20px', fontWeight: '600' }}>{form.titulo}</td>
                         <td style={{ padding: '15px 20px' }}>
-                          <span 
-                            style={{
-                              padding: '5px 12px',
-                              borderRadius: '4px',
-                              fontSize: '12px',
-                              fontWeight: 'bold',
-                              backgroundColor: form.estado === 'Publicado' ? '#e2f0d9' : '#fff2cc',
-                              color: form.estado === 'Publicado' ? 'green' : '#b8860b',
-                              display: 'inline-block'
-                            }}
-                          >
+                          <span style={{ 
+                            padding: '4px 10px', 
+                            borderRadius: '12px', 
+                            fontSize: '0.8rem', 
+                            fontWeight: 'bold',
+                            backgroundColor: form.estado === 'Publicado' ? 'var(--success-bg)' : 'var(--warning-bg)',
+                            color: form.estado === 'Publicado' ? 'var(--success-text)' : 'var(--warning-text)',
+                          }}>
                             {form.estado}
                           </span>
                         </td>

@@ -187,7 +187,7 @@ function EcraAdmin() {
               <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
-                    <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '1px solid var(--border-color)' }}>
+                    <tr style={{ backgroundColor: 'var(--muted-bg)', borderBottom: '1px solid var(--border-color)' }}>
                       <th style={{ padding: '15px 20px' }}>Título do Formulário</th>
                       <th style={{ padding: '15px 20px' }}>Estado</th>
                       <th style={{ padding: '15px 20px' }}>Data Criacão</th>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './CriarFormulario.css';
 
 function CriarFormulario({ onFormularioCriado }) {
   const [titulo, setTitulo] = useState('');
@@ -85,8 +86,8 @@ function CriarFormulario({ onFormularioCriado }) {
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+    <div className="form-container">
+      <div className="form-header">
         <h2>{isPreview ? 'Visualização do Professor' : 'Editor de Formulário'}</h2>
         <button 
           className="btn-logout" 
@@ -97,31 +98,12 @@ function CriarFormulario({ onFormularioCriado }) {
       </div>
 
       {mensagem && (
-        <div style={{ 
-          padding: '15px', 
-          borderRadius: 'var(--radius-md)', 
-          backgroundColor: mensagem.includes('Erro') ? 'var(--error-bg)' : '#e8f5e9',
-          color: mensagem.includes('Erro') ? 'var(--error-text)' : '#2e7d32',
-          marginBottom: '2rem',
-          fontWeight: '600',
-          borderLeft: `5px solid ${mensagem.includes('Erro') ? 'var(--error-text)' : '#2e7d32'}`
-        }}>
+        <div className={`form-message ${mensagem.includes('Erro') ? 'form-message-error' : 'form-message-success'}`}>
           {mensagem}
           <button 
             type="button"
             onClick={() => setMensagem('')} 
-            style={{ 
-              position: 'absolute', 
-              right: '10px', 
-              top: '50%', 
-              transform: 'translateY(-50%)', 
-              background: 'none', 
-              border: 'none', 
-              color: 'inherit', 
-              cursor: 'pointer',
-              fontSize: '20px',
-              fontWeight: 'bold'
-            }}
+            className="close-message"
             title="Fechar mensagem"
           >
             ×
@@ -130,18 +112,18 @@ function CriarFormulario({ onFormularioCriado }) {
       )}
       {isPreview ? (
         <div className="card">
-          <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
-            <h1 style={{ color: 'var(--primary-green)' }}>{titulo || 'Sem Título'}</h1>
-            <p style={{ color: 'var(--text-muted)' }}>{descricao || 'Sem descrição definida.'}</p>
+          <div className="preview-header">
+            <h1 className="preview-title">{titulo || 'Sem Título'}</h1>
+            <p className="text-muted">{descricao || 'Sem descrição definida.'}</p>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div className="field-preview-list">
             {campos.length === 0 ? (
-              <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontStyle: 'italic' }}>Nenhum campo adicionado.</p>
+              <p className="text-center text-muted" style={{ fontStyle: 'italic' }}>Nenhum campo adicionado.</p>
             ) : (
               campos.map((campo, index) => (
                 <div key={campo.id}>
-                  <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                    {index + 1}. {campo.etiqueta} {campo.obrigatorio && <span style={{ color: 'red' }}>*</span>}
+                  <label className="field-label">
+                    {index + 1}. {campo.etiqueta} {campo.obrigatorio && <span className="required-asterisk">*</span>}
                   </label>
                   <input className="form-input" disabled placeholder="Resposta do utilizador..." />
                 </div>
@@ -150,11 +132,11 @@ function CriarFormulario({ onFormularioCriado }) {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div className="editor-layout">
           {/* Secção 1: Dados Base */}
           <div className="card">
-            <h3 style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>Informação Geral</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <h3 className="section-header">Informação Geral</h3>
+            <div className="input-group">
               <div>
                 <label style={{ fontWeight: '600' }}>Título do Formulário *</label>
                 <input 
@@ -188,10 +170,10 @@ function CriarFormulario({ onFormularioCriado }) {
 
           {/* Secção 2: Adicionar Campos */}
           <div className="card">
-            <h3 style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>Estrutura de Perguntas</h3>
+            <h3 className="section-header">Estrutura de Perguntas</h3>
             
-            <div style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: 'var(--radius-md)', marginBottom: '2rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px auto', gap: '15px', alignItems: 'flex-end' }}>
+            <div className="field-add-section">
+              <div className="field-add-grid">
                 <div>
                   <label style={{ fontSize: '0.9rem', fontWeight: '600' }}>Pergunta / Etiqueta</label>
                   <input 
@@ -211,7 +193,7 @@ function CriarFormulario({ onFormularioCriado }) {
                     <option value="Hora">Hora</option>
                   </select>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', height: '45px' }}>
+                <div className="checkbox-group">
                   <input type="checkbox" checked={novoObrigatorio} onChange={(e) => setNovoObrigatorio(e.target.checked)} />
                   <label style={{ fontWeight: '600' }}>Obrigatório</label>
                 </div>
@@ -226,35 +208,33 @@ function CriarFormulario({ onFormularioCriado }) {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div className="field-list">
               {campos.map((campo, index) => (
-                <div key={campo.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}>
+                <div key={campo.id} className="field-item">
                   <div>
-                    <span style={{ color: 'var(--text-muted)', fontWeight: '700', marginRight: '10px' }}>#{index+1}</span>
+                    <span className="text-muted" style={{ fontWeight: '700', marginRight: '10px' }}>#{index+1}</span>
                     <strong style={{ fontSize: '1.1rem' }}>{campo.etiqueta}</strong>
-                    <span style={{ marginLeft: '10px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>({campo.tipo})</span>
-                    {campo.obrigatorio && <span style={{ marginLeft: '10px', color: 'var(--error-text)', fontSize: '0.8rem', fontWeight: '700' }}>OBRIGATÓRIO</span>}
+                    <span className="text-muted" style={{ marginLeft: '10px', fontSize: '0.85rem' }}>({campo.tipo})</span>
+                    {campo.obrigatorio && <span className="error-text" style={{ marginLeft: '10px', fontSize: '0.8rem', fontWeight: '700' }}>OBRIGATÓRIO</span>}
                   </div>
                   <button onClick={() => removerCampo(campo.id)} style={{ background: 'none', border: 'none', color: 'var(--error-text)', fontWeight: '600' }} disabled={loading}>Remover</button>
                 </div>
               ))}
-              {campos.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Ainda não adicionou perguntas.</p>}
+              {campos.length === 0 && <p className="text-center text-muted">Ainda não adicionou perguntas.</p>}
             </div>
           </div>
 
           {/* Secção 3: Ações Finais */}
-          <div style={{ display: 'flex', gap: '20px' }}>
+          <div className="field-actions">
             <button 
-              className="btn-logout" 
-              style={{ flex: 1, padding: '15px' }}
+              className="btn-logout btn-full" 
               onClick={() => handleSubmit('Rascunho')}
               disabled={loading}
             >
               {loading ? 'A guardar...' : 'Gravar como Rascunho'}
             </button>
             <button 
-              className="btn-primary" 
-              style={{ flex: 1, padding: '15px' }}
+              className="btn-primary btn-full" 
               onClick={() => handleSubmit('Publicado')}
               disabled={loading || campos.length === 0}
             >

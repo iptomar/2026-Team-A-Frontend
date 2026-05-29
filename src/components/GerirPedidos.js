@@ -106,7 +106,7 @@ function GerirPedidos() {
       ) : (
         <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid var(--border-color)' }}>
+            <thead style={{ backgroundColor: 'var(--muted-bg)', borderBottom: '2px solid var(--border-color)' }}>
               <tr>
                 <th style={{ padding: '15px' }}>Nome</th>
                 <th style={{ padding: '15px' }}>Data</th>

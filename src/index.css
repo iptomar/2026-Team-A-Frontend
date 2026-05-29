@@ -12,6 +12,11 @@
   --navbar-bg: #ffffff;
   --input-bg: #ffffff;
   --skeleton-bg: #e1e4e8;
+  --muted-bg: #f8f9fa;
+  --success-bg: #e8f5e9;
+  --success-text: #2e7d32;
+  --warning-bg: #fff8e1;
+  --warning-text: #f9a825;
   
   --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
@@ -29,6 +34,11 @@
   --input-bg: #383838;
   --skeleton-bg: #404040;
   --error-bg: #3d1a1a;
+  --muted-bg: #3d3d3d;
+  --success-bg: #1b3320;
+  --success-text: #81c784;
+  --warning-bg: #332b1a;
+  --warning-text: #ffd54f;
 }
 
 /* Skeleton Loading Animation */
@@ -120,8 +130,10 @@ input, select, textarea {
 }
 
 .btn-primary:disabled {
-  background-color: #ccc;
+  background-color: var(--skeleton-bg);
+  color: var(--text-muted);
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .btn-secondary {
@@ -134,7 +146,7 @@ input, select, textarea {
 }
 
 .btn-secondary:hover {
-  background-color: #f8f9fa;
+  background-color: var(--muted-bg);
   border-color: var(--text-muted);
 }
 

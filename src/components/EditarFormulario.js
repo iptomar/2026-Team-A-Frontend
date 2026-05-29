@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import './EditarFormulario.css';
 
 function EditarFormulario() {
   const { id } = useParams();
@@ -168,43 +169,37 @@ function EditarFormulario() {
   const corPrincipal = localStorage.getItem('corPrincipal') || '#28a745';
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+    <div className="edit-container">
+      <div className="edit-header">
         <h2 style={{ color: corPrincipal }}>Editar Formulário</h2>
         <button className="btn-logout" onClick={() => navigate('/admin')}>Cancelar</button>
       </div>
 
       {mensagem && (
-        <div style={{
-          padding: '15px', marginBottom: '20px', borderRadius: '4px',
-          backgroundColor: mensagem.includes('Erro') ? '#ffebee' : '#e8f5e9',
-          color: mensagem.includes('Erro') ? '#c62828' : '#2e7d32',
-          border: `1px solid ${mensagem.includes('Erro') ? '#ef9a9a' : '#a5d6a7'}`,
-          textAlign: 'center'
-        }}>
+        <div className={`edit-message ${mensagem.includes('Erro') ? 'form-message-error' : 'form-message-success'}`} style={{ border: `1px solid ${mensagem.includes('Erro') ? 'var(--error-text)' : 'var(--success-text)'}` }}>
           {mensagem}
         </div>
       )}
 
-      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <form onSubmit={handleSave} className="edit-form">
         <div className="card">
           <h3>Dados Gerais</h3>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Título</label>
+          <div className="form-group">
+            <label className="form-label">Título</label>
             <input 
               type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} 
               disabled={isReadOnly} required className="form-input"
             />
           </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Descrição</label>
+          <div className="form-group">
+            <label className="form-label">Descrição</label>
             <textarea 
               value={descricao} onChange={(e) => setDescricao(e.target.value)} 
               disabled={isReadOnly} rows="3" className="form-input"
             />
           </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Categoria</label>
+          <div className="form-group">
+            <label className="form-label">Categoria</label>
             <input
               type="text"
               value={categoria}
@@ -217,26 +212,26 @@ function EditarFormulario() {
         </div>
 
         <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+          <div className="fields-header">
             <h3>Campos do Formulário</h3>
             {!isReadOnly && (
-              <button type="button" onClick={adicionarCampo} className="btn-primary" style={{ backgroundColor: '#28a745' }}>
+              <button type="button" onClick={adicionarCampo} className="btn-primary" style={{ backgroundColor: 'var(--primary-green)' }}>
                 + Adicionar Campo
               </button>
             )}
           </div>
 
           {campos.map((campo, index) => (
-            <div key={campo.id} style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px', marginBottom: '15px', border: '1px solid #ddd' }}>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
+            <div key={campo.id} className="field-editor-card">
+              <div className="field-row">
                 <span style={{ fontWeight: 'bold' }}>{index + 1}.</span>
                 <input 
                   type="text" value={campo.etiqueta} onChange={(e) => atualizarCampo(campo.id, 'etiqueta', e.target.value)}
-                  disabled={isReadOnly} placeholder="Etiqueta (ex: Nome Completo)" required style={{ flex: 1, padding: '8px' }}
+                  disabled={isReadOnly} placeholder="Etiqueta (ex: Nome Completo)" required className="field-input-etiqueta"
                 />
                 <select 
                   value={campo.tipo} onChange={(e) => atualizarCampo(campo.id, 'tipo', e.target.value)} 
-                  disabled={isReadOnly} style={{ padding: '8px' }}
+                  disabled={isReadOnly} className="field-select-tipo"
                 >
                   <option value="Texto Curto">Texto Curto</option>
                   <option value="Texto Longo">Texto Longo</option>
@@ -251,32 +246,32 @@ function EditarFormulario() {
                   Obrig.
                 </label>
                 {!isReadOnly && (
-                  <button type="button" onClick={() => removerCampo(campo.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '8px', borderRadius: '4px' }}>
+                  <button type="button" onClick={() => removerCampo(campo.id)} style={{ backgroundColor: 'var(--error-text)', color: 'white', border: 'none', padding: '8px', borderRadius: '4px' }}>
                     Apagar
                   </button>
                 )}
               </div>
 
               {tiposComOpcoes.includes(campo.tipo) && (
-                <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#fff', borderRadius: '4px', border: '1px solid #eee' }}>
+                <div className="options-section">
                   {!isReadOnly && (
-                    <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                    <div className="option-add-row">
                       <input
                         type="text" value={campo.novaOpcao}
                         onChange={(e) => atualizarCampo(campo.id, 'novaOpcao', e.target.value)}
-                        placeholder="Nova opção" style={{ flex: 1, padding: '5px' }}
+                        placeholder="Nova opção" style={{ flex: 1, padding: '5px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: '4px' }}
                       />
-                      <button type="button" onClick={() => adicionarOpcaoNoCampo(campo.id)} style={{ padding: '5px 10px', backgroundColor: '#17a2b8', color: 'white', border: 'none' }}>
+                      <button type="button" onClick={() => adicionarOpcaoNoCampo(campo.id)} style={{ padding: '5px 10px', backgroundColor: '#17a2b8', color: 'white', border: 'none', borderRadius: '4px' }}>
                         Adicionar
                       </button>
                     </div>
                   )}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                  <div className="options-list">
                     {campo.opcoes.map((opcao, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 10px', backgroundColor: '#e9ecef', borderRadius: '20px' }}>
+                      <div key={idx} className="option-badge">
                         <span>{opcao}</span>
                         {!isReadOnly && (
-                          <button type="button" onClick={() => removerOpcaoDoCampo(campo.id, idx)} style={{ border: 'none', background: 'none', color: '#dc3545', fontWeight: 'bold', cursor: 'pointer' }}>×</button>
+                          <button type="button" onClick={() => removerOpcaoDoCampo(campo.id, idx)} style={{ border: 'none', background: 'none', color: 'var(--error-text)', fontWeight: 'bold', cursor: 'pointer' }}>×</button>
                         )}
                       </div>
                     ))}
@@ -288,7 +283,7 @@ function EditarFormulario() {
         </div>
 
         {!isReadOnly && (
-          <button type="submit" className="btn-primary" style={{ padding: '15px', fontSize: '1.1rem' }}>
+          <button type="submit" className="btn-primary btn-save">
             Guardar Alterações ({estado})
           </button>
         )}

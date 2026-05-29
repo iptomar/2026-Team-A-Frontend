@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { agruparFormulariosPorCategoria } from '../utils/formUtils';
+import './EcraProfessor.css';
 
 function EcraProfessor() {
   const [formularios, setFormularios] = useState([]);
@@ -181,11 +182,11 @@ function EcraProfessor() {
 
   if (submetidoComSucesso) {
     return (
-      <div style={{ maxWidth: '600px', margin: '100px auto', textAlign: 'center' }}>
-        <div className="card" style={{ padding: '50px', borderTop: '8px solid var(--primary-green)' }}>
-          <div style={{ fontSize: '5rem', marginBottom: '20px' }}>✅</div>
+      <div className="success-screen">
+        <div className="card success-card">
+          <div className="success-icon">✅</div>
           <h2 style={{ color: 'var(--text-main)', marginBottom: '1rem' }}>Submissão Concluída!</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', lineHeight: '1.6' }}>
+          <p className="text-muted" style={{ fontSize: '1.1rem', lineHeight: '1.6' }}>
             O seu pedido foi registado com sucesso no sistema <strong>SmartForms</strong>.<br />
             Será redirecionado para a lista de formulários em instantes.
           </p>
@@ -207,7 +208,7 @@ function EcraProfessor() {
     const logoTema = formSelecionado.logo || localStorage.getItem('logo');
 
     return (
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div className="form-view-container">
         <button 
           onClick={() => { setFormSelecionado(null); setErros({}); setRespostas({}); setSubmetidoComSucesso(false); }} 
           className="btn-logout"
@@ -217,23 +218,23 @@ function EcraProfessor() {
         </button>
         
         <div className="card" style={{ borderTop: `6px solid ${corTema}` }}>
-          <div style={{ borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', paddingBottom: '1rem', textAlign: 'center' }}>
+          <div className="form-header-box">
             {logoTema && (
-              <img src={logoTema} alt="Logo" style={{ maxHeight: '60px', marginBottom: '1rem' }} />
+              <img src={logoTema} alt="Logo" className="form-logo" />
             )}
             <h2 style={{ color: corTema }}>{formSelecionado.titulo}</h2>
-            <p style={{ color: 'var(--text-muted)', margin: 0 }}>{formSelecionado.descricao}</p>
+            <p className="text-muted" style={{ margin: 0 }}>{formSelecionado.descricao}</p>
           </div>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div className="form-fields-container">
             {formSelecionado.campos.map((campo) => {
               const campoId = campo._id || campo.id;
               const temErro = !!erros[campoId];
 
               return (
                 <div key={campoId}>
-                  <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                    {campo.etiqueta} {campo.obrigatorio && <span style={{ color: 'red' }}>*</span>}
+                  <label className="field-label-text">
+                    {campo.etiqueta} {campo.obrigatorio && <span className="required-asterisk">*</span>}
                   </label>
                   
                   <input 
@@ -242,7 +243,7 @@ function EcraProfessor() {
                     value={respostas[campoId] || ''}
                     onChange={(e) => handleInputChange(campoId, e.target.value)}
                     style={{ 
-                      borderColor: temErro ? '#e74c3c' : 'var(--border-color)',
+                      borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
                       borderWidth: temErro ? '2px' : '1px',
                       outlineColor: corTema
                     }}
@@ -250,7 +251,7 @@ function EcraProfessor() {
                   />
 
                   {temErro && (
-                    <span style={{ color: '#e74c3c', fontSize: '0.85rem', fontWeight: 'bold', marginTop: '5px', display: 'block' }}>
+                    <span className="error-message-small">
                       ⚠ {erros[campoId]}
                     </span>
                   )}
@@ -264,7 +265,7 @@ function EcraProfessor() {
               style={{ 
                 padding: '15px', 
                 fontSize: '1.1rem',
-                backgroundColor: podeSubmeter ? corTema : '#ccc',
+                backgroundColor: podeSubmeter ? corTema : 'var(--skeleton-bg)',
                 opacity: podeSubmeter ? 1 : 0.6,
                 cursor: podeSubmeter ? 'pointer' : 'not-allowed',
                 border: 'none',
@@ -286,21 +287,21 @@ function EcraProfessor() {
     <div>
       <div style={{ marginBottom: '2rem' }}>
         <h2>Formulários Disponíveis</h2>
-        <p style={{ color: 'var(--text-muted)' }}>Selecione um formulário para iniciar o preenchimento.</p>
+        <p className="text-muted">Selecione um formulário para iniciar o preenchimento.</p>
       </div>
       
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px' }}>A carregar formulários...</div>
+        <div className="text-center" style={{ padding: '40px' }}>A carregar formulários...</div>
       ) : formularios.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+        <div className="card text-center text-muted">
           Não há formulários publicados de momento.
         </div>
       ) : (
         <div>
           {Object.entries(formulariosAgrupados).map(([categoria, itens]) => (
-            <section key={categoria} style={{ marginBottom: '2rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1rem' }}>
-                <h3 style={{ margin: 0 }}>{categoria}</h3>
+            <section key={categoria} className="category-section">
+              <div className="category-header">
+                <h3 className="category-title">{categoria}</h3>
                 <span className="status-badge status-publicado">{itens.length} formulário(s)</span>
               </div>
               <div className="grid-container">
@@ -308,19 +309,18 @@ function EcraProfessor() {
                   <div key={form._id} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
                       <h3 style={{ marginBottom: '0.5rem' }}>{form.titulo}</h3>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                      <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>
                         {form.descricao || 'Sem descrição disponível.'}
                       </p>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="card-footer">
                       <span className="status-badge status-publicado">Disponível</span>
                       <button 
-                        className="btn-primary"
+                        className="btn-primary btn-fill"
                         onClick={() => {
                           setFormSelecionado(form);
                           carregarOcupacao();
                         }}
-                        style={{ padding: '8px 15px' }}
                       >
                         Preencher
                       </button>
