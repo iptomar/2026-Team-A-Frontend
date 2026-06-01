@@ -1,288 +1,190 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-// Finge que recebe o ID do formulário pela URL (ex: editar-formulario/1)
+const TEMPLATES = [
+  { type: 'Texto Curto', label: 'Texto Curto', w: 6 },
+  { type: 'Texto Longo', label: 'Texto Longo', w: 12 },
+  { type: 'Número', label: 'Número', w: 4 },
+  { type: 'Data', label: 'Data', w: 4 },
+  { type: 'Dropdown', label: 'Dropdown', w: 6 }
+];
+
 function EditarFormulario() {
-  const [titulo, setTitulo] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [campos, setCampos] = useState([]); // Array para guardar as perguntas
-  const [mensagem, setMensagem] = useState('');
-  const tiposComOpcoes = ['Dropdown', 'Radio Button', 'Checkbox'];
-
+  const [titulo, setTitulo] = useState('Edição de Formulário');
+  const [campos, setCampos] = useState([]);
   const [isPreview, setIsPreview] = useState(false);
+  const canvasRef = useRef(null);
 
-  // 1. CARREGAR OS DADOS (Critério de Aceitação 1)
   useEffect(() => {
-    // Aqui seria o fetch para: GET /api/formularios/1
-    // Enquanto nao é feito o backend, simulamos uma resposta da Base de Dados:
-    const dadosSimulados = {
-      titulo: 'Alteração de Horário - Engenharia Informática',
-      descricao: 'Formulário para docentes.',
-      campos: [
-        { id: Date.now(), rotulo: 'Motivo da alteração', tipo: 'Texto Curto', obrigatorio: true, opcoes: [], novaOpcao: '' }
-      ]
-    };
-
-    setTitulo(dadosSimulados.titulo);
-    setDescricao(dadosSimulados.descricao);
-    setCampos(dadosSimulados.campos);
+    // Dados iniciais simulados
+    setCampos([
+      { id: 'c1', x: 1, y: 1, w: 12, label: 'Nome do Aluno', type: 'Texto Curto', obrigatorio: true }
+    ]);
   }, []);
 
-  // 2. ADICIONAR UM NOVO CAMPO (Critério de Aceitação 2)
-  const adicionarCampo = () => {
+  const onDragStart = (e, template) => {
+    e.dataTransfer.setData('template', JSON.stringify(template));
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault();
+    const dataStr = e.dataTransfer.getData('template');
+    if (!dataStr) return;
+
+    const template = JSON.parse(dataStr);
+    const canvasRect = canvasRef.current.getBoundingClientRect();
+    const colWidth = canvasRect.width / 12;
+    const rowHeight = 100;
+
+    const mouseX = e.clientX - canvasRect.left;
+    const mouseY = e.clientY - canvasRect.top;
+
+    const x = Math.floor(mouseX / colWidth) + 1;
+    const y = Math.floor(mouseY / rowHeight) + 1;
+
     const novoCampo = {
-      id: Date.now(), // ID temporário
-      rotulo: '',
-      tipo: 'Texto Curto',
-      obrigatorio: false,
-      opcoes: [],
-      novaOpcao: ''
+      id: `campo-${Date.now()}`,
+      x: Math.min(x, 12 - (template.w - 1)),
+      y: y,
+      w: template.w,
+      label: template.label,
+      type: template.type,
+      obrigatorio: false
     };
+
     setCampos([...campos, novoCampo]);
   };
 
-  // 3. APAGAR UM CAMPO EXISTENTE (Critério de Aceitação 2)
-  const removerCampo = (idParaRemover) => {
-    setCampos(campos.filter(campo => campo.id !== idParaRemover));
-  };
+  const atualizarCampo = (id, prop, val) => setCampos(campos.map(c => c.id === id ? { ...c, [prop]: val } : c));
+  const removerCampo = (id) => setCampos(campos.filter(c => c.id !== id));
 
-  // Atualizar os valores de um campo específico enquanto o admin escreve
-  const atualizarCampo = (id, propriedade, valor) => {
-    const camposAtualizados = campos.map(campo => {
-      if (campo.id === id) {
-        if (propriedade === 'tipo' && !tiposComOpcoes.includes(valor)) {
-          return { ...campo, [propriedade]: valor, opcoes: [], novaOpcao: '' };
-        }
-        return { ...campo, [propriedade]: valor };
-      }
-      return campo;
-    });
-    setCampos(camposAtualizados);
-  };
-
-  const adicionarOpcaoNoCampo = (id) => {
-    const campo = campos.find((item) => item.id === id);
-    if (!campo) return;
-
-    const valor = (campo.novaOpcao || '').trim();
-    if (!valor) {
-      setMensagem('Erro: A opção não pode ficar vazia.');
-      return;
-    }
-    if (campo.opcoes.includes(valor)) {
-      setMensagem('Erro: Esta opção já existe.');
-      return;
-    }
-
-    const camposAtualizados = campos.map((item) => {
-      if (item.id === id) {
-        return { ...item, opcoes: [...(item.opcoes || []), valor], novaOpcao: '' };
-      }
-      return item;
-    });
-
-    setMensagem('');
-    setCampos(camposAtualizados);
-  };
-
-  const removerOpcaoDoCampo = (id, indice) => {
-    const camposAtualizados = campos.map((campo) => {
-      if (campo.id === id) {
-        return { ...campo, opcoes: (campo.opcoes || []).filter((_, index) => index !== indice) };
-      }
-      return campo;
-    });
-    setCampos(camposAtualizados);
-  };
-
-  // 4. GUARDAR O PROGRESSO COMO RASCUNHO (Critério de Aceitação 3)
-  const handleSave = (e) => {
+  const startResize = (e, id) => {
     e.preventDefault();
-    
-    const formularioAtualizado = {
-      titulo,
-      descricao,
-      estado: 'Rascunho', // Mantém-se em Rascunho
-      campos
+    e.stopPropagation();
+    const startX = e.clientX;
+    const campo = campos.find(c => c.id === id);
+    const startW = campo.w;
+    const colWidth = canvasRef.current.offsetWidth / 12;
+
+    const onMouseMove = (moveEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      const colDelta = Math.round(deltaX / colWidth);
+      const newW = Math.max(2, Math.min(12 - (campo.x - 1), startW + colDelta));
+      atualizarCampo(id, 'w', newW);
     };
 
-    // Aqui seria o fetch para: PUT /api/formularios/1
-    console.log('A gravar na Base de Dados:', formularioAtualizado);
-    setMensagem('Progresso guardado com sucesso (Continua em Rascunho).');
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+
+  const startMove = (e, id) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const startMouseX = e.clientX;
+    const startMouseY = e.clientY;
+    const campo = campos.find(c => c.id === id);
+    const startGridX = campo.x;
+    const startGridY = campo.y;
+    
+    const canvasRect = canvasRef.current.getBoundingClientRect();
+    const colWidth = canvasRect.width / 12;
+    const rowHeight = 100;
+
+    const onMouseMove = (moveEvent) => {
+      const deltaX = moveEvent.clientX - startMouseX;
+      const deltaY = moveEvent.clientY - startMouseY;
+      
+      const colDelta = Math.round(deltaX / colWidth);
+      const rowDelta = Math.round(deltaY / rowHeight);
+      
+      const newX = Math.max(1, Math.min(12 - (campo.w - 1), startGridX + colDelta));
+      const newY = Math.max(1, startGridY + rowDelta);
+      
+      if (newX !== campo.x || newY !== campo.y) {
+        setCampos(prev => prev.map(c => c.id === id ? { ...c, x: newX, y: newY } : c));
+      }
+    };
+
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = 'default';
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    document.body.style.cursor = 'move';
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2>{isPreview ? 'Modo de Leitura (Vista do Professor)' : 'Editar Formulário (Rascunho)'}</h2>
-        <button 
-          type="button"
-          onClick={() => setIsPreview(!isPreview)}
-          style={{ padding: '10px 20px', backgroundColor: isPreview ? '#6c757d' : '#17a2b8', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
-        >
-          {isPreview ? 'Voltar à Edição' : '👁 Pré-visualizar'}
-        </button>
+    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
+        <h2>Editor de Layout Livre</h2>
+        <button onClick={() => setIsPreview(!isPreview)}>{isPreview ? 'Editor' : '👁 Ver'}</button>
       </div>
-      {mensagem && (
-        <div
-          style={{
-            padding: "15px",
-            marginBottom: "20px",
-            borderRadius: "4px",
-            backgroundColor: mensagem.includes("Erro") ? "#ffebee" : "#e8f5e9",
-            color: mensagem.includes("Erro") ? "#c62828" : "#2e7d32",
-            border: `1px solid ${mensagem.includes("Erro") ? "#ef9a9a" : "#a5d6a7"}`,
-            fontWeight: "bold",
-            textAlign: "center",
-            position: 'relative'
-          }}
-        >
-          {mensagem}
-          <button 
-            type="button"
-            onClick={() => setMensagem('')} 
-            style={{ 
-              position: 'absolute', 
-              right: '10px', 
-              top: '50%', 
-              transform: 'translateY(-50%)', 
-              background: 'none', 
-              border: 'none', 
-              color: 'inherit', 
-              cursor: 'pointer',
-              fontSize: '20px',
-              fontWeight: 'bold'
-            }}
-            title="Fechar mensagem"
-          >
-            ×
-          </button>
-        </div>
-      )}
 
-      {isPreview ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#fff' }}>
-          <div style={{ borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '10px' }}>
-            <h1 style={{ margin: '0 0 10px 0', color: '#333' }}>{titulo || 'Sem Título'}</h1>
-            <p style={{ margin: 0, color: '#666' }}>{descricao || 'Sem descrição'}</p>
+      <div style={{ display: 'flex', gap: '30px' }}>
+        {!isPreview && (
+          <div style={{ width: '250px', flexShrink: 0 }}>
+            <div className="card" style={{ padding: '20px' }}>
+              <h4>Ferramentas</h4>
+              {TEMPLATES.map((t, i) => (
+                <div key={i} draggable onDragStart={(e) => onDragStart(e, t)} style={{ padding: '12px', backgroundColor: '#f8f9fa', border: '1px solid #eee', borderRadius: '6px', marginBottom: '8px', cursor: 'grab', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                  + {t.label}
+                </div>
+              ))}
+            </div>
           </div>
-          {campos.length === 0 ? (
-            <p style={{ fontStyle: 'italic', color: '#999' }}>Nenhum campo adicionado.</p>
-          ) : (
-            campos.map((campo, index) => (
-              <div key={campo.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '15px' }}>
-                <label style={{ fontWeight: 'bold', color: '#444' }}>
-                  {index + 1}. {campo.rotulo || 'Pergunta sem texto'} {campo.obrigatorio && <span style={{ color: 'red' }}>*</span>}
-                </label>
-                {campo.tipo === 'texto' && <input type="text" placeholder="A sua resposta..." disabled style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />}
-                {campo.tipo === 'numero' && <input type="number" placeholder="Ex: 42" disabled style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />}
-                {campo.tipo === 'data' && <input type="date" disabled style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f9f9f9' }} />}
+        )}
+
+        <div style={{ flex: 1 }}>
+          {isPreview ? (
+            <div className="card" style={{ padding: '40px', minHeight: '800px' }}>
+              <h1>{titulo}</h1>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '20px', marginTop: '40px' }}>
+                {campos.map(c => (
+                  <div key={c.id} style={{ gridColumn: `${c.x} / span ${c.w}`, gridRowStart: c.y }}>
+                    <label style={{ fontWeight: 'bold', display: 'block' }}>{c.label}</label>
+                    <input style={{ width: '100%', padding: '10px' }} disabled placeholder={c.type} />
+                  </div>
+                ))}
               </div>
-            ))
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <input style={{ width: '100%', fontSize: '1.5rem', fontWeight: 'bold' }} value={titulo} onChange={e => setTitulo(e.target.value)} />
+              
+              <div 
+                ref={canvasRef}
+                onDragOver={e => e.preventDefault()}
+                onDrop={onDrop}
+                style={{ 
+                  backgroundColor: '#fff', border: '2px solid #ddd', borderRadius: '12px', minHeight: '1000px', 
+                  display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gridAutoRows: '100px',
+                  backgroundImage: 'radial-gradient(#ddd 1px, transparent 1px)', backgroundSize: 'calc(100% / 12) 100px'
+                }}
+              >
+                {campos.map(c => (
+                  <div key={c.id} style={{ gridColumn: `${c.x} / span ${c.w}`, gridRowStart: c.y, backgroundColor: '#fff', border: '1px solid #28a745', borderRadius: '8px', padding: '15px', position: 'relative' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                      <div onMouseDown={(e) => startMove(e, c.id)} style={{ cursor: 'move', color: '#ccc', padding: '2px 5px', fontSize: '1.2rem' }}>⠿</div>
+                      <span style={{ fontSize: '0.6rem', color: '#999', textTransform: 'uppercase' }}>{c.type}</span>
+                      <button onClick={() => removerCampo(c.id)} style={{ border: 'none', background: 'none', color: 'red', cursor: 'pointer' }}>×</button>
+                    </div>
+                    <input style={{ border: 'none', borderBottom: '1px solid #eee', fontWeight: 'bold', width: '100%' }} value={c.label} onChange={e => atualizarCampo(c.id, 'label', e.target.value)} />
+                    <div onMouseDown={e => startResize(e, c.id)} style={{ position: 'absolute', right: 0, bottom: 0, width: '15px', height: '15px', cursor: 'nwse-resize', borderRight: '2px solid #28a745', borderBottom: '2px solid #28a745' }} />
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
-      ) : (
-        <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        
-        {/* Dados Básicos */}
-        <div style={{ padding: '15px', border: '1px solid #ccc', borderRadius: '5px' }}>
-          <h3>Dados Gerais</h3>
-          <input 
-            type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} 
-            placeholder="Título do Formulário" required style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
-          />
-          <textarea 
-            value={descricao} onChange={(e) => setDescricao(e.target.value)} 
-            placeholder="Descrição (Opcional)" rows="3" style={{ width: '100%', padding: '8px' }}
-          />
-        </div>
-
-        {/* Gestão de Campos / Perguntas */}
-        <div style={{ padding: '15px', border: '1px solid #0056b3', borderRadius: '5px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3>Campos do Formulário</h3>
-            <button type="button" onClick={adicionarCampo} style={{ padding: '5px 10px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px' }}>
-              + Adicionar Campo
-            </button>
-          </div>
-
-          {campos.map((campo, index) => (
-            <React.Fragment key={campo.id}>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '15px', padding: '10px', backgroundColor: '#f8f9fa' }}>
-                <span style={{ fontWeight: 'bold' }}>{index + 1}.</span>
-                <input 
-                  type="text" value={campo.rotulo} onChange={(e) => atualizarCampo(campo.id, 'rotulo', e.target.value)}
-                  placeholder="Ex: Qual a sala?" required style={{ flex: 1, padding: '5px' }}
-                />
-                <select value={campo.tipo} onChange={(e) => atualizarCampo(campo.id, 'tipo', e.target.value)} style={{ padding: '5px' }}>
-                  <option value="Texto Curto">Texto Curto</option>
-                  <option value="Texto Longo">Texto Longo</option>
-                  <option value="Data">Data</option>
-                  <option value="Dropdown">Dropdown</option>
-                  <option value="Radio Button">Radio Button</option>
-                  <option value="Checkbox">Checkbox</option>
-                </select>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <input type="checkbox" checked={campo.obrigatorio} onChange={(e) => atualizarCampo(campo.id, 'obrigatorio', e.target.checked)} />
-                  Obrig.
-                </label>
-                <button type="button" onClick={() => removerCampo(campo.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '5px 10px' }}>
-                  Apagar
-                </button>
-              </div>
-              {tiposComOpcoes.includes(campo.tipo) && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', padding: '10px', backgroundColor: '#e9ecef', borderRadius: '4px' }}>
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <input
-                      type="text"
-                      value={campo.novaOpcao || ''}
-                      onChange={(e) => atualizarCampo(campo.id, 'novaOpcao', e.target.value)}
-                      placeholder="Nova opção (Ex: Opção A)"
-                      style={{ flex: 1, padding: '5px' }}
-                    />
-                    <button type="button" onClick={() => adicionarOpcaoNoCampo(campo.id)} style={{ padding: '5px 10px', backgroundColor: '#17a2b8', color: 'white', border: 'none', cursor: 'pointer' }}>
-                      Adicionar Opção
-                    </button>
-                  </div>
-                  {campo.opcoes && campo.opcoes.length > 0 && (
-                    <div>
-                      <p style={{ margin: '0 0 5px 0', fontSize: '13px', fontWeight: 'bold' }}>Opções:</p>
-                      <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
-                        {campo.opcoes.map((opcao, index) => (
-                          <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
-                            <span>{opcao}</span>
-                            <button type="button" onClick={() => removerOpcaoDoCampo(campo.id, index)} style={{ background: 'none', border: 'none', color: '#dc3545', cursor: 'pointer' }}>
-                              Remover
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-            </React.Fragment>
-          ))}
-          {campos.length === 0 && <p style={{ fontStyle: 'italic', color: '#666' }}>Ainda não adicionou nenhum campo.</p>}
-        </div>
-
-        <button 
-          type="submit" 
-          style={{ 
-            padding: '12px', 
-            backgroundColor: '#0056b3', 
-            color: 'white', 
-            border: 'none', 
-            fontSize: '16px', 
-            borderRadius: '5px',
-            cursor: (mensagem && mensagem.includes('Erro')) ? 'not-allowed' : 'pointer',
-            opacity: (mensagem && mensagem.includes('Erro')) ? 0.7 : 1
-          }}
-          disabled={mensagem && mensagem.includes('Erro')}
-        >
-          Guardar Progresso (Rascunho)
-        </button>
-        </form>
-      )}
+      </div>
     </div>
   );
 }
