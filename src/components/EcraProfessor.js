@@ -9,6 +9,23 @@ function EcraProfessor() {
   const [erros, setErros] = useState({});
   const [loading, setLoading] = useState(true);
   const [ocupacaoReal, setOcupacaoReal] = useState([]);
+  const [salaSelecionada, setSalaSelecionada] = useState(null);
+  const [salas, setSalas] = useState([]);
+
+  const carregarSalas = async () => {
+    try {
+      // Tentar semear a BD primeiro (caso esteja vazia)
+      await fetch('http://localhost:3000/api/salas/seed', { method: 'POST' });
+      
+      const resposta = await fetch('http://localhost:3000/api/salas');
+      if (resposta.ok) {
+        const dados = await resposta.json();
+        setSalas(dados);
+      }
+    } catch (erro) {
+      console.error('Erro ao carregar salas:', erro);
+    }
+  };
 
   const carregarOcupacao = async () => {
     try {
@@ -43,6 +60,7 @@ function EcraProfessor() {
   useEffect(() => {
     carregarFormularios();
     carregarOcupacao();
+    carregarSalas();
   }, []);
 
   const formulariosAgrupados = useMemo(() => agruparFormulariosPorCategoria(formularios), [formularios]);
@@ -165,6 +183,7 @@ function EcraProfessor() {
       if (resposta.ok) {
         setSubmetidoComSucesso(true);
         setRespostas({});
+        setSalaSelecionada(null);
         // Voltar à lista após 3 segundos
         setTimeout(() => {
           setFormSelecionado(null);
@@ -210,7 +229,7 @@ function EcraProfessor() {
     return (
       <div className="form-view-container">
         <button 
-          onClick={() => { setFormSelecionado(null); setErros({}); setRespostas({}); setSubmetidoComSucesso(false); }} 
+          onClick={() => { setFormSelecionado(null); setErros({}); setRespostas({}); setSubmetidoComSucesso(false); setSalaSelecionada(null); }} 
           className="btn-logout"
           style={{ marginBottom: '20px' }}
         >
@@ -230,6 +249,7 @@ function EcraProfessor() {
             {formSelecionado.campos.map((campo) => {
               const campoId = campo._id || campo.id;
               const temErro = !!erros[campoId];
+              const isSala = campo.etiqueta.toLowerCase().includes('sala') || campo.etiqueta.toLowerCase().includes('room');
 
               return (
                 <div key={campoId}>
@@ -237,18 +257,43 @@ function EcraProfessor() {
                     {campo.etiqueta} {campo.obrigatorio && <span className="required-asterisk">*</span>}
                   </label>
                   
-                  <input 
-                    className="form-input"
-                    type={campo.tipo === 'Data' ? 'date' : campo.tipo === 'Hora' ? 'time' : campo.tipo === 'Número' ? 'number' : 'text'} 
-                    value={respostas[campoId] || ''}
-                    onChange={(e) => handleInputChange(campoId, e.target.value)}
-                    style={{ 
-                      borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
-                      borderWidth: temErro ? '2px' : '1px',
-                      outlineColor: corTema
-                    }}
-                    placeholder={campo.tipo === 'Data' || campo.tipo === 'Hora' ? '' : 'Introduza aqui...'}
-                  />
+                  {isSala ? (
+                    <select
+                      className="form-input"
+                      value={respostas[campoId] || ''}
+                      onChange={(e) => {
+                        const valor = e.target.value;
+                        const sala = salas.find(s => s.nome === valor) || null;
+                        setSalaSelecionada(sala);
+                        handleInputChange(campoId, valor);
+                      }}
+                      style={{ 
+                        borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
+                        borderWidth: temErro ? '2px' : '1px',
+                        outlineColor: corTema
+                      }}
+                    >
+                      <option value="">--- Selecione uma Sala ---</option>
+                      {salas.map(s => (
+                        <option key={s._id || s.id} value={s.nome}>
+                          {s.nome} (Capacidade: {s.capacidade})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input 
+                      className="form-input"
+                      type={campo.tipo === 'Data' ? 'date' : campo.tipo === 'Hora' ? 'time' : campo.tipo === 'Número' ? 'number' : 'text'} 
+                      value={respostas[campoId] || ''}
+                      onChange={(e) => handleInputChange(campoId, e.target.value)}
+                      style={{ 
+                        borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
+                        borderWidth: temErro ? '2px' : '1px',
+                        outlineColor: corTema
+                      }}
+                      placeholder={campo.tipo === 'Data' || campo.tipo === 'Hora' ? '' : 'Introduza aqui...'}
+                    />
+                  )}
 
                   {temErro && (
                     <span className="error-message-small">
