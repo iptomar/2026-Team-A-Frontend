@@ -2,6 +2,15 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { agruparFormulariosPorCategoria } from '../utils/formUtils';
 import './EcraProfessor.css';
 
+// Dados das Salas (Tarefa 1)
+const DADOS_SALAS = {
+  "Sala 101": { tipo: "Anfiteatro", lotacao: 120, projetor: true, tomadas: true },
+  "Sala 102": { tipo: "Laboratório", lotacao: 30, projetor: true, tomadas: true },
+  "Sala 103": { tipo: "Sala Comum", lotacao: 40, projetor: false, tomadas: false },
+  "Sala 201": { tipo: "Sala de Reuniões", lotacao: 15, projetor: true, tomadas: true },
+  "Auditório": { tipo: "Auditório", lotacao: 250, projetor: true, tomadas: false }
+};
+
 function EcraProfessor() {
   const [formularios, setFormularios] = useState([]);
   const [formSelecionado, setFormSelecionado] = useState(null);
@@ -230,6 +239,8 @@ function EcraProfessor() {
             {formSelecionado.campos.map((campo) => {
               const campoId = campo._id || campo.id;
               const temErro = !!erros[campoId];
+              const isSalaField = campo.etiqueta.toLowerCase().includes('sala') || campo.etiqueta.toLowerCase().includes('room');
+              const salaSelecionada = respostas[campoId];
 
               return (
                 <div key={campoId}>
@@ -237,23 +248,67 @@ function EcraProfessor() {
                     {campo.etiqueta} {campo.obrigatorio && <span className="required-asterisk">*</span>}
                   </label>
                   
-                  <input 
-                    className="form-input"
-                    type={campo.tipo === 'Data' ? 'date' : campo.tipo === 'Hora' ? 'time' : campo.tipo === 'Número' ? 'number' : 'text'} 
-                    value={respostas[campoId] || ''}
-                    onChange={(e) => handleInputChange(campoId, e.target.value)}
-                    style={{ 
-                      borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
-                      borderWidth: temErro ? '2px' : '1px',
-                      outlineColor: corTema
-                    }}
-                    placeholder={campo.tipo === 'Data' || campo.tipo === 'Hora' ? '' : 'Introduza aqui...'}
-                  />
+                  {isSalaField ? (
+                    <select
+                      className="form-input"
+                      value={salaSelecionada || ''}
+                      onChange={(e) => handleInputChange(campoId, e.target.value)}
+                      style={{ 
+                        borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
+                        borderWidth: temErro ? '2px' : '1px',
+                        outlineColor: corTema,
+                        backgroundColor: 'var(--input-bg)',
+                        color: 'var(--text-main)'
+                      }}
+                    >
+                      <option value="">Selecione uma sala...</option>
+                      {Object.keys(DADOS_SALAS).map(sala => (
+                        <option key={sala} value={sala}>{sala}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input 
+                      className="form-input"
+                      type={campo.tipo === 'Data' ? 'date' : campo.tipo === 'Hora' ? 'time' : campo.tipo === 'Número' ? 'number' : 'text'} 
+                      value={respostas[campoId] || ''}
+                      onChange={(e) => handleInputChange(campoId, e.target.value)}
+                      style={{ 
+                        borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
+                        borderWidth: temErro ? '2px' : '1px',
+                        outlineColor: corTema
+                      }}
+                      placeholder={campo.tipo === 'Data' || campo.tipo === 'Hora' ? '' : 'Introduza aqui...'}
+                    />
+                  )}
 
                   {temErro && (
                     <span className="error-message-small">
                       ⚠ {erros[campoId]}
                     </span>
+                  )}
+
+                  {/* Cartão de Detalhes da Sala (Tarefa 2) */}
+                  {isSalaField && salaSelecionada && DADOS_SALAS[salaSelecionada] && (
+                    <div className="room-details-card animate-fade-in">
+                      <div className="room-details-header">
+                        <strong>📍 {salaSelecionada}</strong>
+                        <span className="room-type-badge">{DADOS_SALAS[salaSelecionada].tipo}</span>
+                      </div>
+                      <div className="room-details-body">
+                        <div className="room-info-item">
+                          <span>👥 Lotação Máxima:</span>
+                          <strong>{DADOS_SALAS[salaSelecionada].lotacao} lugares</strong>
+                        </div>
+                        <div className="room-equipment-list">
+                          <div className={`equipment-badge ${DADOS_SALAS[salaSelecionada].projetor ? 'has' : 'no'}`}>
+                            {DADOS_SALAS[salaSelecionada].projetor ? '✔️' : '❌'} Projetor
+                          </div>
+                          <div className={`equipment-badge ${DADOS_SALAS[salaSelecionada].tomadas ? 'has' : 'no'}`}>
+                            {DADOS_SALAS[salaSelecionada].tomadas ? '✔️' : '❌'} Tomadas Alunos
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               );
