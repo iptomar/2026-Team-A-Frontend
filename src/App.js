@@ -11,6 +11,7 @@ import DetalhesPedido from './components/DetalhesPedido';
 import './App.css';
 import EditarFormulario from './components/EditarFormulario';
 import EcraCoordenador from './components/EcraCoordenador'; 
+import GerirSalas from './components/GerirSalas';
 
 const ProtectedRoute = ({ children, roleRequired }) => {
   const token = localStorage.getItem('token');
@@ -122,9 +123,14 @@ const Layout = ({ children }) => {
           {(user.role === 'admin' || user.role === 'coordenador') && (
             <div className="nav-links">
               {user.role === 'admin' && (
-                <button className="btn-secondary" onClick={() => window.location.href = '/admin'}>
-                  Gerir Formulários
-                </button>
+                <>
+                  <button className="btn-secondary" onClick={() => window.location.href = '/admin'}>
+                    Gerir Formulários
+                  </button>
+                  <button className="btn-secondary" onClick={() => window.location.href = '/gerir-salas'}>
+                    Gerir Salas
+                  </button>
+                </>
               )}
               <button className="btn-secondary" onClick={() => window.location.href = '/coordenador'}>
                 Dashboard Coordenador
@@ -196,6 +202,12 @@ function App() {
         <Route path="/gerir-pedidos" element={
           <ProtectedRoute roleRequired={['admin', 'coordenador']}>
             <Layout><GerirPedidos /></Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/gerir-salas" element={
+          <ProtectedRoute roleRequired="admin">
+            <Layout><GerirSalas /></Layout>
           </ProtectedRoute>
         } />
 

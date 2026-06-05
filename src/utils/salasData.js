@@ -1,8 +1,29 @@
 export const SALAS = [
-  { id: '1', nome: 'A1.01', bloco: 'A', piso: '1', capacidade: 30 },
-  { id: '2', nome: 'A1.02', bloco: 'A', piso: '1', capacidade: 25 },
-  { id: '3', nome: 'B2.01', bloco: 'B', piso: '2', capacidade: 40 },
-  { id: '4', nome: 'B2.02', bloco: 'B', piso: '2', capacidade: 35 },
-  { id: '5', nome: 'C0.01 (Auditório)', bloco: 'C', piso: '0', capacidade: 120 },
-  { id: '6', nome: 'Laboratório L1', bloco: 'D', piso: '1', capacidade: 20 },
+  { 
+    id: '1', 
+    nome: 'B214', 
+    bloco: 'B', 
+    piso: '2', 
+    tipo: 'Laboratório de Informática', 
+    lotacao: 30,
+    equipamentos: { projetor: true, tomadas: true }
+  },
+  { 
+    id: '2', 
+    nome: 'A102', 
+    bloco: 'A', 
+    piso: '1', 
+    tipo: 'Sala de Aula Comum', 
+    lotacao: 25,
+    equipamentos: { projetor: true, tomadas: false }
+  },
+  { 
+    id: '3', 
+    nome: 'Auditório 1', 
+    bloco: 'C', 
+    piso: '0', 
+    tipo: 'Anfiteatro', 
+    lotacao: 120,
+    equipamentos: { projetor: true, tomadas: true }
+  },
 ];

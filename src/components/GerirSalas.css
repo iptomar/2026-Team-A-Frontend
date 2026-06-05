@@ -1,0 +1,125 @@
+.gerir-salas-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header-salas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.salas-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  min-height: 500px;
+}
+
+.salas-lista {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+.sala-item {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s;
+}
+
+.sala-item:last-child {
+  border-bottom: none;
+}
+
+.sala-item:hover {
+  background-color: var(--muted-bg);
+}
+
+.sala-item.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.sala-item strong {
+  font-size: 1.1rem;
+}
+
+.sala-item span {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.sala-detalhes-main {
+  min-width: 0;
+}
+
+.form-sala, .sala-info {
+  padding: 2rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.checkbox-group {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.detalhes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.detalhe-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detalhe-item strong {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.detalhe-item ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.vazio-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--text-muted);
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}

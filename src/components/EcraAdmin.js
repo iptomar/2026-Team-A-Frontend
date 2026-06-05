@@ -155,6 +155,13 @@ function EcraAdmin() {
         {/* Agrupamento dos botões de ação do topo */}
         <div style={{ display: 'flex', gap: '15px' }}>
           <button 
+            className="btn-secondary" 
+            onClick={() => navigate('/gerir-salas')}
+            style={{ padding: '12px 25px' }}
+          >
+            🏢 Gerir Salas
+          </button>
+          <button 
             className="btn-primary" 
             onClick={() => navigate('/criar-formulario')}
             style={{ padding: '12px 25px' }}

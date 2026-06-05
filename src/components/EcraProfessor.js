@@ -276,7 +276,7 @@ function EcraProfessor() {
                       <option value="">--- Selecione uma Sala ---</option>
                       {salas.map(s => (
                         <option key={s._id || s.id} value={s.nome}>
-                          {s.nome} (Capacidade: {s.capacidade})
+                          {s.nome} (Lotação: {s.lotacao})
                         </option>
                       ))}
                     </select>
@@ -293,6 +293,24 @@ function EcraProfessor() {
                       }}
                       placeholder={campo.tipo === 'Data' || campo.tipo === 'Hora' ? '' : 'Introduza aqui...'}
                     />
+                  )}
+
+                  {isSala && salaSelecionada && (
+                    <div className="room-info-card" style={{ 
+                      marginTop: '10px', 
+                      padding: '12px', 
+                      backgroundColor: 'var(--muted-bg)', 
+                      borderRadius: '8px',
+                      fontSize: '0.9rem',
+                      border: `1px solid ${corTema}44`
+                    }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div><strong>Tipo:</strong> {salaSelecionada.tipo}</div>
+                        <div><strong>Lotação:</strong> {salaSelecionada.lotacao}</div>
+                        <div><strong>Projetor:</strong> {salaSelecionada.equipamentos.projetor ? '✅' : '❌'}</div>
+                        <div><strong>Tomadas:</strong> {salaSelecionada.equipamentos.tomadas ? '✅' : '❌'}</div>
+                      </div>
+                    </div>
                   )}
 
                   {temErro && (
