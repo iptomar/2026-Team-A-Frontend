@@ -100,6 +100,19 @@ function DetalhesPedido() {
           </span>
         </div>
 
+        {pedido.estado === 'Rejeitado' && pedido.justificacaoRejeicao && (
+          <div style={{ 
+            backgroundColor: '#fff5f5', 
+            border: '1px solid #feb2b2', 
+            borderRadius: '8px', 
+            padding: '1.5rem', 
+            marginBottom: '2rem' 
+          }}>
+            <h4 style={{ color: '#c53030', marginTop: 0, marginBottom: '0.5rem' }}>Justificação da Rejeição:</h4>
+            <p style={{ margin: 0, color: '#742a2a', lineHeight: '1.5' }}>{pedido.justificacaoRejeicao}</p>
+          </div>
+        )}
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {pedido.formulario && pedido.formulario.campos ? (
             pedido.formulario.campos.map((campo) => {
