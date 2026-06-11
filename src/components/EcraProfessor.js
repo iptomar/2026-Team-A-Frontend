@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { agruparFormulariosPorCategoria } from '../utils/formUtils';
+import { SALAS } from '../utils/salasData';
 import './EcraProfessor.css';
 
 function EcraProfessor() {
@@ -10,7 +11,7 @@ function EcraProfessor() {
   const [loading, setLoading] = useState(true);
   const [ocupacaoReal, setOcupacaoReal] = useState([]);
   const [salaSelecionada, setSalaSelecionada] = useState(null);
-  const [salas, setSalas] = useState([]);
+  const [salas, setSalas] = useState(SALAS);
 
   const carregarSalas = async () => {
     try {
@@ -20,10 +21,12 @@ function EcraProfessor() {
       const resposta = await fetch('http://localhost:3000/api/salas');
       if (resposta.ok) {
         const dados = await resposta.json();
-        setSalas(dados);
+        if (dados && dados.length > 0) {
+          setSalas(dados);
+        }
       }
     } catch (erro) {
-      console.error('Erro ao carregar salas:', erro);
+      console.warn('Backend não disponível para carregar salas, a usar dados locais.');
     }
   };
 

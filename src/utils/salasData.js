@@ -6,7 +6,10 @@ export const SALAS = [
     piso: '2', 
     tipo: 'Laboratório de Informática', 
     lotacao: 30,
-    equipamentos: { projetor: true, tomadas: true }
+    equipamentos: { 
+      projetor: true, 
+      tomadas: true 
+    }
   },
   { 
     id: '2', 
@@ -15,7 +18,10 @@ export const SALAS = [
     piso: '1', 
     tipo: 'Sala de Aula Comum', 
     lotacao: 25,
-    equipamentos: { projetor: true, tomadas: false }
+    equipamentos: { 
+      projetor: true, 
+      tomadas: false 
+    }
   },
   { 
     id: '3', 
@@ -24,6 +30,21 @@ export const SALAS = [
     piso: '0', 
     tipo: 'Anfiteatro', 
     lotacao: 120,
-    equipamentos: { projetor: true, tomadas: true }
+    equipamentos: { 
+      projetor: true, 
+      tomadas: true 
+    }
   },
+  { 
+    id: '4', 
+    nome: 'D005', 
+    bloco: 'D', 
+    piso: '0', 
+    tipo: 'Laboratório de Eletrónica', 
+    lotacao: 20,
+    equipamentos: { 
+      projetor: false, 
+      tomadas: true 
+    }
+  }
 ];

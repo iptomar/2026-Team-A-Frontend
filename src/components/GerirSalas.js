@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { SALAS } from '../utils/salasData';
 import './GerirSalas.css';
 
 function GerirSalas() {
-  const [salas, setSalas] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [salas, setSalas] = useState(SALAS);
+  const [loading, setLoading] = useState(false);
   const [salaSelecionada, setSalaSelecionada] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [novaSala, setNovaSala] = useState({
@@ -24,10 +25,12 @@ function GerirSalas() {
       const resposta = await fetch('http://localhost:3000/api/salas');
       if (resposta.ok) {
         const dados = await resposta.json();
-        setSalas(dados);
+        if (dados && dados.length > 0) {
+          setSalas(dados);
+        }
       }
     } catch (erro) {
-      console.error('Erro ao carregar salas:', erro);
+      console.warn('Backend não disponível, a usar dados locais simulados.');
     } finally {
       setLoading(false);
     }
@@ -57,6 +60,15 @@ function GerirSalas() {
 
   const submeterSala = async (e) => {
     e.preventDefault();
+    
+    // Simulação Local
+    const salaSimulada = {
+      ...novaSala,
+      _id: Date.now().toString(), // Simular um ID do MongoDB
+      id: Date.now().toString(),
+      lotacao: parseInt(novaSala.lotacao)
+    };
+
     try {
       const resposta = await fetch('http://localhost:3000/api/salas', {
         method: 'POST',
@@ -68,20 +80,23 @@ function GerirSalas() {
       });
 
       if (resposta.ok) {
-        alert('Sala adicionada com sucesso!');
-        setMostrarFormulario(false);
-        setNovaSala({
-          nome: '', bloco: '', piso: '', tipo: '', lotacao: '',
-          equipamentos: { projetor: false, tomadas: false }
-        });
+        alert('Sala adicionada com sucesso no servidor!');
         carregarSalas();
       } else {
-        const erro = await resposta.json();
-        alert(`Erro: ${erro.error}`);
+        // Se falhar no servidor (ex: 401, 403, 500), mas queremos simular sucesso localmente
+        setSalas(prev => [...prev, salaSimulada]);
+        alert('Sala adicionada (Simulação Local)!');
       }
     } catch (erro) {
-      console.error('Erro ao criar sala:', erro);
-      alert('Erro de rede ao criar sala.');
+      // Erro de rede (backend offline)
+      setSalas(prev => [...prev, salaSimulada]);
+      alert('Backend offline. Sala adicionada localmente para simulação.');
+    } finally {
+      setMostrarFormulario(false);
+      setNovaSala({
+        nome: '', bloco: '', piso: '', tipo: '', lotacao: '',
+        equipamentos: { projetor: false, tomadas: false }
+      });
     }
   };
 
@@ -104,8 +119,8 @@ function GerirSalas() {
           ) : (
             salas.map(sala => (
               <div 
-                key={sala._id} 
-                className={`sala-item ${salaSelecionada?._id === sala._id ? 'active' : ''}`}
+                key={sala._id || sala.id} 
+                className={`sala-item ${(salaSelecionada?._id === sala._id || salaSelecionada?.id === sala.id) && salaSelecionada !== null ? 'active' : ''}`}
                 onClick={() => {
                   setSalaSelecionada(sala);
                   setMostrarFormulario(false);
