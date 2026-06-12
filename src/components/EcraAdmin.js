@@ -197,6 +197,8 @@ function EcraAdmin() {
                     <tr style={{ backgroundColor: 'var(--muted-bg)', borderBottom: '1px solid var(--border-color)' }}>
                       <th style={{ padding: '15px 20px' }}>Título do Formulário</th>
                       <th style={{ padding: '15px 20px' }}>Estado</th>
+                      <th style={{ padding: '15px 20px' }}>Preenchimentos</th>
+                      <th style={{ padding: '15px 20px' }}>Pendentes</th>
                       <th style={{ padding: '15px 20px' }}>Data Criacão</th>
                       <th style={{ padding: '15px 20px', textAlign: 'right' }}>Ações</th>
                     </tr>
@@ -210,8 +212,20 @@ function EcraAdmin() {
                             {form.estado}
                           </span>
                         </td>
+                        <td style={{ padding: '15px 20px', textAlign: 'center' }}>
+                          <span style={{ fontWeight: '500' }}>{form.totalSubmissoes || 0}</span>
+                        </td>
+                        <td style={{ padding: '15px 20px', textAlign: 'center' }}>
+                          {form.submissoesPendentes > 0 ? (
+                            <span className="status-badge status-rascunho" style={{ backgroundColor: '#fff3cd', color: '#856404', border: '1px solid #ffeeba' }}>
+                              {form.submissoesPendentes} pendente(s)
+                            </span>
+                          ) : (
+                            <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>0</span>
+                          )}
+                        </td>
                         <td style={{ padding: '15px 20px', color: 'var(--text-muted)' }}>
-                          {new Date(form.dataCriacao || form.createdAt).toLocaleDateString()}
+                          {new Date(form.criadoEm || form.createdAt).toLocaleDateString()}
                         </td>
                         <td style={{ padding: '15px 20px', textAlign: 'right' }}>
                           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
