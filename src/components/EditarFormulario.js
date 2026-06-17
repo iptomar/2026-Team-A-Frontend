@@ -22,6 +22,8 @@ function EditarFormulario() {
   const [loading, setLoading] = useState(true);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
+  const [corPrincipal, setCorPrincipal] = useState('#28a745');
+  const [logo, setLogo] = useState('');
   const canvasRef = useRef(null);
 
   const tiposComOpcoes = ['Dropdown', 'Radio Button', 'Checkbox'];
@@ -40,6 +42,8 @@ function EditarFormulario() {
           setDescricao(dados.descricao);
           setCategoria(dados.categoria || 'Sem categoria');
           setEstado(dados.estado);
+          setCorPrincipal(dados.corPrincipal || '#28a745');
+          setLogo(dados.logo || '');
           // Garantir coordenadas para a grelha
           setCampos(dados.campos.map((c, index) => ({
             id: c._id || c.id || `campo-${index}`,
@@ -194,6 +198,8 @@ function EditarFormulario() {
           descricao,
           categoria: categoria.trim() || 'Sem categoria',
           estado,
+          corPrincipal,
+          logo,
           campos: campos.map(c => ({
             etiqueta: c.etiqueta,
             tipo: c.tipo,
@@ -277,16 +283,45 @@ function EditarFormulario() {
 
         <div style={{ flex: 1 }}>
           {isPreview ? (
-            <div className="card" style={{ padding: '40px', minHeight: '800px', position: 'relative' }}>
-               <h1>{titulo}</h1>
-               <p>{descricao}</p>
-               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '20px', marginTop: '40px' }}>
-                  {campos.map(c => (
-                    <div key={c.id} style={{ gridColumn: `${c.x} / span ${c.w}`, gridRowStart: c.y }}>
-                      <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>{c.etiqueta} {c.obrigatorio && '*'}</label>
-                      <input style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }} disabled placeholder={`Resposta (${c.tipo})...`} />
-                    </div>
-                  ))}
+            <div className="card" style={{ padding: '40px', minHeight: '600px', borderTop: `6px solid ${corPrincipal}` }}>
+               <div className="form-header-box" style={{ borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', paddingBottom: '1rem', textAlign: 'center' }}>
+                 {logo && (
+                   <img src={logo} alt="Logo" style={{ maxHeight: '60px', marginBottom: '1rem' }} />
+                 )}
+                 <h2 style={{ color: corPrincipal }}>{titulo}</h2>
+                 <p className="text-muted" style={{ margin: 0 }}>{descricao}</p>
+               </div>
+               
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  {campos.map(c => {
+                    const isSalaField = c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room');
+                    return (
+                      <div key={c.id}>
+                        <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                          {c.etiqueta} {c.obrigatorio && <span style={{ color: 'red' }}>*</span>}
+                        </label>
+                        {isSalaField ? (
+                          <select style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: corPrincipal }} disabled>
+                            <option>Selecione uma sala...</option>
+                          </select>
+                        ) : c.tipo === 'Dropdown' ? (
+                          <select style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: corPrincipal }} disabled>
+                            <option>Selecione uma opção...</option>
+                            {c.opcoes && c.opcoes.map((op, idx) => (
+                              <option key={idx}>{op}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input 
+                            type={c.tipo === 'Data' ? 'date' : c.tipo === 'Hora' ? 'time' : c.tipo === 'Número' ? 'number' : 'text'}
+                            style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: corPrincipal }} 
+                            disabled 
+                            placeholder={c.tipo === 'Data' || c.tipo === 'Hora' ? '' : 'Introduza aqui...'} 
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                </div>
             </div>
           ) : (

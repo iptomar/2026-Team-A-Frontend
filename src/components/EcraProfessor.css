@@ -85,3 +85,81 @@
 .btn-fill {
   padding: 8px 15px;
 }
+
+/* Room Details Card Styles */
+.room-details-card {
+  margin-top: 15px;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--primary-green);
+  border-radius: var(--radius-md);
+  padding: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.room-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.room-type-badge {
+  font-size: 0.75rem;
+  background-color: var(--skeleton-bg);
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.room-details-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.room-info-item {
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.room-equipment-list {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.equipment-badge {
+  font-size: 0.85rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+
+.equipment-badge.has {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.equipment-badge.no {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
