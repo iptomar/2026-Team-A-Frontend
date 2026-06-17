@@ -128,12 +128,13 @@ function EcraCoordenador() {
                     <tr style={{ backgroundColor: 'var(--muted-bg)', borderBottom: '1px solid var(--border-color)' }}>
                       <th style={{ padding: '15px 20px' }}>Formulário</th>
                       <th style={{ padding: '15px 20px' }}>Estado</th>
+                      <th style={{ padding: '15px 20px' }}>Submissões</th>
+                      <th style={{ padding: '15px 20px' }}>Pendentes</th>
                       <th style={{ padding: '15px 20px' }}>Data</th>
-                      <th style={{ padding: '15px 20px' }}>Ações</th>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {formularios.slice(0, 5).map((form) => (
+                  </thead>
+                  <tbody>
+                    {itens.map((form) => (
                       <tr key={form._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                         <td style={{ padding: '15px 20px', fontWeight: '600' }}>{form.titulo}</td>
                         <td style={{ padding: '15px 20px' }}>
@@ -142,14 +143,34 @@ function EcraCoordenador() {
                             borderRadius: '12px', 
                             fontSize: '0.8rem', 
                             fontWeight: 'bold',
-                            backgroundColor: form.estado === 'Publicado' ? 'var(--success-bg)' : 'var(--warning-bg)',
-                            color: form.estado === 'Publicado' ? 'var(--success-text)' : 'var(--warning-text)',
+                            backgroundColor: form.estado === 'Publicado' ? '#e6f4ea' : '#fff4e5',
+                            color: form.estado === 'Publicado' ? '#1e7e34' : '#d97706',
                           }}>
                             {form.estado}
                           </span>
                         </td>
+                        <td style={{ padding: '15px 20px', textAlign: 'center' }}>
+                          <span style={{ fontWeight: '600' }}>{form.totalSubmissoes || 0}</span>
+                        </td>
+                        <td style={{ padding: '15px 20px', textAlign: 'center' }}>
+                          {form.submissoesPendentes > 0 ? (
+                            <span style={{ 
+                              backgroundColor: '#fff3cd', 
+                              color: '#856404', 
+                              padding: '2px 8px', 
+                              borderRadius: '4px',
+                              fontSize: '0.85rem',
+                              fontWeight: '500',
+                              border: '1px solid #ffeeba'
+                            }}>
+                              {form.submissoesPendentes} pendente(s)
+                            </span>
+                          ) : (
+                            <span style={{ color: '#6c757d' }}>0</span>
+                          )}
+                        </td>
                         <td style={{ padding: '15px 20px', color: 'var(--text-muted)' }}>
-                          {new Date(form.dataCriacao || form.createdAt).toLocaleDateString()}
+                          {new Date(form.criadoEm || form.createdAt).toLocaleDateString()}
                         </td>
                       </tr>
                     ))}
