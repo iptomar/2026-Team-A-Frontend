@@ -283,29 +283,32 @@ function EditarFormulario() {
 
         <div style={{ flex: 1 }}>
           {isPreview ? (
-            <div className="card" style={{ padding: '40px', minHeight: '600px', borderTop: `6px solid ${corPrincipal}` }}>
-               <div className="form-header-box" style={{ borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', paddingBottom: '1rem', textAlign: 'center' }}>
-                 {logo && (
-                   <img src={logo} alt="Logo" style={{ maxHeight: '60px', marginBottom: '1rem' }} />
-                 )}
-                 <h2 style={{ color: corPrincipal }}>{titulo}</h2>
-                 <p className="text-muted" style={{ margin: 0 }}>{descricao}</p>
+            <div className="ipt-form-card" style={{ minHeight: '600px', borderTop: '6px solid #006cc6' }}>
+               <div className="ipt-form-header">
+                 <div className="ipt-logo-container">
+                   <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" className="ipt-logo-img" />
+                 </div>
+                 <div className="ipt-header-divider"></div>
+                 <div className="ipt-title-container">
+                   <h2 className="ipt-form-title">{titulo || 'Sem Título'}</h2>
+                   {descricao && <p className="ipt-form-desc">{descricao}</p>}
+                 </div>
                </div>
                
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '20px' }}>
                   {campos.map(c => {
                     const isSalaField = c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room');
                     return (
-                      <div key={c.id}>
+                      <div key={c.id} style={{ gridColumn: `${c.x || 1} / span ${c.w || 12}`, gridRowStart: c.y || 'auto' }}>
                         <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
                           {c.etiqueta} {c.obrigatorio && <span style={{ color: 'red' }}>*</span>}
                         </label>
                         {isSalaField ? (
-                          <select style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: corPrincipal }} disabled>
+                          <select style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: '#006cc6' }} disabled>
                             <option>Selecione uma sala...</option>
                           </select>
                         ) : c.tipo === 'Dropdown' ? (
-                          <select style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: corPrincipal }} disabled>
+                          <select style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: '#006cc6' }} disabled>
                             <option>Selecione uma opção...</option>
                             {c.opcoes && c.opcoes.map((op, idx) => (
                               <option key={idx}>{op}</option>
@@ -314,7 +317,7 @@ function EditarFormulario() {
                         ) : (
                           <input 
                             type={c.tipo === 'Data' ? 'date' : c.tipo === 'Hora' ? 'time' : c.tipo === 'Número' ? 'number' : 'text'}
-                            style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: corPrincipal }} 
+                            style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: '#006cc6' }} 
                             disabled 
                             placeholder={c.tipo === 'Data' || c.tipo === 'Hora' ? '' : 'Introduza aqui...'} 
                           />
@@ -326,13 +329,16 @@ function EditarFormulario() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <input style={{ width: '100%', fontSize: '1.8rem', fontWeight: 'bold', border: 'none', borderBottom: '2px solid #007bff', outline: 'none' }} value={titulo} onChange={e => setTitulo(e.target.value)} disabled={isReadOnly} />
+              <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '15px', borderTop: '6px solid #006cc6' }}>
+                <div style={{ textAlign: 'center', borderBottom: '2px solid #eef2f5', paddingBottom: '15px', marginBottom: '10px' }}>
+                  <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" style={{ maxHeight: '75px', objectFit: 'contain' }} />
+                </div>
+                <input style={{ width: '100%', fontSize: '1.8rem', fontWeight: 'bold', border: 'none', borderBottom: '2px solid #006cc6', outline: 'none' }} value={titulo} onChange={e => setTitulo(e.target.value)} disabled={isReadOnly} />
                 <textarea style={{ width: '100%', border: 'none', resize: 'none', outline: 'none', color: '#666' }} value={descricao} onChange={e => setDescricao(e.target.value)} disabled={isReadOnly} rows="2" />
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <label style={{ fontWeight: '600', fontSize: '0.9rem' }}>Categoria:</label>
                   <input style={{ padding: '5px 10px', borderRadius: '4px', border: '1px solid #ddd', flex: 1 }} value={categoria} onChange={e => setCategoria(e.target.value)} disabled={isReadOnly} />
-                </div>
+              </div>
               </div>
               
               <div 

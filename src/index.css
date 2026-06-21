@@ -154,3 +154,101 @@ input, select, textarea {
   display: flex;
   gap: 10px;
 }
+
+/* IPT Institutional Styling */
+.ipt-form-card {
+  background-color: #ffffff;
+  border: 1px solid #e1e4e8;
+  box-shadow: 0 6px 18px rgba(46, 50, 66, 0.06);
+  border-radius: 8px;
+  padding: 40px;
+}
+
+[data-theme='dark'] .ipt-form-card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.ipt-form-header {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  margin-bottom: 35px;
+  padding-bottom: 25px;
+  border-bottom: 2px solid #eef2f5;
+  text-align: left;
+}
+
+[data-theme='dark'] .ipt-form-header {
+  border-bottom-color: var(--border-color);
+}
+
+.ipt-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ipt-logo-img {
+  max-height: 75px;
+  object-fit: contain;
+}
+
+.ipt-header-divider {
+  width: 3px;
+  height: 50px;
+  background-color: #006cc6;
+  margin: 0 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.ipt-title-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+}
+
+.ipt-form-title {
+  color: #2e3242; /* Dark slate blue from IPT site */
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+[data-theme='dark'] .ipt-form-title {
+  color: var(--text-main);
+}
+
+.ipt-form-desc {
+  color: #717782; /* Muted gray from IPT site */
+  font-size: 1.05rem;
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+}
+
+[data-theme='dark'] .ipt-form-desc {
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .ipt-form-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  .ipt-header-divider {
+    width: 60px;
+    height: 4px;
+    margin: 5px auto;
+  }
+  .ipt-title-container {
+    text-align: center;
+  }
+}
+
+

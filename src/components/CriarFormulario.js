@@ -252,9 +252,17 @@ function CriarFormulario({ onFormularioCriado }) {
 
         <div style={{ flex: 1 }}>
           {isPreview ? (
-            <div className="card" style={{ padding: '40px', minHeight: '600px', position: 'relative' }}>
-               <h1>{titulo || 'Sem Título'}</h1>
-               <p style={{ color: '#666', marginBottom: '30px' }}>{descricao}</p>
+            <div className="ipt-form-card" style={{ minHeight: '600px', borderTop: '6px solid #006cc6' }}>
+               <div className="ipt-form-header">
+                 <div className="ipt-logo-container">
+                   <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" className="ipt-logo-img" />
+                 </div>
+                 <div className="ipt-header-divider"></div>
+                 <div className="ipt-title-container">
+                   <h2 className="ipt-form-title">{titulo || 'Sem Título'}</h2>
+                   {descricao && <p className="ipt-form-desc">{descricao}</p>}
+                 </div>
+               </div>
                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '20px' }}>
                   {campos.map(c => (
                     <div key={c.id} style={{ gridColumn: `${c.x} / span ${c.w}`, gridRowStart: c.y }}>
@@ -266,9 +274,12 @@ function CriarFormulario({ onFormularioCriado }) {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '15px', borderTop: '6px solid #006cc6' }}>
+                <div style={{ textAlign: 'center', borderBottom: '2px solid #eef2f5', paddingBottom: '15px', marginBottom: '10px' }}>
+                  <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" style={{ maxHeight: '75px', objectFit: 'contain' }} />
+                </div>
                 <input 
-                  style={{ width: '100%', fontSize: '2rem', fontWeight: 'bold', border: 'none', borderBottom: '2px solid #28a745', outline: 'none', padding: '10px 0' }} 
+                  style={{ width: '100%', fontSize: '2rem', fontWeight: 'bold', border: 'none', borderBottom: '2px solid #006cc6', outline: 'none', padding: '10px 0' }} 
                   value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="Título do Formulário" 
                 />
                 <textarea 

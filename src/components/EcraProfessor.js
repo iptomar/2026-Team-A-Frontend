@@ -241,8 +241,10 @@ function EcraProfessor() {
               <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" className="ipt-logo-img" />
             </div>
             <div className="ipt-header-divider"></div>
-            <h2 className="ipt-form-title">{formSelecionado.titulo}</h2>
-            {formSelecionado.descricao && <p className="ipt-form-desc">{formSelecionado.descricao}</p>}
+            <div className="ipt-title-container">
+              <h2 className="ipt-form-title">{formSelecionado.titulo}</h2>
+              {formSelecionado.descricao && <p className="ipt-form-desc">{formSelecionado.descricao}</p>}
+            </div>
           </div>
           
           <div className="form-fields-container">
