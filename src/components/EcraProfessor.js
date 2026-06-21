@@ -225,10 +225,6 @@ function EcraProfessor() {
   }
 
   if (formSelecionado) {
-    // Aplicar cor e logo do formulário se existirem
-    const corTema = formSelecionado.corPrincipal || '#28a745';
-    const logoTema = formSelecionado.logo || localStorage.getItem('logo');
-
     return (
       <div className="form-view-container">
         <button 
@@ -239,13 +235,14 @@ function EcraProfessor() {
           ← Voltar aos Formulários
         </button>
         
-        <div className="card" style={{ borderTop: `6px solid ${corTema}` }}>
-          <div className="form-header-box">
-            {logoTema && (
-              <img src={logoTema} alt="Logo" className="form-logo" />
-            )}
-            <h2 style={{ color: corTema }}>{formSelecionado.titulo}</h2>
-            <p className="text-muted" style={{ margin: 0 }}>{formSelecionado.descricao}</p>
+        <div className="ipt-form-card">
+          <div className="ipt-form-header">
+            <div className="ipt-logo-container">
+              <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" className="ipt-logo-img" />
+            </div>
+            <div className="ipt-header-divider"></div>
+            <h2 className="ipt-form-title">{formSelecionado.titulo}</h2>
+            {formSelecionado.descricao && <p className="ipt-form-desc">{formSelecionado.descricao}</p>}
           </div>
           
           <div className="form-fields-container">
@@ -255,7 +252,17 @@ function EcraProfessor() {
               const isSala = campo.etiqueta.toLowerCase().includes('sala') || campo.etiqueta.toLowerCase().includes('room');
 
               return (
-                <div key={campoId}>
+                <div 
+                  key={campoId} 
+                  style={{ 
+                    gridColumn: `${campo.x || 1} / span ${campo.w || 12}`, 
+                    gridRowStart: campo.y || 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-start'
+                  }}
+                  className="field-group"
+                >
                   <label className="field-label-text">
                     {campo.etiqueta} {campo.obrigatorio && <span className="required-asterisk">*</span>}
                   </label>
@@ -272,8 +279,7 @@ function EcraProfessor() {
                       }}
                       style={{ 
                         borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
-                        borderWidth: temErro ? '2px' : '1px',
-                        outlineColor: corTema
+                        borderWidth: temErro ? '2px' : '1px'
                       }}
                     >
                       <option value="">--- Selecione uma Sala ---</option>
@@ -291,8 +297,7 @@ function EcraProfessor() {
                       onChange={(e) => handleInputChange(campoId, e.target.value)}
                       style={{ 
                         borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
-                        borderWidth: temErro ? '2px' : '1px',
-                        outlineColor: corTema
+                        borderWidth: temErro ? '2px' : '1px'
                       }}
                       placeholder={campo.tipo === 'Data' || campo.tipo === 'Hora' ? '' : 'Introduza aqui...'}
                     />
@@ -305,7 +310,7 @@ function EcraProfessor() {
                       backgroundColor: 'var(--muted-bg)', 
                       borderRadius: '8px',
                       fontSize: '0.9rem',
-                      border: `1px solid ${corTema}44`
+                      border: '1px solid rgba(0, 108, 198, 0.2)'
                     }}>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         <div><strong>Tipo:</strong> {salaSelecionada.tipo}</div>
@@ -327,18 +332,7 @@ function EcraProfessor() {
 
             <button 
               disabled={!podeSubmeter}
-              className="btn-primary"
-              style={{ 
-                padding: '15px', 
-                fontSize: '1.1rem',
-                backgroundColor: podeSubmeter ? corTema : 'var(--skeleton-bg)',
-                opacity: podeSubmeter ? 1 : 0.6,
-                cursor: podeSubmeter ? 'pointer' : 'not-allowed',
-                border: 'none',
-                color: 'white',
-                borderRadius: 'var(--radius-md)',
-                fontWeight: 'bold'
-              }}
+              className="btn-ipt-submit"
               onClick={handleSubmeter}
             >
               Submeter Requisição

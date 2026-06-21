@@ -261,12 +261,33 @@ function DetalhesPedido() {
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(12, 1fr)', 
+          gap: '20px 15px',
+          backgroundColor: 'var(--card-bg)',
+          border: '1px solid var(--border-color)',
+          borderRadius: 'var(--radius-md)',
+          padding: '24px'
+        }}>
           {pedido.formulario && pedido.formulario.campos ? (
             pedido.formulario.campos.map((campo) => {
               const valor = pedido.respostas[campo._id] || 'Não preenchido';
               return (
-                <div key={campo._id} style={{ padding: '15px', backgroundColor: 'var(--muted-bg)', borderRadius: '8px' }}>
+                <div 
+                  key={campo._id} 
+                  style={{ 
+                    gridColumn: `${campo.x || 1} / span ${campo.w || 12}`, 
+                    gridRowStart: campo.y || 'auto',
+                    padding: '15px', 
+                    backgroundColor: 'var(--muted-bg)', 
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border-color)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center'
+                  }}
+                >
                   <label style={{ fontWeight: '600', display: 'block', color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '5px' }}>
                     {campo.etiqueta.toUpperCase()}
                   </label>
@@ -279,7 +300,9 @@ function DetalhesPedido() {
               );
             })
           ) : (
-            <p style={{ color: 'var(--text-muted)' }}>Os detalhes do formulário original já não estão disponíveis.</p>
+            <div style={{ gridColumn: '1 / span 12', padding: '20px', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-muted)', margin: 0 }}>Os detalhes do formulário original já não estão disponíveis.</p>
+            </div>
           )}
         </div>
       </div>
