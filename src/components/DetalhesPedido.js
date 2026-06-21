@@ -271,7 +271,7 @@ function DetalhesPedido() {
           padding: '24px'
         }}>
           {pedido.formulario && pedido.formulario.campos ? (
-            pedido.formulario.campos.map((campo) => {
+            pedido.formulario.campos.filter(campo => campo.visivel !== false).map((campo) => {
               const valor = pedido.respostas[campo._id] || 'Não preenchido';
               return (
                 <div 

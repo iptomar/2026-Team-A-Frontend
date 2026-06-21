@@ -71,17 +71,20 @@ function EcraProfessor() {
   // LÓGICA DE VALIDAÇÃO REFINADA (SMART)
   const validarCampos = (novasRespostas) => {
     const novosErros = {};
+    if (!formSelecionado) return;
+    
+    const camposAtivos = formSelecionado.campos.filter(c => c.visivel !== false);
     
     // 1. Procurar campos de Sala, Data e Horário no formulário atual
-    const campoSala = formSelecionado?.campos.find(c => 
+    const campoSala = camposAtivos.find(c => 
       c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room')
     );
-    const campoData = formSelecionado?.campos.find(c => c.tipo === 'Data');
+    const campoData = camposAtivos.find(c => c.tipo === 'Data');
     
-    const campoInicio = formSelecionado?.campos.find(c => 
+    const campoInicio = camposAtivos.find(c => 
       c.etiqueta.toLowerCase().includes('início') || c.etiqueta.toLowerCase().includes('inicio') || c.etiqueta.toLowerCase().includes('entrada')
     );
-    const campoFim = formSelecionado?.campos.find(c => 
+    const campoFim = camposAtivos.find(c => 
       c.etiqueta.toLowerCase().includes('fim') || c.etiqueta.toLowerCase().includes('saída') || c.etiqueta.toLowerCase().includes('saida')
     );
 
@@ -132,7 +135,7 @@ function EcraProfessor() {
     }
 
     // 4. Validar Datas Futuras (para todos os campos do tipo Data)
-    formSelecionado?.campos.forEach(campo => {
+    camposAtivos.forEach(campo => {
       if (campo.tipo === 'Data') {
         const campoId = campo._id || campo.id;
         const valorData = novasRespostas[campoId];
@@ -157,7 +160,7 @@ function EcraProfessor() {
   };
 
   // Lógica Matemática: Verifica se o formulário está completo e sem erros
-  const podeSubmeter = formSelecionado && formSelecionado.campos.every(campo => {
+  const podeSubmeter = formSelecionado && formSelecionado.campos.filter(campo => campo.visivel !== false).every(campo => {
     const valor = respostas[campo._id || campo.id];
     const preenchido = valor !== undefined && valor !== null && String(valor).trim() !== '';
     const validacaoObrigatorio = campo.obrigatorio ? preenchido : true;
@@ -236,19 +239,45 @@ function EcraProfessor() {
         </button>
         
         <div className="ipt-form-card">
-          <div className="ipt-form-header">
-            <div className="ipt-logo-container">
-              <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" className="ipt-logo-img" />
-            </div>
-            <div className="ipt-header-divider"></div>
-            <div className="ipt-title-container">
-              <h2 className="ipt-form-title">{formSelecionado.titulo}</h2>
-              {formSelecionado.descricao && <p className="ipt-form-desc">{formSelecionado.descricao}</p>}
-            </div>
-          </div>
+           {/* PDF Header Layout */}
+           {formSelecionado.showCabecalho !== false && (
+             <div className="ipt-pdf-header">
+               {formSelecionado.showLogo !== false && (
+                 <div className="ipt-pdf-header-logo-box">
+                   <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" />
+                 </div>
+               )}
+               <div className="ipt-pdf-header-title-box">
+                 {formSelecionado.showTitulo !== false ? (
+                   <h1 className="ipt-pdf-header-title-text">{formSelecionado.titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1>
+                 ) : (
+                   <h1 className="ipt-pdf-header-title-text" style={{ visibility: 'hidden' }}>REQUERIMENTO</h1>
+                 )}
+               </div>
+               <div className="ipt-pdf-header-meta-box">
+                 <div className="ipt-pdf-meta-top">PT.SIGQ.MOD ACA 30 20 - 1</div>
+                 <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
+               </div>
+             </div>
+           )}
+
+           {/* Schools Checkboxes Bar */}
+           {formSelecionado.showCabecalho !== false && (
+             <div className="ipt-pdf-schools-bar">
+               <label><input type="checkbox" /> ESGT</label>
+               <label><input type="checkbox" /> ESTA</label>
+               <label><input type="checkbox" /> ESTT</label>
+             </div>
+           )}
+
+           {formSelecionado.descricao && (
+             <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: 'var(--muted-bg)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)' }}>
+               <p style={{ margin: 0, color: 'var(--text-muted)', fontStyle: 'italic' }}>{formSelecionado.descricao}</p>
+             </div>
+           )}
           
           <div className="form-fields-container">
-            {formSelecionado.campos.map((campo) => {
+            {formSelecionado.campos.filter(campo => campo.visivel !== false).map((campo) => {
               const campoId = campo._id || campo.id;
               const temErro = !!erros[campoId];
               const isSala = campo.etiqueta.toLowerCase().includes('sala') || campo.etiqueta.toLowerCase().includes('room');

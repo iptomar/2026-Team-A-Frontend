@@ -24,6 +24,9 @@ function EditarFormulario() {
   const [isPreview, setIsPreview] = useState(false);
   const [corPrincipal, setCorPrincipal] = useState('#28a745');
   const [logo, setLogo] = useState('');
+  const [showCabecalho, setShowCabecalho] = useState(true);
+  const [showTitulo, setShowTitulo] = useState(true);
+  const [showLogo, setShowLogo] = useState(true);
   const canvasRef = useRef(null);
 
   const tiposComOpcoes = ['Dropdown', 'Radio Button', 'Checkbox'];
@@ -44,12 +47,16 @@ function EditarFormulario() {
           setEstado(dados.estado);
           setCorPrincipal(dados.corPrincipal || '#28a745');
           setLogo(dados.logo || '');
+          setShowCabecalho(dados.showCabecalho !== undefined ? dados.showCabecalho : true);
+          setShowTitulo(dados.showTitulo !== undefined ? dados.showTitulo : true);
+          setShowLogo(dados.showLogo !== undefined ? dados.showLogo : true);
           // Garantir coordenadas para a grelha
           setCampos(dados.campos.map((c, index) => ({
             id: c._id || c.id || `campo-${index}`,
             etiqueta: c.etiqueta,
             tipo: c.tipo,
             obrigatorio: c.obrigatorio,
+            visivel: c.visivel !== undefined ? c.visivel : true,
             opcoes: c.opcoes || [],
             novaOpcao: '',
             x: c.x || 1,
@@ -104,6 +111,7 @@ function EditarFormulario() {
       etiqueta: template.label,
       tipo: template.type,
       obrigatorio: false,
+      visivel: true,
       opcoes: [],
       novaOpcao: ''
     };
@@ -200,10 +208,14 @@ function EditarFormulario() {
           estado,
           corPrincipal,
           logo,
+          showCabecalho,
+          showTitulo,
+          showLogo,
           campos: campos.map(c => ({
             etiqueta: c.etiqueta,
             tipo: c.tipo,
             obrigatorio: c.obrigatorio,
+            visivel: c.visivel !== undefined ? c.visivel : true,
             opcoes: c.opcoes,
             x: c.x,
             y: c.y,
@@ -267,36 +279,49 @@ function EditarFormulario() {
       )}
 
       <div style={{ display: 'flex', gap: '30px', alignItems: 'flex-start' }}>
-        {!isPreview && (
-          <div style={{ width: '280px', flexShrink: 0 }}>
-            <div className="card" style={{ padding: '20px' }}>
-              <h4>Toolbox</h4>
-              <p style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#999', marginBottom: '10px' }}>ARRASTE PARA O QUADRO</p>
-              {TEMPLATES.map((t, i) => (
-                <div key={i} draggable onDragStart={(e) => onDragStart(e, t)} style={{ padding: '10px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', marginBottom: '8px', cursor: isReadOnly ? 'not-allowed' : 'grab', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-                  + {t.label}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
+        {/* Main Canvas and Preview container on Left */}
         <div style={{ flex: 1 }}>
           {isPreview ? (
-            <div className="ipt-form-card" style={{ minHeight: '600px', borderTop: '6px solid #006cc6' }}>
-               <div className="ipt-form-header">
-                 <div className="ipt-logo-container">
-                   <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" className="ipt-logo-img" />
+            <div className="ipt-form-card" style={{ minHeight: '600px' }}>
+               {/* PDF Header Layout */}
+               {showCabecalho && (
+                 <div className="ipt-pdf-header">
+                   {showLogo && (
+                     <div className="ipt-pdf-header-logo-box">
+                       <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" />
+                     </div>
+                   )}
+                   <div className="ipt-pdf-header-title-box">
+                     {showTitulo ? (
+                       <h1 className="ipt-pdf-header-title-text">{titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1>
+                     ) : (
+                       <h1 className="ipt-pdf-header-title-text" style={{ visibility: 'hidden' }}>REQUERIMENTO</h1>
+                     )}
+                   </div>
+                   <div className="ipt-pdf-header-meta-box">
+                     <div className="ipt-pdf-meta-top">PT.SIGQ.MOD ACA 30 20 - 1</div>
+                     <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
+                   </div>
                  </div>
-                 <div className="ipt-header-divider"></div>
-                 <div className="ipt-title-container">
-                   <h2 className="ipt-form-title">{titulo || 'Sem Título'}</h2>
-                   {descricao && <p className="ipt-form-desc">{descricao}</p>}
+               )}
+
+               {/* Schools Checkboxes Bar */}
+               {showCabecalho && (
+                 <div className="ipt-pdf-schools-bar">
+                   <label><input type="checkbox" disabled /> ESGT</label>
+                   <label><input type="checkbox" disabled /> ESTA</label>
+                   <label><input type="checkbox" disabled /> ESTT</label>
                  </div>
-               </div>
+               )}
+
+               {descricao && (
+                 <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: 'var(--muted-bg)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)' }}>
+                   <p style={{ margin: 0, color: 'var(--text-muted)', fontStyle: 'italic' }}>{descricao}</p>
+                 </div>
+               )}
                
                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '20px' }}>
-                  {campos.map(c => {
+                  {campos.filter(c => c.visivel !== false).map(c => {
                     const isSalaField = c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room');
                     return (
                       <div key={c.id} style={{ gridColumn: `${c.x || 1} / span ${c.w || 12}`, gridRowStart: c.y || 'auto' }}>
@@ -329,16 +354,50 @@ function EditarFormulario() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '15px', borderTop: '6px solid #006cc6' }}>
-                <div style={{ textAlign: 'center', borderBottom: '2px solid #eef2f5', paddingBottom: '15px', marginBottom: '10px' }}>
-                  <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" style={{ maxHeight: '75px', objectFit: 'contain' }} />
+              {/* PDF Header Layout in Editor */}
+              {showCabecalho && (
+                <div className="ipt-pdf-header">
+                  {showLogo && (
+                    <div className="ipt-pdf-header-logo-box">
+                      <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" />
+                    </div>
+                  )}
+                  <div className="ipt-pdf-header-title-box">
+                    {showTitulo ? (
+                      <input 
+                        className="ipt-pdf-header-title-input" 
+                        value={titulo} 
+                        onChange={e => setTitulo(e.target.value)} 
+                        placeholder="TÍTULO DO REQUERIMENTO" 
+                        disabled={isReadOnly}
+                      />
+                    ) : (
+                      <div style={{ color: '#ccc', fontStyle: 'italic', fontSize: '0.9rem' }}>(Título Ocultado)</div>
+                    )}
+                  </div>
+                  <div className="ipt-pdf-header-meta-box">
+                    <div className="ipt-pdf-meta-top">PT.SIGQ.MOD ACA 30 20 - 1</div>
+                    <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
+                  </div>
                 </div>
-                <input style={{ width: '100%', fontSize: '1.8rem', fontWeight: 'bold', border: 'none', borderBottom: '2px solid #006cc6', outline: 'none' }} value={titulo} onChange={e => setTitulo(e.target.value)} disabled={isReadOnly} />
-                <textarea style={{ width: '100%', border: 'none', resize: 'none', outline: 'none', color: '#666' }} value={descricao} onChange={e => setDescricao(e.target.value)} disabled={isReadOnly} rows="2" />
+              )}
+
+              {/* Schools Checkboxes Bar in Editor */}
+              {showCabecalho && (
+                <div className="ipt-pdf-schools-bar">
+                  <label><input type="checkbox" disabled={isReadOnly} /> ESGT</label>
+                  <label><input type="checkbox" disabled={isReadOnly} /> ESTA</label>
+                  <label><input type="checkbox" disabled={isReadOnly} /> ESTT</label>
+                </div>
+              )}
+
+              {/* Description Input Card */}
+              <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <textarea style={{ width: '100%', border: 'none', resize: 'none', outline: 'none', color: '#666', borderBottom: '1px solid #eee' }} value={descricao} onChange={e => setDescricao(e.target.value)} disabled={isReadOnly} rows="2" placeholder="Adicione uma descrição..." />
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <label style={{ fontWeight: '600', fontSize: '0.9rem' }}>Categoria:</label>
                   <input style={{ padding: '5px 10px', borderRadius: '4px', border: '1px solid #ddd', flex: 1 }} value={categoria} onChange={e => setCategoria(e.target.value)} disabled={isReadOnly} />
-              </div>
+                </div>
               </div>
               
               <div 
@@ -352,7 +411,7 @@ function EditarFormulario() {
                   padding: '10px', gap: '10px'
                 }}
               >
-                {campos.map(c => (
+                {campos.filter(c => c.visivel !== false).map(c => (
                   <div key={c.id} style={{ gridColumn: `${c.x} / span ${c.w}`, gridRowStart: c.y, backgroundColor: '#fff', border: '1px solid #007bff', borderRadius: '8px', padding: '15px', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
                       <div onMouseDown={(e) => startMove(e, c.id)} style={{ cursor: isReadOnly ? 'default' : 'move', fontSize: '1.2rem', color: '#ccc' }}>⠿</div>
@@ -398,6 +457,111 @@ function EditarFormulario() {
             </div>
           )}
         </div>
+
+        {/* Control Panel / Sidebar on Right */}
+        {!isPreview && (
+          <div style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Definições Globais e Visibilidade Card */}
+            <div className="card" style={{ padding: '20px' }}>
+              <h4 style={{ marginBottom: '15px' }}>Definições Globais e Visibilidade</h4>
+              
+              {/* Secção 1: Estrutura Global */}
+              <div style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '15px' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#999', textTransform: 'uppercase', marginBottom: '10px' }}>Estrutura Global do Formulário</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={showCabecalho} 
+                      onChange={(e) => setShowCabecalho(e.target.checked)} 
+                      disabled={isReadOnly}
+                    />
+                    Ativar Cabeçalho (IPT Logo)
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={showTitulo} 
+                      onChange={(e) => setShowTitulo(e.target.checked)} 
+                      disabled={isReadOnly}
+                    />
+                    Ativar Título do Formulário
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={showLogo} 
+                      onChange={(e) => setShowLogo(e.target.checked)} 
+                      disabled={isReadOnly}
+                    />
+                    Ativar Imagem/Logo (IPT)
+                  </label>
+                </div>
+              </div>
+
+              {/* Secção 2: Visibilidade de Campos */}
+              <div>
+                <p style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#999', textTransform: 'uppercase', marginBottom: '10px' }}>Visibilidade dos Campos Individuais</p>
+                {campos.length === 0 ? (
+                  <p style={{ fontSize: '0.85rem', color: '#999', fontStyle: 'italic' }}>Nenhum campo adicionado.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '250px', overflowY: 'auto', paddingRight: '5px' }}>
+                    {campos.map((c) => (
+                      <div 
+                        key={c.id} 
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'space-between', 
+                          padding: '8px 10px', 
+                          backgroundColor: '#f8f9fa', 
+                          border: '1px solid #eee', 
+                          borderRadius: '4px' 
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', flex: 1 }}>
+                          <input 
+                            type="checkbox" 
+                            checked={c.visivel !== false} 
+                            onChange={(e) => atualizarCampo(c.id, 'visivel', e.target.checked)} 
+                            title={c.visivel !== false ? "Desativar campo" : "Ativar campo"}
+                            disabled={isReadOnly}
+                            style={{ cursor: isReadOnly ? 'not-allowed' : 'pointer' }}
+                          />
+                          <span style={{ fontSize: '0.85rem', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', opacity: c.visivel !== false ? 1 : 0.5 }}>
+                            {c.etiqueta || "Sem nome"}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                          {!isReadOnly && (
+                            <button 
+                              onClick={() => removerCampo(c.id)} 
+                              style={{ border: 'none', background: 'none', color: 'red', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem' }}
+                              title="Eliminar campo"
+                            >
+                              🗑
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Toolbox Card */}
+            <div className="card" style={{ padding: '20px' }}>
+              <h4>Toolbox</h4>
+              <p style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#999', marginBottom: '10px' }}>ARRASTE PARA O QUADRO</p>
+              {TEMPLATES.map((t, i) => (
+                <div key={i} draggable={!isReadOnly} onDragStart={(e) => onDragStart(e, t)} style={{ padding: '10px', backgroundColor: '#f8f9fa', border: '1px solid #ddd', marginBottom: '8px', cursor: isReadOnly ? 'not-allowed' : 'grab', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                  + {t.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
