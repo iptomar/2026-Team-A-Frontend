@@ -61,7 +61,10 @@ function EditarFormulario() {
             novaOpcao: '',
             x: c.x || 1,
             y: c.y || (index * 2) + 1,
-            w: c.w || 12
+            w: c.w || 12,
+            maxCaracteres: c.maxCaracteres || '',
+            minNumero: c.minNumero !== undefined ? c.minNumero : '',
+            maxNumero: c.maxNumero !== undefined ? c.maxNumero : ''
           })));
 
           if (dados.estado === 'Publicado' || dados.estado === 'Arquivado') {
@@ -164,7 +167,7 @@ function EditarFormulario() {
     const campo = campos.find(c => c.id === id);
     const startGridX = campo.x;
     const startGridY = campo.y;
-    
+
     const canvasRect = canvasRef.current.getBoundingClientRect();
     const colWidth = canvasRect.width / 12;
     const rowHeight = 100;
@@ -219,7 +222,11 @@ function EditarFormulario() {
             opcoes: c.opcoes,
             x: c.x,
             y: c.y,
-            w: c.w
+            w: c.w,
+            // Carrega os limites da BD
+            maxCaracteres: c.maxCaracteres ? parseInt(c.maxCaracteres) : undefined,
+            minNumero: (c.minNumero !== undefined && c.minNumero !== '') ? Number(c.minNumero) : undefined,
+            maxNumero: (c.maxNumero !== undefined && c.maxNumero !== '') ? Number(c.maxNumero) : undefined
           }))
         })
       });
@@ -240,20 +247,20 @@ function EditarFormulario() {
     if (isReadOnly) return;
     const campo = campos.find((item) => item.id === id);
     if (!campo || !(campo.novaOpcao || '').trim()) return;
-    
+
     if (campo.opcoes.includes(campo.novaOpcao)) {
       setMensagem('Erro: Esta opção já existe.');
       return;
     }
 
-    setCampos(prev => prev.map(item => 
+    setCampos(prev => prev.map(item =>
       item.id === id ? { ...item, opcoes: [...item.opcoes, item.novaOpcao], novaOpcao: '' } : item
     ));
   };
 
   const removerOpcaoDoCampo = (id, indice) => {
     if (isReadOnly) return;
-    setCampos(prev => prev.map(c => 
+    setCampos(prev => prev.map(c =>
       c.id === id ? { ...c, opcoes: c.opcoes.filter((_, i) => i !== indice) } : c
     ));
   };
@@ -283,74 +290,74 @@ function EditarFormulario() {
         <div style={{ flex: 1 }}>
           {isPreview ? (
             <div className="ipt-form-card" style={{ minHeight: '600px' }}>
-               {/* PDF Header Layout */}
-               {showCabecalho && (
-                 <div className="ipt-pdf-header">
-                   {showLogo && (
-                     <div className="ipt-pdf-header-logo-box">
-                       <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" />
-                     </div>
-                   )}
-                   <div className="ipt-pdf-header-title-box">
-                     {showTitulo ? (
-                       <h1 className="ipt-pdf-header-title-text">{titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1>
-                     ) : (
-                       <h1 className="ipt-pdf-header-title-text" style={{ visibility: 'hidden' }}>REQUERIMENTO</h1>
-                     )}
-                   </div>
-                   <div className="ipt-pdf-header-meta-box">
-                     <div className="ipt-pdf-meta-top">PT.SIGQ.MOD ACA 30 20 - 1</div>
-                     <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
-                   </div>
-                 </div>
-               )}
+              {/* PDF Header Layout */}
+              {showCabecalho && (
+                <div className="ipt-pdf-header">
+                  {showLogo && (
+                    <div className="ipt-pdf-header-logo-box">
+                      <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" />
+                    </div>
+                  )}
+                  <div className="ipt-pdf-header-title-box">
+                    {showTitulo ? (
+                      <h1 className="ipt-pdf-header-title-text">{titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1>
+                    ) : (
+                      <h1 className="ipt-pdf-header-title-text" style={{ visibility: 'hidden' }}>REQUERIMENTO</h1>
+                    )}
+                  </div>
+                  <div className="ipt-pdf-header-meta-box">
+                    <div className="ipt-pdf-meta-top">PT.SIGQ.MOD ACA 30 20 - 1</div>
+                    <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
+                  </div>
+                </div>
+              )}
 
-               {/* Schools Checkboxes Bar */}
-               {showCabecalho && (
-                 <div className="ipt-pdf-schools-bar">
-                   <label><input type="checkbox" disabled /> ESGT</label>
-                   <label><input type="checkbox" disabled /> ESTA</label>
-                   <label><input type="checkbox" disabled /> ESTT</label>
-                 </div>
-               )}
+              {/* Schools Checkboxes Bar */}
+              {showCabecalho && (
+                <div className="ipt-pdf-schools-bar">
+                  <label><input type="checkbox" disabled /> ESGT</label>
+                  <label><input type="checkbox" disabled /> ESTA</label>
+                  <label><input type="checkbox" disabled /> ESTT</label>
+                </div>
+              )}
 
-               {descricao && (
-                 <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: 'var(--muted-bg)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)' }}>
-                   <p style={{ margin: 0, color: 'var(--text-muted)', fontStyle: 'italic' }}>{descricao}</p>
-                 </div>
-               )}
-               
-               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '20px' }}>
-                  {campos.filter(c => c.visivel !== false).map(c => {
-                    const isSalaField = c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room');
-                    return (
-                      <div key={c.id} style={{ gridColumn: `${c.x || 1} / span ${c.w || 12}`, gridRowStart: c.y || 'auto' }}>
-                        <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                          {c.etiqueta} {c.obrigatorio && <span style={{ color: 'red' }}>*</span>}
-                        </label>
-                        {isSalaField ? (
-                          <select style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: '#006cc6' }} disabled>
-                            <option>Selecione uma sala...</option>
-                          </select>
-                        ) : c.tipo === 'Dropdown' ? (
-                          <select style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: '#006cc6' }} disabled>
-                            <option>Selecione uma opção...</option>
-                            {c.opcoes && c.opcoes.map((op, idx) => (
-                              <option key={idx}>{op}</option>
-                            ))}
-                          </select>
-                        ) : (
-                          <input 
-                            type={c.tipo === 'Data' ? 'date' : c.tipo === 'Hora' ? 'time' : c.tipo === 'Número' ? 'number' : 'text'}
-                            style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: '#006cc6' }} 
-                            disabled 
-                            placeholder={c.tipo === 'Data' || c.tipo === 'Hora' ? '' : 'Introduza aqui...'} 
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
-               </div>
+              {descricao && (
+                <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: 'var(--muted-bg)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)' }}>
+                  <p style={{ margin: 0, color: 'var(--text-muted)', fontStyle: 'italic' }}>{descricao}</p>
+                </div>
+              )}
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '20px' }}>
+                {campos.filter(c => c.visivel !== false).map(c => {
+                  const isSalaField = c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room');
+                  return (
+                    <div key={c.id} style={{ gridColumn: `${c.x || 1} / span ${c.w || 12}`, gridRowStart: c.y || 'auto' }}>
+                      <label style={{ fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                        {c.etiqueta} {c.obrigatorio && <span style={{ color: 'red' }}>*</span>}
+                      </label>
+                      {isSalaField ? (
+                        <select style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: '#006cc6' }} disabled>
+                          <option>Selecione uma sala...</option>
+                        </select>
+                      ) : c.tipo === 'Dropdown' ? (
+                        <select style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: '#006cc6' }} disabled>
+                          <option>Selecione uma opção...</option>
+                          {c.opcoes && c.opcoes.map((op, idx) => (
+                            <option key={idx}>{op}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type={c.tipo === 'Data' ? 'date' : c.tipo === 'Hora' ? 'time' : c.tipo === 'Número' ? 'number' : 'text'}
+                          style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: 'var(--input-bg)', color: 'var(--text-main)', outlineColor: '#006cc6' }}
+                          disabled
+                          placeholder={c.tipo === 'Data' || c.tipo === 'Hora' ? '' : 'Introduza aqui...'}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -364,11 +371,11 @@ function EditarFormulario() {
                   )}
                   <div className="ipt-pdf-header-title-box">
                     {showTitulo ? (
-                      <input 
-                        className="ipt-pdf-header-title-input" 
-                        value={titulo} 
-                        onChange={e => setTitulo(e.target.value)} 
-                        placeholder="TÍTULO DO REQUERIMENTO" 
+                      <input
+                        className="ipt-pdf-header-title-input"
+                        value={titulo}
+                        onChange={e => setTitulo(e.target.value)}
+                        placeholder="TÍTULO DO REQUERIMENTO"
                         disabled={isReadOnly}
                       />
                     ) : (
@@ -399,13 +406,13 @@ function EditarFormulario() {
                   <input style={{ padding: '5px 10px', borderRadius: '4px', border: '1px solid #ddd', flex: 1 }} value={categoria} onChange={e => setCategoria(e.target.value)} disabled={isReadOnly} />
                 </div>
               </div>
-              
-              <div 
+
+              <div
                 ref={canvasRef}
                 onDragOver={e => !isReadOnly && e.preventDefault()}
                 onDrop={onDrop}
-                style={{ 
-                  backgroundColor: '#fff', border: '2px solid #ddd', borderRadius: '12px', minHeight: '1000px', 
+                style={{
+                  backgroundColor: '#fff', border: '2px solid #ddd', borderRadius: '12px', minHeight: '1000px',
                   display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gridAutoRows: '100px',
                   backgroundImage: 'radial-gradient(#ddd 1px, transparent 1px)', backgroundSize: 'calc(100% / 12) 100px',
                   padding: '10px', gap: '10px'
@@ -419,11 +426,54 @@ function EditarFormulario() {
                       {!isReadOnly && <button onClick={() => removerCampo(c.id)} style={{ border: 'none', background: 'none', color: 'red', cursor: 'pointer', fontWeight: 'bold' }}>×</button>}
                     </div>
                     <input style={{ border: 'none', borderBottom: '1px solid #eee', fontWeight: 'bold', width: '100%', outline: 'none' }} value={c.etiqueta} onChange={e => atualizarCampo(c.id, 'etiqueta', e.target.value)} disabled={isReadOnly} />
-                    
+
                     <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '5px' }}>
                       <input type="checkbox" checked={c.obrigatorio} onChange={e => atualizarCampo(c.id, 'obrigatorio', e.target.checked)} disabled={isReadOnly} />
                       <span style={{ fontSize: '0.7rem', color: '#888' }}>Obrigatório</span>
                     </div>
+
+                    {/* INPUTS PARA CONFIGURAR LIMITES EM EDIÇÃO */}
+                    {['Texto Curto', 'Texto Longo', 'Nome', 'Email'].includes(c.tipo) && (
+                      <div style={{ marginTop: '5px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <label style={{ fontSize: '0.65rem', color: '#666', fontWeight: 'bold' }}>Tam. Máximo:</label>
+                        <input
+                          type="number"
+                          style={{ fontSize: '0.7rem', padding: '2px 4px', border: '1px solid #ddd', borderRadius: '4px' }}
+                          value={c.maxCaracteres || ''}
+                          onChange={e => atualizarCampo(c.id, 'maxCaracteres', e.target.value ? parseInt(e.target.value) : '')}
+                          placeholder="Caracteres máx."
+                          disabled={isReadOnly}
+                        />
+                      </div>
+                    )}
+                    {c.tipo === 'Número' && (
+                      <div style={{ marginTop: '5px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <label style={{ fontSize: '0.65rem', color: '#666', fontWeight: 'bold' }}>Mínimo:</label>
+                          <input
+                            type="number"
+                            style={{ fontSize: '0.7rem', padding: '2px 4px', border: '1px solid #ddd', borderRadius: '4px', width: '100%' }}
+                            value={c.minNumero !== undefined ? c.minNumero : ''}
+                            onChange={e => atualizarCampo(c.id, 'minNumero', e.target.value !== '' ? Number(e.target.value) : '')}
+                            placeholder="Mín"
+                            disabled={isReadOnly}
+                          />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <label style={{ fontSize: '0.65rem', color: '#666', fontWeight: 'bold' }}>Máximo:</label>
+                          <input
+                            type="number"
+                            style={{ fontSize: '0.7rem', padding: '2px 4px', border: '1px solid #ddd', borderRadius: '4px', width: '100%' }}
+                            value={c.maxNumero !== undefined ? c.maxNumero : ''}
+                            onChange={e => atualizarCampo(c.id, 'maxNumero', e.target.value !== '' ? Number(e.target.value) : '')}
+                            placeholder="Máx"
+                            disabled={isReadOnly}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+
 
                     {tiposComOpcoes.includes(c.tipo) && (
                       <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
@@ -464,34 +514,34 @@ function EditarFormulario() {
             {/* Definições Globais e Visibilidade Card */}
             <div className="card" style={{ padding: '20px' }}>
               <h4 style={{ marginBottom: '15px' }}>Definições Globais e Visibilidade</h4>
-              
+
               {/* Secção 1: Estrutura Global */}
               <div style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '15px' }}>
                 <p style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#999', textTransform: 'uppercase', marginBottom: '10px' }}>Estrutura Global do Formulário</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', cursor: 'pointer' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={showCabecalho} 
-                      onChange={(e) => setShowCabecalho(e.target.checked)} 
+                    <input
+                      type="checkbox"
+                      checked={showCabecalho}
+                      onChange={(e) => setShowCabecalho(e.target.checked)}
                       disabled={isReadOnly}
                     />
                     Ativar Cabeçalho (IPT Logo)
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', cursor: 'pointer' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={showTitulo} 
-                      onChange={(e) => setShowTitulo(e.target.checked)} 
+                    <input
+                      type="checkbox"
+                      checked={showTitulo}
+                      onChange={(e) => setShowTitulo(e.target.checked)}
                       disabled={isReadOnly}
                     />
                     Ativar Título do Formulário
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', cursor: 'pointer' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={showLogo} 
-                      onChange={(e) => setShowLogo(e.target.checked)} 
+                    <input
+                      type="checkbox"
+                      checked={showLogo}
+                      onChange={(e) => setShowLogo(e.target.checked)}
                       disabled={isReadOnly}
                     />
                     Ativar Imagem/Logo (IPT)
@@ -507,23 +557,23 @@ function EditarFormulario() {
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '250px', overflowY: 'auto', paddingRight: '5px' }}>
                     {campos.map((c) => (
-                      <div 
-                        key={c.id} 
-                        style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'space-between', 
-                          padding: '8px 10px', 
-                          backgroundColor: '#f8f9fa', 
-                          border: '1px solid #eee', 
-                          borderRadius: '4px' 
+                      <div
+                        key={c.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 10px',
+                          backgroundColor: '#f8f9fa',
+                          border: '1px solid #eee',
+                          borderRadius: '4px'
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', flex: 1 }}>
-                          <input 
-                            type="checkbox" 
-                            checked={c.visivel !== false} 
-                            onChange={(e) => atualizarCampo(c.id, 'visivel', e.target.checked)} 
+                          <input
+                            type="checkbox"
+                            checked={c.visivel !== false}
+                            onChange={(e) => atualizarCampo(c.id, 'visivel', e.target.checked)}
                             title={c.visivel !== false ? "Desativar campo" : "Ativar campo"}
                             disabled={isReadOnly}
                             style={{ cursor: isReadOnly ? 'not-allowed' : 'pointer' }}
@@ -534,8 +584,8 @@ function EditarFormulario() {
                         </div>
                         <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                           {!isReadOnly && (
-                            <button 
-                              onClick={() => removerCampo(c.id)} 
+                            <button
+                              onClick={() => removerCampo(c.id)}
                               style={{ border: 'none', background: 'none', color: 'red', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem' }}
                               title="Eliminar campo"
                             >

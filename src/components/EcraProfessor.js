@@ -17,7 +17,7 @@ function EcraProfessor() {
     try {
       // Tentar semear a BD primeiro (caso esteja vazia)
       await fetch('http://localhost:3000/api/salas/seed', { method: 'POST' });
-      
+
       const resposta = await fetch('http://localhost:3000/api/salas');
       if (resposta.ok) {
         const dados = await resposta.json();
@@ -72,19 +72,19 @@ function EcraProfessor() {
   const validarCampos = (novasRespostas) => {
     const novosErros = {};
     if (!formSelecionado) return;
-    
+
     const camposAtivos = formSelecionado.campos.filter(c => c.visivel !== false);
-    
+
     // 1. Procurar campos de Sala, Data e Horário no formulário atual
-    const campoSala = camposAtivos.find(c => 
+    const campoSala = camposAtivos.find(c =>
       c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room')
     );
     const campoData = camposAtivos.find(c => c.tipo === 'Data');
-    
-    const campoInicio = camposAtivos.find(c => 
+
+    const campoInicio = camposAtivos.find(c =>
       c.etiqueta.toLowerCase().includes('início') || c.etiqueta.toLowerCase().includes('inicio') || c.etiqueta.toLowerCase().includes('entrada')
     );
-    const campoFim = camposAtivos.find(c => 
+    const campoFim = camposAtivos.find(c =>
       c.etiqueta.toLowerCase().includes('fim') || c.etiqueta.toLowerCase().includes('saída') || c.etiqueta.toLowerCase().includes('saida')
     );
 
@@ -94,7 +94,7 @@ function EcraProfessor() {
       const dataId = campoData._id || campoData.id;
       const inicioId = campoInicio?._id || campoInicio?.id;
       const fimId = campoFim?._id || campoFim?.id;
-      
+
       const salaValue = novasRespostas[salaId];
       const dataValue = novasRespostas[dataId];
       const inicioValue = inicioId ? novasRespostas[inicioId] : null;
@@ -125,7 +125,7 @@ function EcraProfessor() {
     if (campoInicio && campoFim) {
       const inicioId = campoInicio._id || campoInicio.id;
       const fimId = campoFim._id || campoFim.id;
-      
+
       const inicioValue = novasRespostas[inicioId];
       const fimValue = novasRespostas[fimId];
 
@@ -145,6 +145,30 @@ function EcraProfessor() {
           const dataInserida = new Date(valorData);
           if (dataInserida < hoje) {
             novosErros[campoId] = 'Data inválida (selecione uma data futura)';
+          }
+        }
+      }
+    });
+
+    camposAtivos.forEach(campo => {
+      const campoId = campo._id || campo.id;
+      const valor = novasRespostas[campoId];
+
+      if (valor !== undefined && valor !== null && String(valor).trim() !== '') {
+        // Validação de número mínimo e máximo
+        if (campo.tipo === 'Número') {
+          const numVal = Number(valor);
+          if (campo.minNumero !== undefined && campo.minNumero !== '' && numVal < campo.minNumero) {
+            novosErros[campoId] = `O valor deve ser no mínimo ${campo.minNumero}.`;
+          }
+          if (campo.maxNumero !== undefined && campo.maxNumero !== '' && numVal > campo.maxNumero) {
+            novosErros[campoId] = `O valor deve ser no máximo ${campo.maxNumero}.`;
+          }
+        }
+        // Validação de limite de caracteres para texto
+        if (['Texto Curto', 'Texto Longo', 'Nome', 'Email'].includes(campo.tipo) && campo.maxCaracteres) {
+          if (String(valor).length > campo.maxCaracteres) {
+            novosErros[campoId] = `O texto excede o limite de ${campo.maxCaracteres} caracteres.`;
           }
         }
       }
@@ -215,8 +239,8 @@ function EcraProfessor() {
             O seu pedido foi registado com sucesso no sistema <strong>SmartForms</strong>.<br />
             Será redirecionado para a lista de formulários em instantes.
           </p>
-          <button 
-            className="btn-primary" 
+          <button
+            className="btn-primary"
             style={{ marginTop: '30px' }}
             onClick={() => { setFormSelecionado(null); setSubmetidoComSucesso(false); }}
           >
@@ -230,52 +254,52 @@ function EcraProfessor() {
   if (formSelecionado) {
     return (
       <div className="form-view-container">
-        <button 
-          onClick={() => { setFormSelecionado(null); setErros({}); setRespostas({}); setSubmetidoComSucesso(false); setSalaSelecionada(null); }} 
+        <button
+          onClick={() => { setFormSelecionado(null); setErros({}); setRespostas({}); setSubmetidoComSucesso(false); setSalaSelecionada(null); }}
           className="btn-logout"
           style={{ marginBottom: '20px' }}
         >
           ← Voltar aos Formulários
         </button>
-        
+
         <div className="ipt-form-card">
-           {/* PDF Header Layout */}
-           {formSelecionado.showCabecalho !== false && (
-             <div className="ipt-pdf-header">
-               {formSelecionado.showLogo !== false && (
-                 <div className="ipt-pdf-header-logo-box">
-                   <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" />
-                 </div>
-               )}
-               <div className="ipt-pdf-header-title-box">
-                 {formSelecionado.showTitulo !== false ? (
-                   <h1 className="ipt-pdf-header-title-text">{formSelecionado.titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1>
-                 ) : (
-                   <h1 className="ipt-pdf-header-title-text" style={{ visibility: 'hidden' }}>REQUERIMENTO</h1>
-                 )}
-               </div>
-               <div className="ipt-pdf-header-meta-box">
-                 <div className="ipt-pdf-meta-top">PT.SIGQ.MOD ACA 30 20 - 1</div>
-                 <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
-               </div>
-             </div>
-           )}
+          {/* PDF Header Layout */}
+          {formSelecionado.showCabecalho !== false && (
+            <div className="ipt-pdf-header">
+              {formSelecionado.showLogo !== false && (
+                <div className="ipt-pdf-header-logo-box">
+                  <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" />
+                </div>
+              )}
+              <div className="ipt-pdf-header-title-box">
+                {formSelecionado.showTitulo !== false ? (
+                  <h1 className="ipt-pdf-header-title-text">{formSelecionado.titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1>
+                ) : (
+                  <h1 className="ipt-pdf-header-title-text" style={{ visibility: 'hidden' }}>REQUERIMENTO</h1>
+                )}
+              </div>
+              <div className="ipt-pdf-header-meta-box">
+                <div className="ipt-pdf-meta-top">PT.SIGQ.MOD ACA 30 20 - 1</div>
+                <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
+              </div>
+            </div>
+          )}
 
-           {/* Schools Checkboxes Bar */}
-           {formSelecionado.showCabecalho !== false && (
-             <div className="ipt-pdf-schools-bar">
-               <label><input type="checkbox" /> ESGT</label>
-               <label><input type="checkbox" /> ESTA</label>
-               <label><input type="checkbox" /> ESTT</label>
-             </div>
-           )}
+          {/* Schools Checkboxes Bar */}
+          {formSelecionado.showCabecalho !== false && (
+            <div className="ipt-pdf-schools-bar">
+              <label><input type="checkbox" /> ESGT</label>
+              <label><input type="checkbox" /> ESTA</label>
+              <label><input type="checkbox" /> ESTT</label>
+            </div>
+          )}
 
-           {formSelecionado.descricao && (
-             <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: 'var(--muted-bg)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)' }}>
-               <p style={{ margin: 0, color: 'var(--text-muted)', fontStyle: 'italic' }}>{formSelecionado.descricao}</p>
-             </div>
-           )}
-          
+          {formSelecionado.descricao && (
+            <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: 'var(--muted-bg)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)' }}>
+              <p style={{ margin: 0, color: 'var(--text-muted)', fontStyle: 'italic' }}>{formSelecionado.descricao}</p>
+            </div>
+          )}
+
           <div className="form-fields-container">
             {formSelecionado.campos.filter(campo => campo.visivel !== false).map((campo) => {
               const campoId = campo._id || campo.id;
@@ -283,10 +307,10 @@ function EcraProfessor() {
               const isSala = campo.etiqueta.toLowerCase().includes('sala') || campo.etiqueta.toLowerCase().includes('room');
 
               return (
-                <div 
-                  key={campoId} 
-                  style={{ 
-                    gridColumn: `${campo.x || 1} / span ${campo.w || 12}`, 
+                <div
+                  key={campoId}
+                  style={{
+                    gridColumn: `${campo.x || 1} / span ${campo.w || 12}`,
                     gridRowStart: campo.y || 'auto',
                     display: 'flex',
                     flexDirection: 'column',
@@ -297,7 +321,7 @@ function EcraProfessor() {
                   <label className="field-label-text">
                     {campo.etiqueta} {campo.obrigatorio && <span className="required-asterisk">*</span>}
                   </label>
-                  
+
                   {isSala ? (
                     <select
                       className="form-input"
@@ -308,7 +332,7 @@ function EcraProfessor() {
                         setSalaSelecionada(sala);
                         handleInputChange(campoId, valor);
                       }}
-                      style={{ 
+                      style={{
                         borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
                         borderWidth: temErro ? '2px' : '1px'
                       }}
@@ -321,24 +345,28 @@ function EcraProfessor() {
                       ))}
                     </select>
                   ) : (
-                    <input 
+                    <input
                       className="form-input"
-                      type={campo.tipo === 'Data' ? 'date' : campo.tipo === 'Hora' ? 'time' : campo.tipo === 'Número' ? 'number' : 'text'} 
+                      type={campo.tipo === 'Data' ? 'date' : campo.tipo === 'Hora' ? 'time' : campo.tipo === 'Número' ? 'number' : 'text'}
                       value={respostas[campoId] || ''}
                       onChange={(e) => handleInputChange(campoId, e.target.value)}
-                      style={{ 
+                      style={{
                         borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
                         borderWidth: temErro ? '2px' : '1px'
                       }}
                       placeholder={campo.tipo === 'Data' || campo.tipo === 'Hora' ? '' : 'Introduza aqui...'}
+                      // Atributos de validação nativos adicionados para consistência
+                      maxLength={['Texto Curto', 'Texto Longo', 'Nome', 'Email'].includes(campo.tipo) ? campo.maxCaracteres : undefined}
+                      min={campo.tipo === 'Número' ? campo.minNumero : undefined}
+                      max={campo.tipo === 'Número' ? campo.maxNumero : undefined}
                     />
                   )}
 
                   {isSala && salaSelecionada && (
-                    <div className="room-info-card" style={{ 
-                      marginTop: '10px', 
-                      padding: '12px', 
-                      backgroundColor: 'var(--muted-bg)', 
+                    <div className="room-info-card" style={{
+                      marginTop: '10px',
+                      padding: '12px',
+                      backgroundColor: 'var(--muted-bg)',
                       borderRadius: '8px',
                       fontSize: '0.9rem',
                       border: '1px solid rgba(0, 108, 198, 0.2)'
@@ -361,7 +389,7 @@ function EcraProfessor() {
               );
             })}
 
-            <button 
+            <button
               disabled={!podeSubmeter}
               className="btn-ipt-submit"
               onClick={handleSubmeter}
@@ -380,7 +408,7 @@ function EcraProfessor() {
         <h2>Formulários Disponíveis</h2>
         <p className="text-muted">Selecione um formulário para iniciar o preenchimento.</p>
       </div>
-      
+
       {loading ? (
         <div className="text-center" style={{ padding: '40px' }}>A carregar formulários...</div>
       ) : formularios.length === 0 ? (
@@ -406,7 +434,7 @@ function EcraProfessor() {
                     </div>
                     <div className="card-footer">
                       <span className="status-badge status-publicado">Disponível</span>
-                      <button 
+                      <button
                         className="btn-primary btn-fill"
                         onClick={() => {
                           setFormSelecionado(form);

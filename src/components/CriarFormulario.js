@@ -20,11 +20,11 @@ function CriarFormulario({ onFormularioCriado }) {
   const [isPreview, setIsPreview] = useState(false);
   const [mensagem, setMensagem] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const [showCabecalho, setShowCabecalho] = useState(true);
   const [showTitulo, setShowTitulo] = useState(true);
   const [showLogo, setShowLogo] = useState(true);
-  
+
   // 1. Gestão de Modelos (Padrão + Personalizados)
   const [templates, setTemplates] = useState({
     TIPOS: INITIAL_TEMPLATES,
@@ -159,7 +159,10 @@ function CriarFormulario({ onFormularioCriado }) {
         visivel: c.visivel !== undefined ? c.visivel : true,
         x: c.x,
         y: c.y,
-        w: c.w
+        w: c.w,
+        maxCaracteres: c.maxCaracteres ? parseInt(c.maxCaracteres) : undefined,
+        minNumero: (c.minNumero !== undefined && c.minNumero !== '') ? Number(c.minNumero) : undefined,
+        maxNumero: (c.maxNumero !== undefined && c.maxNumero !== '') ? Number(c.maxNumero) : undefined
       })),
       corPrincipal: localStorage.getItem('corPrincipal') || '#28a745',
       logo: localStorage.getItem('logo') || null,
@@ -197,12 +200,12 @@ function CriarFormulario({ onFormularioCriado }) {
       </div>
 
       {mensagem && (
-        <div style={{ 
-          padding: '15px', 
-          backgroundColor: mensagem.includes('Erro') ? '#fff1f0' : '#f6ffed', 
+        <div style={{
+          padding: '15px',
+          backgroundColor: mensagem.includes('Erro') ? '#fff1f0' : '#f6ffed',
           border: `1px solid ${mensagem.includes('Erro') ? '#ffa39e' : '#b7eb8f'}`,
           borderRadius: '4px',
-          marginBottom: '20px', 
+          marginBottom: '20px',
           textAlign: 'center',
           color: mensagem.includes('Erro') ? '#cf1322' : '#52c41a',
           fontWeight: 'bold'
@@ -216,51 +219,51 @@ function CriarFormulario({ onFormularioCriado }) {
         <div style={{ flex: 1 }}>
           {isPreview ? (
             <div className="ipt-form-card" style={{ minHeight: '600px' }}>
-               {/* PDF Header Layout */}
-               {showCabecalho && (
-                 <div className="ipt-pdf-header">
-                   {showLogo && (
-                     <div className="ipt-pdf-header-logo-box">
-                       <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" />
-                     </div>
-                   )}
-                   <div className="ipt-pdf-header-title-box">
-                     {showTitulo ? (
-                       <h1 className="ipt-pdf-header-title-text">{titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1>
-                     ) : (
-                       <h1 className="ipt-pdf-header-title-text" style={{ visibility: 'hidden' }}>REQUERIMENTO</h1>
-                     )}
-                   </div>
-                   <div className="ipt-pdf-header-meta-box">
-                     <div className="ipt-pdf-meta-top">PT.SIGQ.MOD ACA 30 20 - 1</div>
-                     <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
-                   </div>
-                 </div>
-               )}
-
-               {/* Schools Checkboxes Bar */}
-               {showCabecalho && (
-                 <div className="ipt-pdf-schools-bar">
-                   <label><input type="checkbox" disabled /> ESGT</label>
-                   <label><input type="checkbox" disabled /> ESTA</label>
-                   <label><input type="checkbox" disabled /> ESTT</label>
-                 </div>
-               )}
-
-               {descricao && (
-                 <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: 'var(--muted-bg)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)' }}>
-                   <p style={{ margin: 0, color: 'var(--text-muted)', fontStyle: 'italic' }}>{descricao}</p>
-                 </div>
-               )}
-
-               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '20px' }}>
-                  {campos.filter(c => c.visivel !== false).map(c => (
-                    <div key={c.id} style={{ gridColumn: `${c.x} / span ${c.w}`, gridRowStart: c.y }}>
-                      <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>{c.label} {c.obrigatorio && <span style={{color:'red'}}>*</span>}</label>
-                      <input style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }} disabled placeholder={`Resposta (${c.type})...`} />
+              {/* PDF Header Layout */}
+              {showCabecalho && (
+                <div className="ipt-pdf-header">
+                  {showLogo && (
+                    <div className="ipt-pdf-header-logo-box">
+                      <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" />
                     </div>
-                  ))}
-               </div>
+                  )}
+                  <div className="ipt-pdf-header-title-box">
+                    {showTitulo ? (
+                      <h1 className="ipt-pdf-header-title-text">{titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1>
+                    ) : (
+                      <h1 className="ipt-pdf-header-title-text" style={{ visibility: 'hidden' }}>REQUERIMENTO</h1>
+                    )}
+                  </div>
+                  <div className="ipt-pdf-header-meta-box">
+                    <div className="ipt-pdf-meta-top">PT.SIGQ.MOD ACA 30 20 - 1</div>
+                    <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Schools Checkboxes Bar */}
+              {showCabecalho && (
+                <div className="ipt-pdf-schools-bar">
+                  <label><input type="checkbox" disabled /> ESGT</label>
+                  <label><input type="checkbox" disabled /> ESTA</label>
+                  <label><input type="checkbox" disabled /> ESTT</label>
+                </div>
+              )}
+
+              {descricao && (
+                <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: 'var(--muted-bg)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)' }}>
+                  <p style={{ margin: 0, color: 'var(--text-muted)', fontStyle: 'italic' }}>{descricao}</p>
+                </div>
+              )}
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '20px' }}>
+                {campos.filter(c => c.visivel !== false).map(c => (
+                  <div key={c.id} style={{ gridColumn: `${c.x} / span ${c.w}`, gridRowStart: c.y }}>
+                    <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>{c.label} {c.obrigatorio && <span style={{ color: 'red' }}>*</span>}</label>
+                    <input style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }} disabled placeholder={`Resposta (${c.type})...`} />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -274,11 +277,11 @@ function CriarFormulario({ onFormularioCriado }) {
                   )}
                   <div className="ipt-pdf-header-title-box">
                     {showTitulo ? (
-                      <input 
-                        className="ipt-pdf-header-title-input" 
-                        value={titulo} 
-                        onChange={e => setTitulo(e.target.value)} 
-                        placeholder="TÍTULO DO REQUERIMENTO" 
+                      <input
+                        className="ipt-pdf-header-title-input"
+                        value={titulo}
+                        onChange={e => setTitulo(e.target.value)}
+                        placeholder="TÍTULO DO REQUERIMENTO"
                       />
                     ) : (
                       <div style={{ color: '#ccc', fontStyle: 'italic', fontSize: '0.9rem' }}>(Título Ocultado)</div>
@@ -302,9 +305,9 @@ function CriarFormulario({ onFormularioCriado }) {
 
               {/* Description Input Card */}
               <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <textarea 
-                  style={{ width: '100%', border: 'none', borderBottom: '1px solid #eee', resize: 'none', outline: 'none', color: '#666', fontSize: '1rem' }} 
-                  rows="2" value={descricao} onChange={e => setDescricao(e.target.value)} placeholder="Adicione uma descrição..." 
+                <textarea
+                  style={{ width: '100%', border: 'none', borderBottom: '1px solid #eee', resize: 'none', outline: 'none', color: '#666', fontSize: '1rem' }}
+                  rows="2" value={descricao} onChange={e => setDescricao(e.target.value)} placeholder="Adicione uma descrição..."
                 />
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <label style={{ fontWeight: '600', fontSize: '0.9rem' }}>Categoria:</label>
@@ -316,13 +319,13 @@ function CriarFormulario({ onFormularioCriado }) {
                   />
                 </div>
               </div>
-              
-              <div 
+
+              <div
                 ref={canvasRef}
                 onDragOver={e => e.preventDefault()}
                 onDrop={onDrop}
-                style={{ 
-                  backgroundColor: '#fff', border: '2px solid #ddd', borderRadius: '12px', minHeight: '1000px', 
+                style={{
+                  backgroundColor: '#fff', border: '2px solid #ddd', borderRadius: '12px', minHeight: '1000px',
                   display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gridAutoRows: '100px',
                   backgroundImage: 'radial-gradient(#ddd 1px, transparent 1px)', backgroundSize: 'calc(100% / 12) 100px',
                   padding: '10px', gap: '10px'
@@ -336,11 +339,49 @@ function CriarFormulario({ onFormularioCriado }) {
                       <button onClick={() => removerCampo(c.id)} style={{ border: 'none', background: 'none', color: 'red', cursor: 'pointer', fontWeight: 'bold' }}>×</button>
                     </div>
                     <input style={{ border: 'none', borderBottom: '1px solid #eee', fontWeight: 'bold', width: '100%', outline: 'none' }} value={c.label} onChange={e => atualizarCampo(c.id, 'label', e.target.value)} />
-                    
+
                     <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '5px' }}>
                       <input type="checkbox" checked={c.obrigatorio} onChange={e => atualizarCampo(c.id, 'obrigatorio', e.target.checked)} />
                       <span style={{ fontSize: '0.7rem', color: '#888' }}>Obrigatório</span>
                     </div>
+
+                    {/* INPUTS PARA CONFIGURAR LIMITES */}
+                    {['Texto Curto', 'Texto Longo', 'Nome', 'Email'].includes(c.type) && (
+                      <div style={{ marginTop: '5px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <label style={{ fontSize: '0.65rem', color: '#666', fontWeight: 'bold' }}>Tam. Máximo:</label>
+                        <input
+                          type="number"
+                          style={{ fontSize: '0.7rem', padding: '2px 4px', border: '1px solid #ddd', borderRadius: '4px' }}
+                          value={c.maxCaracteres || ''}
+                          onChange={e => atualizarCampo(c.id, 'maxCaracteres', e.target.value ? parseInt(e.target.value) : '')}
+                          placeholder="Caracteres máx."
+                        />
+                      </div>
+                    )}
+                    {c.type === 'Número' && (
+                      <div style={{ marginTop: '5px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <label style={{ fontSize: '0.65rem', color: '#666', fontWeight: 'bold' }}>Mínimo:</label>
+                          <input
+                            type="number"
+                            style={{ fontSize: '0.7rem', padding: '2px 4px', border: '1px solid #ddd', borderRadius: '4px', width: '100%' }}
+                            value={c.minNumero !== undefined ? c.minNumero : ''}
+                            onChange={e => atualizarCampo(c.id, 'minNumero', e.target.value !== '' ? Number(e.target.value) : '')}
+                            placeholder="Mín"
+                          />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <label style={{ fontSize: '0.65rem', color: '#666', fontWeight: 'bold' }}>Máximo:</label>
+                          <input
+                            type="number"
+                            style={{ fontSize: '0.7rem', padding: '2px 4px', border: '1px solid #ddd', borderRadius: '4px', width: '100%' }}
+                            value={c.maxNumero !== undefined ? c.maxNumero : ''}
+                            onChange={e => atualizarCampo(c.id, 'maxNumero', e.target.value !== '' ? Number(e.target.value) : '')}
+                            placeholder="Máx"
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     <div onMouseDown={e => startResize(e, c.id)} style={{ position: 'absolute', right: 0, bottom: 0, width: '15px', height: '15px', cursor: 'nwse-resize', borderRight: '2px solid #28a745', borderBottom: '2px solid #28a745', borderRadius: '0 0 8px 0' }} />
                   </div>
@@ -361,32 +402,32 @@ function CriarFormulario({ onFormularioCriado }) {
             {/* Definições Globais e Visibilidade Card */}
             <div className="card" style={{ padding: '20px' }}>
               <h4 style={{ marginBottom: '15px' }}>Definições Globais e Visibilidade</h4>
-              
+
               {/* Secção 1: Estrutura Global */}
               <div style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '15px' }}>
                 <p style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#999', textTransform: 'uppercase', marginBottom: '10px' }}>Estrutura Global do Formulário</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', cursor: 'pointer' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={showCabecalho} 
-                      onChange={(e) => setShowCabecalho(e.target.checked)} 
+                    <input
+                      type="checkbox"
+                      checked={showCabecalho}
+                      onChange={(e) => setShowCabecalho(e.target.checked)}
                     />
                     Ativar Cabeçalho (IPT Logo)
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', cursor: 'pointer' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={showTitulo} 
-                      onChange={(e) => setShowTitulo(e.target.checked)} 
+                    <input
+                      type="checkbox"
+                      checked={showTitulo}
+                      onChange={(e) => setShowTitulo(e.target.checked)}
                     />
                     Ativar Título do Formulário
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', cursor: 'pointer' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={showLogo} 
-                      onChange={(e) => setShowLogo(e.target.checked)} 
+                    <input
+                      type="checkbox"
+                      checked={showLogo}
+                      onChange={(e) => setShowLogo(e.target.checked)}
                     />
                     Ativar Imagem/Logo (IPT)
                   </label>
@@ -401,23 +442,23 @@ function CriarFormulario({ onFormularioCriado }) {
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '250px', overflowY: 'auto', paddingRight: '5px' }}>
                     {campos.map((c) => (
-                      <div 
-                        key={c.id} 
-                        style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'space-between', 
-                          padding: '8px 10px', 
-                          backgroundColor: '#f8f9fa', 
-                          border: '1px solid #eee', 
-                          borderRadius: '4px' 
+                      <div
+                        key={c.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 10px',
+                          backgroundColor: '#f8f9fa',
+                          border: '1px solid #eee',
+                          borderRadius: '4px'
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', flex: 1 }}>
-                          <input 
-                            type="checkbox" 
-                            checked={c.visivel !== false} 
-                            onChange={(e) => atualizarCampo(c.id, 'visivel', e.target.checked)} 
+                          <input
+                            type="checkbox"
+                            checked={c.visivel !== false}
+                            onChange={(e) => atualizarCampo(c.id, 'visivel', e.target.checked)}
                             title={c.visivel !== false ? "Desativar campo" : "Ativar campo"}
                             style={{ cursor: 'pointer' }}
                           />
@@ -426,8 +467,8 @@ function CriarFormulario({ onFormularioCriado }) {
                           </span>
                         </div>
                         <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                          <button 
-                            onClick={() => removerCampo(c.id)} 
+                          <button
+                            onClick={() => removerCampo(c.id)}
                             style={{ border: 'none', background: 'none', color: 'red', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem' }}
                             title="Eliminar campo"
                           >
@@ -450,7 +491,7 @@ function CriarFormulario({ onFormularioCriado }) {
                   + {t.label}
                 </div>
               ))}
-              
+
               {templates.PERSONALIZADOS.length > 0 && (
                 <>
                   <p style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#28a745', marginTop: '15px' }}>PERSONALIZADOS</p>
@@ -464,13 +505,13 @@ function CriarFormulario({ onFormularioCriado }) {
 
               <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid #eee' }}>
                 <p style={{ fontSize: '0.75rem', fontWeight: 'bold', marginBottom: '10px' }}>Criar Ferramenta</p>
-                <input 
+                <input
                   style={{ width: '100%', padding: '8px', fontSize: '0.8rem', marginBottom: '5px', borderRadius: '4px', border: '1px solid #ddd' }}
-                  placeholder="Nome da pergunta..." 
-                  value={novoModeloNome} 
-                  onChange={e => setNovoModeloNome(e.target.value)} 
+                  placeholder="Nome da pergunta..."
+                  value={novoModeloNome}
+                  onChange={e => setNovoModeloNome(e.target.value)}
                 />
-                <select 
+                <select
                   style={{ width: '100%', padding: '8px', fontSize: '0.8rem', marginBottom: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
                   value={novoModeloTipo}
                   onChange={e => setNovoModeloTipo(e.target.value)}
