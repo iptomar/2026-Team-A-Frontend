@@ -1,27 +1,28 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  agruparFormulariosPorCategoria,
-  filtrarEOrdenarFormularios,
-  obterCategorias
-} from '../utils/formUtils';
+import { agruparFormulariosPorCategoria, filtrarEOrdenarFormularios, obterCategorias, obterClassesPosicaoCampo } from '../utils/formUtils';
 import { SALAS } from '../utils/salasData';
+import { useRuntimeColorClass } from '../utils/runtimeStyles';
 import './EcraProfessor.css';
 
 // Componente de Upload de Ficheiro Interativo
-function CampoFicheiro({ campo, value, onChange, temErro, corTema }) {
+function CampoFicheiro({
+  campo,
+  value,
+  onChange,
+  temErro,
+  corTema
+}) {
   const fileInputRef = React.useRef(null);
   const [dragOver, setDragOver] = useState(false);
-
-  const handleDragOver = (e) => {
+  const themeClass = useRuntimeColorClass('file-upload-theme', corTema, '--file-upload-theme-color');
+  const handleDragOver = e => {
     e.preventDefault();
     setDragOver(true);
   };
-
   const handleDragLeave = () => {
     setDragOver(false);
   };
-
-  const handleDrop = (e) => {
+  const handleDrop = e => {
     e.preventDefault();
     setDragOver(false);
     const file = e.dataTransfer.files[0];
@@ -29,17 +30,15 @@ function CampoFicheiro({ campo, value, onChange, temErro, corTema }) {
       processFile(file);
     }
   };
-
-  const handleFileChange = (e) => {
+  const handleFileChange = e => {
     const file = e.target.files[0];
     if (file) {
       processFile(file);
     }
   };
-
-  const processFile = (file) => {
+  const processFile = file => {
     const reader = new FileReader();
-    reader.onload = (uploadEvent) => {
+    reader.onload = uploadEvent => {
       onChange({
         name: file.name,
         size: file.size,
@@ -49,98 +48,54 @@ function CampoFicheiro({ campo, value, onChange, temErro, corTema }) {
     };
     reader.readAsDataURL(file);
   };
-
-  const clearFile = (e) => {
+  const clearFile = e => {
     e.stopPropagation();
     onChange('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
+  return <div onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} className={`file-upload-field ${themeClass} ${dragOver ? 'is-drag-over' : ''} ${temErro ? 'has-error' : ''}`} onClick={() => fileInputRef.current && fileInputRef.current.click()}>
 
-  return (
-    <div
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-      style={{
-        border: `2px dashed ${dragOver ? corTema : temErro ? '#dc3545' : '#ccc'}`,
-        borderRadius: '8px',
-        padding: '25px',
-        textAlign: 'center',
-        backgroundColor: dragOver ? 'rgba(0,0,0,0.02)' : '#f8f9fa',
-        cursor: 'pointer',
-        position: 'relative',
-        transition: 'all 0.2s ease',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '10px'
-      }}
-      onClick={() => fileInputRef.current && fileInputRef.current.click()}
-    >
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        style={{ display: 'none' }}
-      />
+      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="ecra-professor-extracted-1" />
 
-      {value ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center' }}>
-          <span style={{ fontSize: '1.5rem' }}>📄</span>
-          <div style={{ textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '70%' }}>
-            <strong style={{ display: 'block', fontSize: '0.9rem', color: '#333' }}>{value.name}</strong>
-            <span style={{ fontSize: '0.75rem', color: '#888' }}>{(value.size / 1024).toFixed(1)} KB</span>
+
+
+      {value ? <div className="ecra-professor-extracted-2">
+          <span className="ecra-professor-extracted-3">📄</span>
+          <div className="ecra-professor-extracted-4">
+            <strong className="ecra-professor-extracted-5">{value.name}</strong>
+            <span className="ecra-professor-extracted-6">{(value.size / 1024).toFixed(1)} KB</span>
           </div>
-          <button
-            type="button"
-            onClick={clearFile}
-            style={{
-              background: '#fff',
-              border: '1px solid #ddd',
-              borderRadius: '50%',
-              width: '26px',
-              height: '26px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              color: '#ff4d4f',
-              fontWeight: 'bold',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-            }}
-          >
+          <button type="button" onClick={clearFile} className="ecra-professor-extracted-7">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             ×
           </button>
-        </div>
-      ) : (
-        <>
-          <div style={{ fontSize: '2rem' }}>📁</div>
-          <div style={{ fontWeight: '600', color: '#555' }}>Arrastar e soltar ficheiro aqui</div>
-          <div style={{ fontSize: '0.8rem', color: '#888' }}>ou</div>
-          <button
-            type="button"
-            className="btn-primary"
-            style={{
-              padding: '8px 16px',
-              backgroundColor: corTema,
-              border: 'none',
-              borderRadius: '6px',
-              fontWeight: 'bold',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: '0.85rem'
-            }}
-          >
+        </div> : <>
+          <div className="ecra-professor-extracted-8">📁</div>
+          <div className="ecra-professor-extracted-9">Arrastar e soltar ficheiro aqui</div>
+          <div className="ecra-professor-extracted-10">ou</div>
+          <button type="button" className="btn-primary file-upload-select-button">
+
             Selecionar Ficheiro
           </button>
-        </>
-      )}
-    </div>
-  );
+        </>}
+    </div>;
 }
-
 function EcraProfessor() {
   const [formularios, setFormularios] = useState([]);
   const [formSelecionado, setFormSelecionado] = useState(null);
@@ -155,12 +110,12 @@ function EcraProfessor() {
     categoria: 'Todas',
     ordenacao: 'recentes'
   });
-
   const carregarSalas = async () => {
     try {
       // Tentar semear a BD primeiro (caso esteja vazia)
-      await fetch('http://localhost:3000/api/salas/seed', { method: 'POST' });
-
+      await fetch('http://localhost:3000/api/salas/seed', {
+        method: 'POST'
+      });
       const resposta = await fetch('http://localhost:3000/api/salas');
       if (resposta.ok) {
         const dados = await resposta.json();
@@ -172,12 +127,13 @@ function EcraProfessor() {
       console.warn('Backend não disponível para carregar salas, a usar dados locais.');
     }
   };
-
   const carregarOcupacao = async () => {
     try {
       const token = localStorage.getItem('token');
       const resposta = await fetch('http://localhost:3000/api/submissoes/ocupacao', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       if (resposta.ok) {
         const dados = await resposta.json();
@@ -187,7 +143,6 @@ function EcraProfessor() {
       console.error('Erro ao carregar ocupação:', erro);
     }
   };
-
   const carregarFormularios = async () => {
     setLoading(true);
     try {
@@ -207,35 +162,20 @@ function EcraProfessor() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     carregarFormularios();
     carregarOcupacao();
     carregarSalas();
   }, []);
-
-  const categorias = useMemo(
-    () => obterCategorias(formularios),
-    [formularios]
-  );
-
-  const formulariosFiltrados = useMemo(
-    () => filtrarEOrdenarFormularios(formularios, filtros),
-    [formularios, filtros]
-  );
-
-  const formulariosAgrupados = useMemo(
-    () => agruparFormulariosPorCategoria(formulariosFiltrados),
-    [formulariosFiltrados]
-  );
-
+  const categorias = useMemo(() => obterCategorias(formularios), [formularios]);
+  const formulariosFiltrados = useMemo(() => filtrarEOrdenarFormularios(formularios, filtros), [formularios, filtros]);
+  const formulariosAgrupados = useMemo(() => agruparFormulariosPorCategoria(formulariosFiltrados), [formulariosFiltrados]);
   const atualizarFiltro = (nome, valor) => {
-    setFiltros((filtrosAtuais) => ({
+    setFiltros(filtrosAtuais => ({
       ...filtrosAtuais,
       [nome]: valor
     }));
   };
-
   const limparFiltros = () => {
     setFiltros({
       pesquisa: '',
@@ -245,24 +185,16 @@ function EcraProfessor() {
   };
 
   // LÓGICA DE VALIDAÇÃO REFINADA (SMART)
-  const validarCampos = (novasRespostas) => {
+  const validarCampos = novasRespostas => {
     const novosErros = {};
     if (!formSelecionado) return;
-
     const camposAtivos = formSelecionado.campos.filter(c => c.visivel !== false);
 
     // 1. Procurar campos de Sala, Data e Horário no formulário atual
-    const campoSala = camposAtivos.find(c =>
-      c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room')
-    );
+    const campoSala = camposAtivos.find(c => c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room'));
     const campoData = camposAtivos.find(c => c.tipo === 'Data');
-
-    const campoInicio = camposAtivos.find(c =>
-      c.etiqueta.toLowerCase().includes('início') || c.etiqueta.toLowerCase().includes('inicio') || c.etiqueta.toLowerCase().includes('entrada')
-    );
-    const campoFim = camposAtivos.find(c =>
-      c.etiqueta.toLowerCase().includes('fim') || c.etiqueta.toLowerCase().includes('saída') || c.etiqueta.toLowerCase().includes('saida')
-    );
+    const campoInicio = camposAtivos.find(c => c.etiqueta.toLowerCase().includes('início') || c.etiqueta.toLowerCase().includes('inicio') || c.etiqueta.toLowerCase().includes('entrada'));
+    const campoFim = camposAtivos.find(c => c.etiqueta.toLowerCase().includes('fim') || c.etiqueta.toLowerCase().includes('saída') || c.etiqueta.toLowerCase().includes('saida'));
 
     // 2. Validar Ocupação de Sala (Real com Overlap de Horas)
     if (campoSala && campoData) {
@@ -270,28 +202,25 @@ function EcraProfessor() {
       const dataId = campoData._id || campoData.id;
       const inicioId = campoInicio?._id || campoInicio?.id;
       const fimId = campoFim?._id || campoFim?.id;
-
       const salaValue = novasRespostas[salaId];
       const dataValue = novasRespostas[dataId];
       const inicioValue = inicioId ? novasRespostas[inicioId] : null;
       const fimValue = fimId ? novasRespostas[fimId] : null;
-
       if (salaValue && dataValue) {
         const conflito = ocupacaoReal.find(o => {
           // Mesma sala e mesmo dia?
           if (o.sala.toLowerCase() === salaValue.toLowerCase() && o.data === dataValue) {
             // Se ambos tiverem horas definidas, verificamos overlap
             if (inicioValue && fimValue && o.inicio && o.fim) {
-              return (inicioValue < o.fim && fimValue > o.inicio);
+              return inicioValue < o.fim && fimValue > o.inicio;
             }
             // Se um deles não tiver horas (ex: reserva de dia inteiro), assumimos conflito
             return true;
           }
           return false;
         });
-
         if (conflito) {
-          const infoHoras = (conflito.inicio && conflito.fim) ? ` das ${conflito.inicio} às ${conflito.fim}` : ' (dia inteiro)';
+          const infoHoras = conflito.inicio && conflito.fim ? ` das ${conflito.inicio} às ${conflito.fim}` : ' (dia inteiro)';
           novosErros[salaId] = `Sala já reservada neste dia${infoHoras}!`;
         }
       }
@@ -301,10 +230,8 @@ function EcraProfessor() {
     if (campoInicio && campoFim) {
       const inicioId = campoInicio._id || campoInicio.id;
       const fimId = campoFim._id || campoFim.id;
-
       const inicioValue = novasRespostas[inicioId];
       const fimValue = novasRespostas[fimId];
-
       if (inicioValue && fimValue && inicioValue >= fimValue) {
         novosErros[fimId] = 'A hora de fim deve ser posterior à de início.';
       }
@@ -325,11 +252,9 @@ function EcraProfessor() {
         }
       }
     });
-
     camposAtivos.forEach(campo => {
       const campoId = campo._id || campo.id;
       const valor = novasRespostas[campoId];
-
       if (valor !== undefined && valor !== null && String(valor).trim() !== '') {
         // Validação de número mínimo e máximo
         if (campo.tipo === 'Número') {
@@ -349,12 +274,13 @@ function EcraProfessor() {
         }
       }
     });
-
     setErros(novosErros);
   };
-
   const handleInputChange = (campoId, valor) => {
-    const novasRespostas = { ...respostas, [campoId]: valor };
+    const novasRespostas = {
+      ...respostas,
+      [campoId]: valor
+    };
     setRespostas(novasRespostas);
     validarCampos(novasRespostas);
   };
@@ -367,9 +293,7 @@ function EcraProfessor() {
     const semErroNoCampo = !erros[campo._id || campo.id];
     return validacaoObrigatorio && semErroNoCampo;
   });
-
   const [submetidoComSucesso, setSubmetidoComSucesso] = useState(false);
-
   const handleSubmeter = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -385,7 +309,6 @@ function EcraProfessor() {
           respostas: respostas
         })
       });
-
       if (resposta.ok) {
         setSubmetidoComSucesso(true);
         setRespostas({});
@@ -404,253 +327,160 @@ function EcraProfessor() {
       alert('Erro de ligação ao servidor.');
     }
   };
-
   if (submetidoComSucesso) {
-    return (
-      <div className="success-screen">
+    return <div className="success-screen">
         <div className="card success-card">
           <div className="success-icon">✅</div>
-          <h2 style={{ color: 'var(--text-main)', marginBottom: '1rem' }}>Submissão Concluída!</h2>
-          <p className="text-muted" style={{ fontSize: '1.1rem', lineHeight: '1.6' }}>
+          <h2 className="ecra-professor-extracted-11">Submissão Concluída!</h2>
+          <p className="text-muted ecra-professor-extracted-12">
             O seu pedido foi registado com sucesso no sistema <strong>SmartForms</strong>.<br />
             Será redirecionado para a lista de formulários em instantes.
           </p>
-          <button
-            className="btn-primary"
-            style={{ marginTop: '30px' }}
-            onClick={() => { setFormSelecionado(null); setSubmetidoComSucesso(false); }}
-          >
+          <button className="btn-primary ecra-professor-extracted-13" onClick={() => {
+          setFormSelecionado(null);
+          setSubmetidoComSucesso(false);
+        }}>
+
             Voltar Agora
           </button>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (formSelecionado) {
     const corTema = formSelecionado.corPrincipal || '#28a745';
     const logoTema = formSelecionado.logo || localStorage.getItem('logo');
     const codigoDocumento = formSelecionado.codigoDocumento || 'PT.SIGQ.MOD ACA 30 60 - 3';
+    return <div className="form-view-container">
+        <button onClick={() => {
+        setFormSelecionado(null);
+        setErros({});
+        setRespostas({});
+        setSubmetidoComSucesso(false);
+        setSalaSelecionada(null);
+      }} className="btn-logout ecra-professor-extracted-14">
 
-    return (
-      <div className="form-view-container">
-        <button
-          onClick={() => { setFormSelecionado(null); setErros({}); setRespostas({}); setSubmetidoComSucesso(false); setSalaSelecionada(null); }}
-          className="btn-logout"
-          style={{ marginBottom: '20px' }}
-        >
+
           ← Voltar aos Formulários
         </button>
 
         <div className="ipt-form-card">
           {/* PDF Header Layout */}
-          {formSelecionado.showCabecalho !== false && (
-            <div className="ipt-pdf-header">
-              {formSelecionado.showLogo !== false && (
-                <div className="ipt-pdf-header-logo-box">
-                  {logoTema ? (
-                    <img src={logoTema} alt="Logótipo IPT" style={{ objectFit: 'contain' }} />
-                  ) : (
-                    <div style={{ color: '#ccc', fontSize: '0.8rem' }}>Sem Logo</div>
-                  )}
-                </div>
-              )}
+          {formSelecionado.showCabecalho !== false && <div className="ipt-pdf-header">
+              {formSelecionado.showLogo !== false && <div className="ipt-pdf-header-logo-box">
+                  {logoTema ? <img src={logoTema} alt="Logótipo IPT" className="ecra-professor-extracted-15" /> : <div className="ecra-professor-extracted-16">Sem Logo</div>}
+                </div>}
               <div className="ipt-pdf-header-title-box">
-                {formSelecionado.showTitulo !== false ? (
-                  <h1 className="ipt-pdf-header-title-text">{formSelecionado.titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1>
-                ) : (
-                  <h1 className="ipt-pdf-header-title-text" style={{ visibility: 'hidden' }}>REQUERIMENTO</h1>
-                )}
+                {formSelecionado.showTitulo !== false ? <h1 className="ipt-pdf-header-title-text">{formSelecionado.titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1> : <h1 className="ipt-pdf-header-title-text ecra-professor-extracted-17">REQUERIMENTO</h1>}
               </div>
               <div className="ipt-pdf-header-meta-box">
                 <div className="ipt-pdf-meta-top">{codigoDocumento}</div>
                 <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* Schools Checkboxes Bar */}
-          {formSelecionado.showCabecalho !== false && (
-            <div className="ipt-pdf-schools-bar">
+          {formSelecionado.showCabecalho !== false && <div className="ipt-pdf-schools-bar">
               <label><input type="checkbox" /> ESGT</label>
               <label><input type="checkbox" /> ESTA</label>
               <label><input type="checkbox" /> ESTT</label>
-            </div>
-          )}
+            </div>}
 
-          {formSelecionado.descricao && (
-            <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: 'var(--muted-bg)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)' }}>
-              <p style={{ margin: 0, color: 'var(--text-muted)', fontStyle: 'italic' }}>{formSelecionado.descricao}</p>
-            </div>
-          )}
+          {formSelecionado.descricao && <div className="ecra-professor-extracted-18">
+              <p className="ecra-professor-extracted-19">{formSelecionado.descricao}</p>
+            </div>}
 
           <div className="form-fields-container">
-            {formSelecionado.campos.filter(campo => campo.visivel !== false).map((campo) => {
-              const campoId = campo._id || campo.id;
-              const temErro = !!erros[campoId];
-              const isSala = campo.etiqueta.toLowerCase().includes('sala') || campo.etiqueta.toLowerCase().includes('room');
+            {formSelecionado.campos.filter(campo => campo.visivel !== false).map(campo => {
+            const campoId = campo._id || campo.id;
+            const temErro = !!erros[campoId];
+            const isSala = campo.etiqueta.toLowerCase().includes('sala') || campo.etiqueta.toLowerCase().includes('room');
+            return <div key={campoId} className={`field-group positioned-field ${obterClassesPosicaoCampo(campo)}`}>
 
-              return (
-                <div
-                  key={campoId}
-                  style={{
-                    gridColumn: `${campo.x || 1} / span ${campo.w || 12}`,
-                    gridRowStart: campo.y || 'auto',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'flex-start'
-                  }}
-                  className="field-group"
-                >
                   <label className="field-label-text">
                     {campo.etiqueta} {campo.obrigatorio && <span className="required-asterisk">*</span>}
                   </label>
 
-                  {isSala ? (
-                    <select
-                      className="form-input"
-                      value={respostas[campoId] || ''}
-                      onChange={(e) => {
-                        const valor = e.target.value;
-                        const sala = salas.find(s => s.nome === valor) || null;
-                        setSalaSelecionada(sala);
-                        handleInputChange(campoId, valor);
-                      }}
-                      style={{
-                        borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
-                        borderWidth: temErro ? '2px' : '1px'
-                      }}
-                    >
-                      <option value="">--- Selecione uma Sala ---</option>
-                      {salas.map(s => (
-                        <option key={s._id || s.id} value={s.nome}>
-                          {s.nome} (Lotação: {s.lotacao})
-                        </option>
-                      ))}
-                    </select>
-                  ) : campo.tipo === 'Ficheiro' ? (
-                    <CampoFicheiro
-                      campo={campo}
-                      value={respostas[campoId] || ''}
-                      onChange={(valor) => handleInputChange(campoId, valor)}
-                      temErro={temErro}
-                      corTema={corTema}
-                    />
-                  ) : (
-                    <input
-                      className="form-input"
-                      type={campo.tipo === 'Data' ? 'date' : campo.tipo === 'Hora' ? 'time' : campo.tipo === 'Número' ? 'number' : 'text'}
-                      value={respostas[campoId] || ''}
-                      onChange={(e) => handleInputChange(campoId, e.target.value)}
-                      style={{
-                        borderColor: temErro ? 'var(--error-text)' : 'var(--border-color)',
-                        borderWidth: temErro ? '2px' : '1px'
-                      }}
-                      placeholder={campo.tipo === 'Data' || campo.tipo === 'Hora' ? '' : 'Introduza aqui...'}
-                      // Atributos de validação nativos adicionados para consistência
-                      maxLength={['Texto Curto', 'Texto Longo', 'Nome', 'Email'].includes(campo.tipo) ? campo.maxCaracteres : undefined}
-                      min={campo.tipo === 'Número' ? campo.minNumero : undefined}
-                      max={campo.tipo === 'Número' ? campo.maxNumero : undefined}
-                    />
-                  )}
+                  {isSala ? <select className={`form-input ${temErro ? 'form-input-error' : ''}`} value={respostas[campoId] || ''} onChange={e => {
+                const valor = e.target.value;
+                const sala = salas.find(s => s.nome === valor) || null;
+                setSalaSelecionada(sala);
+                handleInputChange(campoId, valor);
+              }}>
 
-                  {isSala && salaSelecionada && (
-                    <div className="room-info-card" style={{
-                      marginTop: '10px',
-                      padding: '12px',
-                      backgroundColor: 'var(--muted-bg)',
-                      borderRadius: '8px',
-                      fontSize: '0.9rem',
-                      border: '1px solid rgba(0, 108, 198, 0.2)'
-                    }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <option value="">--- Selecione uma Sala ---</option>
+                      {salas.map(s => <option key={s._id || s.id} value={s.nome}>
+                          {s.nome} (Lotação: {s.lotacao})
+                        </option>)}
+                    </select> : campo.tipo === 'Ficheiro' ? <CampoFicheiro campo={campo} value={respostas[campoId] || ''} onChange={valor => handleInputChange(campoId, valor)} temErro={temErro} corTema={corTema} /> : <input className={`form-input ${temErro ? 'form-input-error' : ''}`} type={campo.tipo === 'Data' ? 'date' : campo.tipo === 'Hora' ? 'time' : campo.tipo === 'Número' ? 'number' : 'text'} value={respostas[campoId] || ''} onChange={e => handleInputChange(campoId, e.target.value)} placeholder={campo.tipo === 'Data' || campo.tipo === 'Hora' ? '' : 'Introduza aqui...'}
+              // Atributos de validação nativos adicionados para consistência
+              maxLength={['Texto Curto', 'Texto Longo', 'Nome', 'Email'].includes(campo.tipo) ? campo.maxCaracteres : undefined} min={campo.tipo === 'Número' ? campo.minNumero : undefined} max={campo.tipo === 'Número' ? campo.maxNumero : undefined} />}
+
+                  {isSala && salaSelecionada && <div className="room-info-card ecra-professor-extracted-20">
+
+
+
+
+
+
+
+                      <div className="ecra-professor-extracted-21">
                         <div><strong>Tipo:</strong> {salaSelecionada.tipo}</div>
                         <div><strong>Lotação:</strong> {salaSelecionada.lotacao}</div>
                         <div><strong>Projetor:</strong> {salaSelecionada.equipamentos.projetor ? '✅' : '❌'}</div>
                         <div><strong>Tomadas:</strong> {salaSelecionada.equipamentos.tomadas ? '✅' : '❌'}</div>
                       </div>
-                    </div>
-                  )}
+                    </div>}
 
-                  {temErro && (
-                    <span className="error-message-small">
+                  {temErro && <span className="error-message-small">
                       ⚠ {erros[campoId]}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+                    </span>}
+                </div>;
+          })}
 
-            <button
-              disabled={!podeSubmeter}
-              className="btn-ipt-submit"
-              onClick={handleSubmeter}
-            >
+            <button disabled={!podeSubmeter} className="btn-ipt-submit" onClick={handleSubmeter}>
+
               Submeter Requisição
             </button>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div>
-      <div style={{ marginBottom: '2rem' }}>
+  return <div>
+      <div className="ecra-professor-extracted-22">
         <h2>Formulários Disponíveis</h2>
         <p className="text-muted">Selecione um formulário para iniciar o preenchimento.</p>
       </div>
 
-      <div
-        className="card"
-        style={{
-          marginBottom: '2rem',
-          display: 'flex',
-          gap: '15px',
-          alignItems: 'flex-end',
-          flexWrap: 'wrap'
-        }}
-      >
-        <div style={{ flex: 1, minWidth: '240px' }}>
+      <div className="card ecra-professor-extracted-23">
+
+
+
+
+
+
+
+
+        <div className="ecra-professor-extracted-24">
           <label className="form-label">Pesquisar</label>
-          <input
-            type="search"
-            className="form-input"
-            placeholder="Título ou descrição..."
-            value={filtros.pesquisa}
-            onChange={(event) =>
-              atualizarFiltro('pesquisa', event.target.value)
-            }
-          />
+          <input type="search" className="form-input" placeholder="Título ou descrição..." value={filtros.pesquisa} onChange={event => atualizarFiltro('pesquisa', event.target.value)} />
+
         </div>
 
-        <div style={{ minWidth: '190px' }}>
+        <div className="ecra-professor-extracted-25">
           <label className="form-label">Categoria</label>
-          <select
-            className="form-input"
-            value={filtros.categoria}
-            onChange={(event) =>
-              atualizarFiltro('categoria', event.target.value)
-            }
-          >
+          <select className="form-input" value={filtros.categoria} onChange={event => atualizarFiltro('categoria', event.target.value)}>
+
             <option value="Todas">Todas as categorias</option>
-            {categorias.map((categoria) => (
-              <option key={categoria} value={categoria}>
+            {categorias.map(categoria => <option key={categoria} value={categoria}>
                 {categoria}
-              </option>
-            ))}
+              </option>)}
           </select>
         </div>
 
-        <div style={{ minWidth: '170px' }}>
+        <div className="ecra-professor-extracted-26">
           <label className="form-label">Ordenar</label>
-          <select
-            className="form-input"
-            value={filtros.ordenacao}
-            onChange={(event) =>
-              atualizarFiltro('ordenacao', event.target.value)
-            }
-          >
+          <select className="form-input" value={filtros.ordenacao} onChange={event => atualizarFiltro('ordenacao', event.target.value)}>
+
             <option value="recentes">Mais recentes</option>
             <option value="antigos">Mais antigos</option>
             <option value="titulo-asc">Título A–Z</option>
@@ -658,68 +488,49 @@ function EcraProfessor() {
           </select>
         </div>
 
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={limparFiltros}
-          style={{ minHeight: '42px' }}
-        >
+        <button type="button" className="btn-secondary ecra-professor-extracted-27" onClick={limparFiltros}>
+
+
           Limpar filtros
         </button>
 
-        <div style={{ width: '100%', color: 'var(--text-muted)' }}>
+        <div className="ecra-professor-extracted-28">
           {formulariosFiltrados.length} de {formularios.length} formulário(s)
         </div>
       </div>
 
-      {loading ? (
-        <div className="text-center" style={{ padding: '40px' }}>A carregar formulários...</div>
-      ) : formularios.length === 0 ? (
-        <div className="card text-center text-muted">
+      {loading ? <div className="text-center ecra-professor-extracted-29">A carregar formulários...</div> : formularios.length === 0 ? <div className="card text-center text-muted">
           Não há formulários publicados de momento.
-        </div>
-      ) : formulariosFiltrados.length === 0 ? (
-        <div className="card text-center text-muted">
+        </div> : formulariosFiltrados.length === 0 ? <div className="card text-center text-muted">
           Nenhum formulário corresponde aos filtros selecionados.
-        </div>
-      ) : (
-        <div>
-          {Object.entries(formulariosAgrupados).map(([categoria, itens]) => (
-            <section key={categoria} className="category-section">
+        </div> : <div>
+          {Object.entries(formulariosAgrupados).map(([categoria, itens]) => <section key={categoria} className="category-section">
               <div className="category-header">
                 <h3 className="category-title">{categoria}</h3>
                 <span className="status-badge status-publicado">{itens.length} formulário(s)</span>
               </div>
               <div className="grid-container">
-                {itens.map((form) => (
-                  <div key={form._id} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                {itens.map(form => <div key={form._id} className="card ecra-professor-extracted-30">
                     <div>
-                      <h3 style={{ marginBottom: '0.5rem' }}>{form.titulo}</h3>
-                      <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                      <h3 className="ecra-professor-extracted-31">{form.titulo}</h3>
+                      <p className="text-muted ecra-professor-extracted-32">
                         {form.descricao || 'Sem descrição disponível.'}
                       </p>
                     </div>
                     <div className="card-footer">
                       <span className="status-badge status-publicado">Disponível</span>
-                      <button
-                        className="btn-primary btn-fill"
-                        onClick={() => {
-                          setFormSelecionado(form);
-                          carregarOcupacao();
-                        }}
-                      >
+                      <button className="btn-primary btn-fill" onClick={() => {
+                setFormSelecionado(form);
+                carregarOcupacao();
+              }}>
+
                         Preencher
                       </button>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
-            </section>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+            </section>)}
+        </div>}
+    </div>;
 }
-
 export default EcraProfessor;

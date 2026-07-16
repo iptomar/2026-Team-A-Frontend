@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 function GerirPedidos() {
   const navigate = useNavigate();
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState('Pendente');
   const [pesquisaNome, setPesquisaNome] = useState('');
-
   const carregarPedidos = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
       const user = JSON.parse(localStorage.getItem('user'));
       console.log('DEBUG: Carregando pedidos para utilizador:', user?.role);
-      
       const resposta = await fetch('http://localhost:3000/api/submissoes/todos', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -34,57 +31,45 @@ function GerirPedidos() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     carregarPedidos();
   }, []);
-
-  const getStatusClass = (status) => {
+  const getStatusClass = status => {
     switch (status) {
-      case 'Aprovado': return 'status-publicado';
-      case 'Pendente': return 'status-rascunho';
-      case 'Rejeitado': return 'status-inativo';
-      default: return '';
+      case 'Aprovado':
+        return 'status-publicado';
+      case 'Pendente':
+        return 'status-rascunho';
+      case 'Rejeitado':
+        return 'status-inativo';
+      default:
+        return '';
     }
   };
-
-  const pedidosFiltrados = pedidos.filter((pedido) => {
+  const pedidosFiltrados = pedidos.filter(pedido => {
     const correspondeEstado = filtroEstado === 'Todos' || pedido.estado === filtroEstado;
     const titulo = pedido.tituloFormulario || '';
     const correspondeNome = titulo.toLowerCase().includes(pesquisaNome.toLowerCase());
     return correspondeEstado && correspondeNome;
   });
-
   console.log('DEBUG: Pedidos filtrados para exibição:', pedidosFiltrados.length);
-
-  return (
-    <div>
-      <div style={{ marginBottom: '2rem' }}>
+  return <div>
+      <div className="gerir-pedidos-style-1">
         <h2>Gestão de Pedidos</h2>
-        <p style={{ color: 'var(--text-muted)' }}>Motor de filtragem e visualização de submissões.</p>
+        <p className="gerir-pedidos-style-2">Motor de filtragem e visualização de submissões.</p>
       </div>
 
-      <div style={{ marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <label htmlFor="pesquisaNome" style={{ fontWeight: '500' }}>Pesquisar Nome:</label>
-          <input
-            id="pesquisaNome"
-            type="text"
-            placeholder="Filtrar por nome..."
-            value={pesquisaNome}
-            onChange={(e) => setPesquisaNome(e.target.value)}
-            style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', minWidth: '250px' }}
-          />
+      <div className="gerir-pedidos-style-3">
+        <div className="gerir-pedidos-style-4">
+          <label htmlFor="pesquisaNome" className="gerir-pedidos-style-5">Pesquisar Nome:</label>
+          <input id="pesquisaNome" type="text" placeholder="Filtrar por nome..." value={pesquisaNome} onChange={e => setPesquisaNome(e.target.value)} className="gerir-pedidos-style-6" />
+
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <label htmlFor="filtroEstado" style={{ fontWeight: '500' }}>Estado:</label>
-          <select
-            id="filtroEstado"
-            value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value)}
-            style={{ padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--border-color)' }}
-          >
+        <div className="gerir-pedidos-style-7">
+          <label htmlFor="filtroEstado" className="gerir-pedidos-style-8">Estado:</label>
+          <select id="filtroEstado" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)} className="gerir-pedidos-style-9">
+
             <option value="Todos">Todos os Estados</option>
             <option value="Pendente">Pendentes</option>
             <option value="Aprovado">Aprovados</option>
@@ -93,56 +78,41 @@ function GerirPedidos() {
         </div>
       </div>
 
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px' }}>A carregar dados do servidor...</div>
-      ) : pedidos.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+      {loading ? <div className="gerir-pedidos-style-10">A carregar dados do servidor...</div> : pedidos.length === 0 ? <div className="card gerir-pedidos-style-11">
           Ainda não existem pedidos submetidos no sistema.
-        </div>
-      ) : pedidosFiltrados.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+        </div> : pedidosFiltrados.length === 0 ? <div className="card gerir-pedidos-style-12">
           Nenhum pedido corresponde aos critérios de filtragem.
-        </div>
-      ) : (
-        <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead style={{ backgroundColor: 'var(--muted-bg)', borderBottom: '2px solid var(--border-color)' }}>
+        </div> : <div className="card gerir-pedidos-style-13">
+          <table className="gerir-pedidos-style-14">
+            <thead className="gerir-pedidos-style-15">
               <tr>
-                <th style={{ padding: '15px' }}>Nome</th>
-                <th style={{ padding: '15px' }}>Data</th>
-                <th style={{ padding: '15px' }}>Professor</th>
-                <th style={{ padding: '15px' }}>Estado</th>
-                <th style={{ padding: '15px' }}>Ações</th>
+                <th className="gerir-pedidos-style-16">Nome</th>
+                <th className="gerir-pedidos-style-17">Data</th>
+                <th className="gerir-pedidos-style-18">Professor</th>
+                <th className="gerir-pedidos-style-19">Estado</th>
+                <th className="gerir-pedidos-style-20">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {pedidosFiltrados.map((pedido) => (
-                <tr key={pedido._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '15px', fontWeight: '500' }}>{pedido.tituloFormulario}</td>
-                  <td style={{ padding: '15px' }}>{new Date(pedido.dataSubmissao).toLocaleDateString('pt-PT')}</td>
-                  <td style={{ padding: '15px' }}>{pedido.professor?.email || 'N/A'}</td>
-                  <td style={{ padding: '15px' }}>
+              {pedidosFiltrados.map(pedido => <tr key={pedido._id} className="gerir-pedidos-style-21">
+                  <td className="gerir-pedidos-style-22">{pedido.tituloFormulario}</td>
+                  <td className="gerir-pedidos-style-23">{new Date(pedido.dataSubmissao).toLocaleDateString('pt-PT')}</td>
+                  <td className="gerir-pedidos-style-24">{pedido.professor?.email || 'N/A'}</td>
+                  <td className="gerir-pedidos-style-25">
                     <span className={`status-badge ${getStatusClass(pedido.estado)}`}>
                       {pedido.estado}
                     </span>
                   </td>
-                  <td style={{ padding: '15px' }}>
-                    <button 
-                      className="btn-secondary" 
-                      style={{ padding: '5px 10px', fontSize: '0.85rem' }}
-                      onClick={() => navigate(`/detalhes-pedido/${pedido._id}`)}
-                    >
+                  <td className="gerir-pedidos-style-26">
+                    <button className="btn-secondary gerir-pedidos-style-27" onClick={() => navigate(`/detalhes-pedido/${pedido._id}`)}>
+
                       Analisar
                     </button>
                   </td>
-                </tr>
-              ))}
+                </tr>)}
             </tbody>
           </table>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 }
-
 export default GerirPedidos;
