@@ -8,6 +8,7 @@ function Register() {
   const [role, setRole] = useState('professor');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [curso, setCurso] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -25,7 +26,7 @@ function Register() {
       const response = await fetch('http://localhost:3000/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role })
+        body: JSON.stringify({ email, password, role, curso })
       });
 
       const data = await response.json();
@@ -73,17 +74,34 @@ function Register() {
 
           <div>
             <label style={{ fontWeight: '600', display: 'block', marginBottom: '5px' }}>Tipo de Utilizador</label>
-            <select 
+            <select
               className="form-input"
               value={role}
               onChange={(e) => setRole(e.target.value)}
               disabled={loading}
             >
               <option value="professor">Professor</option>
-              <option value="admin">Administrador</option>
+              <option value="aluno">Aluno</option>
               <option value="coordenador">Coordenador</option>
+              <option value="diretor">Diretor de Curso</option>
+              <option value="admin">Administrador</option>
             </select>
           </div>
+
+          {(role === 'aluno' || role === 'diretor' || role === 'professor') && (
+            <div>
+              <label style={{ fontWeight: '600', display: 'block', marginBottom: '5px' }}>Curso</label>
+              <input
+                type="text"
+                className="form-input"
+                value={curso}
+                onChange={(e) => setCurso(e.target.value)}
+                placeholder="Ex: Engenharia Informática, Design, etc."
+                required
+                disabled={loading}
+              />
+            </div>
+          )}
 
           <div>
             <label style={{ fontWeight: '600', display: 'block', marginBottom: '5px' }}>Palavra-passe</label>
@@ -111,9 +129,9 @@ function Register() {
             />
           </div>
 
-          <button 
-            type="submit" 
-            className="btn-primary" 
+          <button
+            type="submit"
+            className="btn-primary"
             style={{ padding: '12px', fontSize: '1rem', marginTop: '10px' }}
             disabled={loading}
           >

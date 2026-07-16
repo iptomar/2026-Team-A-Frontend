@@ -55,7 +55,7 @@ function CampoFicheiro({ campo, value, onChange, temErro, corTema }) {
   };
 
   return (
-    <div 
+    <div
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -75,13 +75,13 @@ function CampoFicheiro({ campo, value, onChange, temErro, corTema }) {
       }}
       onClick={() => fileInputRef.current && fileInputRef.current.click()}
     >
-      <input 
-        type="file" 
+      <input
+        type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
-      
+
       {value ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center' }}>
           <span style={{ fontSize: '1.5rem' }}>📄</span>
@@ -89,8 +89,8 @@ function CampoFicheiro({ campo, value, onChange, temErro, corTema }) {
             <strong style={{ display: 'block', fontSize: '0.9rem', color: '#333' }}>{value.name}</strong>
             <span style={{ fontSize: '0.75rem', color: '#888' }}>{(value.size / 1024).toFixed(1)} KB</span>
           </div>
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={clearFile}
             style={{
               background: '#fff',
@@ -182,7 +182,12 @@ function EcraProfessor() {
   const carregarFormularios = async () => {
     setLoading(true);
     try {
-      const resposta = await fetch('http://localhost:3000/api/forms');
+      const token = localStorage.getItem('token');
+      const resposta = await fetch('http://localhost:3000/api/forms', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (resposta.ok) {
         const dados = await resposta.json();
         setFormularios(dados.filter(f => f.estado === 'Publicado'));
@@ -487,7 +492,7 @@ function EcraProfessor() {
                       ))}
                     </select>
                   ) : campo.tipo === 'Ficheiro' ? (
-                    <CampoFicheiro 
+                    <CampoFicheiro
                       campo={campo}
                       value={respostas[campoId] || ''}
                       onChange={(valor) => handleInputChange(campoId, valor)}

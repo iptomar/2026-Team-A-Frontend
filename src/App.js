@@ -10,28 +10,29 @@ import GerirPedidos from './components/GerirPedidos';
 import DetalhesPedido from './components/DetalhesPedido';
 import './App.css';
 import EditarFormulario from './components/EditarFormulario';
-import EcraCoordenador from './components/EcraCoordenador'; 
+import EcraCoordenador from './components/EcraCoordenador';
 import GerirSalas from './components/GerirSalas';
 
 const ProtectedRoute = ({ children, roleRequired }) => {
   const token = localStorage.getItem('token');
   const userString = localStorage.getItem('user');
-  
+
   if (!token || !userString) return <Navigate to="/" replace />;
-  
+
   const user = JSON.parse(userString);
-  
+
   // Se for exigido um cargo específico (ou lista de cargos) e o utilizador não o tiver, redireciona
   if (roleRequired) {
     const roles = Array.isArray(roleRequired) ? roleRequired : [roleRequired];
     if (!roles.includes(user.role)) {
       // Redirecionamento inteligente baseado no cargo atual
       if (user.role === 'admin') return <Navigate to="/admin" replace />;
-      if (user.role === 'coordenador') return <Navigate to="/coordenador" replace />;
+      if (user.role === 'coordenador' || user.role === 'diretor') return <Navigate to="/coordenador" replace />;
+      if (user.role === 'aluno') return <Navigate to="/aluno" replace />;
       return <Navigate to="/professor" replace />;
     }
   }
-  
+
   return children;
 };
 
@@ -42,10 +43,11 @@ const HomeRedirect = () => {
   if (token && userString) {
     const user = JSON.parse(userString);
     if (user.role === 'admin') return <Navigate to="/admin" replace />;
-    if (user.role === 'coordenador') return <Navigate to="/coordenador" replace />; 
+    if (user.role === 'coordenador' || user.role === 'diretor') return <Navigate to="/coordenador" replace />;
+    if (user.role === 'aluno') return <Navigate to="/aluno" replace />;
     return <Navigate to="/professor" replace />;
   }
-  
+
   return <Login onLogin={() => window.location.href = '/'} />;
 };
 
@@ -58,8 +60,8 @@ const Layout = ({ children }) => {
   const userString = localStorage.getItem('user');
   const user = userString ? JSON.parse(userString) : { name: 'Utilizador' };
 
-  const [corPrincipal, setCorPrincipal] = React.useState(localStorage.getItem('corPrincipal') || '#28a745'); 
-  const [logo, setLogo] = React.useState(localStorage.getItem('logo')); 
+  const [corPrincipal, setCorPrincipal] = React.useState(localStorage.getItem('corPrincipal') || '#28a745');
+  const [logo, setLogo] = React.useState(localStorage.getItem('logo'));
   const [theme, setTheme] = React.useState(localStorage.getItem('theme') || 'light');
 
   React.useEffect(() => {
@@ -101,10 +103,10 @@ const Layout = ({ children }) => {
       <nav className="navbar" style={{ backgroundColor: 'var(--navbar-bg)', borderBottom: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
           {logo && (
-            <img 
-              src={logo} 
-              alt="Logótipo da Instituição" 
-              style={{ maxHeight: '40px', objectFit: 'contain', cursor: 'pointer' }} 
+            <img
+              src={logo}
+              alt="Logótipo da Instituição"
+              style={{ maxHeight: '40px', objectFit: 'contain', cursor: 'pointer' }}
               onClick={() => window.location.href = '/'}
             />
           )}
@@ -113,14 +115,14 @@ const Layout = ({ children }) => {
             SmartForms
           </h1>
 
-          {user.role === 'professor' && (
+          {(user.role === 'professor' || user.role === 'aluno') && (
             <div className="nav-links">
-              <button className="btn-secondary" onClick={() => window.location.href = '/professor'}>Formulários</button>
+              <button className="btn-secondary" onClick={() => window.location.href = user.role === 'aluno' ? '/aluno' : '/professor'}>Formulários</button>
               <button className="btn-secondary" onClick={() => window.location.href = '/meus-pedidos'}>Os Meus Pedidos</button>
             </div>
           )}
 
-          {(user.role === 'admin' || user.role === 'coordenador') && (
+          {(user.role === 'admin' || user.role === 'coordenador' || user.role === 'diretor') && (
             <div className="nav-links">
               {user.role === 'admin' && (
                 <>
@@ -133,7 +135,7 @@ const Layout = ({ children }) => {
                 </>
               )}
               <button className="btn-secondary" onClick={() => window.location.href = '/coordenador'}>
-                Dashboard Coordenador
+                Dashboard {user.role === 'diretor' ? 'Diretor' : 'Coordenador'}
               </button>
               <button className="btn-secondary" onClick={() => window.location.href = '/gerir-pedidos'}>
                 Gerir Pedidos
@@ -143,9 +145,9 @@ const Layout = ({ children }) => {
         </div>
 
         <div className="user-section" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <button 
-            onClick={toggleTheme} 
-            className="btn-secondary" 
+          <button
+            onClick={toggleTheme}
+            className="btn-secondary"
             style={{ padding: '5px 10px', fontSize: '1.2rem', border: '1px solid transparent' }}
             title="Alternar Modo Claro/Escuro"
           >
@@ -167,19 +169,24 @@ function App() {
       <Routes>
         <Route path="/" element={<HomeRedirect />} />
         <Route path="/register" element={<Register />} />
-        
+
         <Route path="/professor" element={
           <ProtectedRoute roleRequired="professor">
             <Layout><EcraProfessor /></Layout>
           </ProtectedRoute>
         } />
+        <Route path="/aluno" element={
+          <ProtectedRoute roleRequired="aluno">
+            <Layout><EcraProfessor /></Layout>
+          </ProtectedRoute>
+        } />
         <Route path="/meus-pedidos" element={
-          <ProtectedRoute roleRequired="professor">
+          <ProtectedRoute roleRequired={['professor', 'aluno']}>
             <Layout><OsMeusPedidos /></Layout>
           </ProtectedRoute>
         } />
         <Route path="/detalhes-pedido/:id" element={
-          <ProtectedRoute roleRequired={['professor', 'admin', 'coordenador']}>
+          <ProtectedRoute roleRequired={['professor', 'aluno', 'admin', 'coordenador', 'diretor']}>
             <Layout><DetalhesPedido /></Layout>
           </ProtectedRoute>
         } />
@@ -200,11 +207,10 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/gerir-pedidos" element={
-          <ProtectedRoute roleRequired={['admin', 'coordenador']}>
+          <ProtectedRoute roleRequired={['admin', 'coordenador', 'diretor']}>
             <Layout><GerirPedidos /></Layout>
           </ProtectedRoute>
         } />
-
         <Route path="/gerir-salas" element={
           <ProtectedRoute roleRequired="admin">
             <Layout><GerirSalas /></Layout>
@@ -212,11 +218,11 @@ function App() {
         } />
 
         <Route path="/coordenador" element={
-          <ProtectedRoute roleRequired={['admin', 'coordenador']}>
+          <ProtectedRoute roleRequired={['admin', 'coordenador', 'diretor']}>
             <Layout><EcraCoordenador /></Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

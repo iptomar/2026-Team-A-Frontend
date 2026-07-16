@@ -7,6 +7,7 @@ function OsMeusPedidos() {
   const [filtroEstado, setFiltroEstado] = useState('Pendente');
   const [ordenacaoData, setOrdenacaoData] = useState('desc');
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const carregarPedidos = async () => {
     setLoading(true);
@@ -51,12 +52,15 @@ function OsMeusPedidos() {
 
   return (
     <div>
-        <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2>Os Meus Pedidos</h2>
           <p style={{ color: 'var(--text-muted)' }}>Consulte aqui o estado das suas submissões.</p>
         </div>
-        <button className="btn-primary" onClick={() => window.location.href = '/professor'}>
+        <button
+          className="btn-primary"
+          onClick={() => window.location.href = user?.role === 'aluno' ? '/aluno' : '/professor'}
+        >
           Nova Requisição
         </button>
       </div>
@@ -122,8 +126,8 @@ function OsMeusPedidos() {
                     </span>
                   </td>
                   <td style={{ padding: '15px' }}>
-                    <button 
-                      className="btn-secondary" 
+                    <button
+                      className="btn-secondary"
                       style={{ padding: '5px 10px', fontSize: '0.85rem' }}
                       onClick={() => navigate(`/detalhes-pedido/${pedido._id}`)}
                     >

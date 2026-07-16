@@ -9,10 +9,14 @@ const SelecaoFormularios = ({ onSelectForm }) => {
     const carregarFormularios = async () => {
       setLoading(true);
       try {
-        const resposta = await fetch('http://localhost:3000/api/forms');
+        const token = localStorage.getItem('token');
+        const resposta = await fetch('http://localhost:3000/api/forms', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         if (resposta.ok) {
           const dados = await resposta.json();
-          // Apenas formulários que estão no estado 'Publicado'
           setFormularios(dados.filter(f => f.estado === 'Publicado'));
         }
       } catch (erro) {
@@ -64,7 +68,7 @@ const SelecaoFormularios = ({ onSelectForm }) => {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span className="status-badge status-publicado">Ativo</span>
-                    <button 
+                    <button
                       className="btn-primary"
                       onClick={() => onSelectForm(form)}
                       style={{ padding: '8px 15px' }}
