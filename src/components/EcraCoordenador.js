@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { agruparFormulariosPorCategoria } from '../utils/formUtils';
+import {
+  agruparFormulariosPorCategoria,
+  filtrarEOrdenarFormularios,
+  obterCategorias
+} from '../utils/formUtils';
 
 function EcraCoordenador() {
   const [formularios, setFormularios] = useState([]);
@@ -9,6 +13,9 @@ function EcraCoordenador() {
   // Estados para Filtros Avançados
   const [filtroNome, setFiltroNome] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('Todos');
+  const [filtroCategoria, setFiltroCategoria] = useState('Todas');
+  const [apenasComPendentes, setApenasComPendentes] = useState(false);
+  const [ordenacao, setOrdenacao] = useState('recentes');
 
   const carregarDadosDoServidor = async () => {
     try {
@@ -40,15 +47,41 @@ function EcraCoordenador() {
     carregarDadosDoServidor();
   }, []);
 
-  const formulariosFiltrados = useMemo(() => {
-    return formularios.filter(f => {
-      const matchNome = f.titulo.toLowerCase().includes(filtroNome.toLowerCase());
-      const matchEstado = filtroEstado === 'Todos' || f.estado === filtroEstado;
-      return matchNome && matchEstado;
-    });
-  }, [formularios, filtroNome, filtroEstado]);
+  const categorias = useMemo(
+    () => obterCategorias(formularios),
+    [formularios]
+  );
 
-  const formulariosAgrupados = useMemo(() => agruparFormulariosPorCategoria(formulariosFiltrados), [formulariosFiltrados]);
+  const formulariosFiltrados = useMemo(
+    () => filtrarEOrdenarFormularios(formularios, {
+      pesquisa: filtroNome,
+      categoria: filtroCategoria,
+      estado: filtroEstado,
+      apenasComPendentes,
+      ordenacao
+    }),
+    [
+      formularios,
+      filtroNome,
+      filtroCategoria,
+      filtroEstado,
+      apenasComPendentes,
+      ordenacao
+    ]
+  );
+
+  const formulariosAgrupados = useMemo(
+    () => agruparFormulariosPorCategoria(formulariosFiltrados),
+    [formulariosFiltrados]
+  );
+
+  const limparFiltros = () => {
+    setFiltroNome('');
+    setFiltroCategoria('Todas');
+    setFiltroEstado('Todos');
+    setApenasComPendentes(false);
+    setOrdenacao('recentes');
+  };
 
   const kpiStyle = {
     flex: 1,
@@ -107,6 +140,67 @@ function EcraCoordenador() {
             <option value="Rascunho">Rascunho</option>
             <option value="Arquivado">Arquivado</option>
           </select>
+        </div>
+
+        <div style={{ width: '200px' }}>
+          <label className="form-label">Categoria</label>
+          <select
+            className="form-input"
+            value={filtroCategoria}
+            onChange={(event) => setFiltroCategoria(event.target.value)}
+          >
+            <option value="Todas">Todas as categorias</option>
+            {categorias.map((categoria) => (
+              <option key={categoria} value={categoria}>
+                {categoria}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ width: '180px' }}>
+          <label className="form-label">Ordenar</label>
+          <select
+            className="form-input"
+            value={ordenacao}
+            onChange={(event) => setOrdenacao(event.target.value)}
+          >
+            <option value="recentes">Mais recentes</option>
+            <option value="antigos">Mais antigos</option>
+            <option value="titulo-asc">Título A–Z</option>
+            <option value="titulo-desc">Título Z–A</option>
+          </select>
+        </div>
+
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            minHeight: '42px'
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={apenasComPendentes}
+            onChange={(event) =>
+              setApenasComPendentes(event.target.checked)
+            }
+          />
+          Apenas com pedidos pendentes
+        </label>
+
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={limparFiltros}
+          style={{ minHeight: '42px' }}
+        >
+          Limpar filtros
+        </button>
+
+        <div style={{ width: '100%', color: 'var(--text-muted)' }}>
+          {formulariosFiltrados.length} de {formularios.length} formulário(s)
         </div>
       </div>
 
@@ -184,6 +278,12 @@ function EcraCoordenador() {
         {!loading && formularios.length === 0 && (
           <div className="card" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
             Nenhum formulário foi registado na base de dados até ao momento.
+          </div>
+        )}
+
+        {!loading && formularios.length > 0 && formulariosFiltrados.length === 0 && (
+          <div className="card" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+            Nenhum formulário corresponde aos filtros selecionados.
           </div>
         )}
       </div>
