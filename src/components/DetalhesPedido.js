@@ -8,6 +8,9 @@ function DetalhesPedido() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
   const [processando, setProcessando] = useState(false);
+  // Controlam a abertura do campo e guardam o texto da justificação
+  const [mostrarJustificacao, setMostrarJustificacao] = useState(false);
+  const [justificacao, setJustificacao] = useState('');
 
   const userString = localStorage.getItem('user');
   const user = userString ? JSON.parse(userString) : null;
@@ -42,7 +45,7 @@ function DetalhesPedido() {
     carregarDetalhes();
   }, [id]);
 
-  const handleUpdateStatus = async (novoEstado) => {
+  const handleUpdateStatus = async (novoEstado, justificacaoTexto = '') => {
     if (!window.confirm(`Tem a certeza que deseja definir o estado como ${novoEstado}?`)) return;
 
     setProcessando(true);
@@ -54,13 +57,19 @@ function DetalhesPedido() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ estado: novoEstado })
+        body: JSON.stringify({
+          estado: novoEstado,
+          justificacao: justificacaoTexto
+        })
       });
 
       if (resposta.ok) {
         const dados = await resposta.json();
         setPedido(dados);
         alert(`Pedido ${novoEstado} com sucesso!`);
+        // Fecha o painel de justificação e limpa o texto inserido
+        setMostrarJustificacao(false);
+        setJustificacao('');
       } else {
         const errorData = await resposta.json();
         alert(errorData.error || 'Erro ao atualizar estado.');
@@ -107,13 +116,10 @@ function DetalhesPedido() {
 
   if (!pedido) return null;
 
-  const logoTema = pedido.formulario?.logo || localStorage.getItem('logo');
-  const codigoDocumento = pedido.formulario?.codigoDocumento || 'PT.SIGQ.MOD ACA 30 60 - 3';
-
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <button 
-        onClick={handleBack} 
+      <button
+        onClick={handleBack}
         className="btn-logout"
         style={{ marginBottom: '20px' }}
       >
@@ -121,118 +127,23 @@ function DetalhesPedido() {
       </button>
 
       <div className="card">
-        {/* Cabeçalho Estruturado Estilo IPT */}
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: '200px 1fr 200px',
-          border: '1px solid var(--border-color)',
-          marginBottom: '0px',
-          fontFamily: 'sans-serif',
-          backgroundColor: '#fff'
-        }}>
-          <div style={{
-            borderRight: '1px solid var(--border-color)',
-            padding: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            {logoTema ? (
-              <img src={logoTema} alt="Logo" style={{ maxHeight: '70px', maxWidth: '100%', objectFit: 'contain' }} />
-            ) : (
-              <div style={{ color: '#ccc', fontSize: '0.8rem' }}>Sem Logótipo</div>
-            )}
-          </div>
-          
-          <div style={{
-            borderRight: '1px solid var(--border-color)',
-            padding: '10px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '0.9rem', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-main)' }}>
-              Requerimento
-            </div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 'bold', letterSpacing: '1px', marginTop: '5px', color: 'var(--primary-green)' }}>
-              {pedido.tituloFormulario}
-            </div>
-          </div>
-
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            fontSize: '0.8rem'
-          }}>
-            <div style={{
-              borderBottom: '1px solid var(--border-color)',
-              padding: '8px 10px',
-              textAlign: 'center',
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: '600',
-              color: 'var(--text-main)'
-            }}>
-              {codigoDocumento}
-            </div>
-            <div style={{
-              padding: '8px 10px',
-              textAlign: 'center',
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--text-muted)'
-            }}>
-              Página 1 de 1
-            </div>
-          </div>
-        </div>
-
-        {/* Caixa de Checkboxes das Escolas */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '30px',
-          padding: '10px',
-          border: '1px solid var(--border-color)',
-          borderTop: 'none',
-          marginBottom: '20px',
-          fontSize: '0.85rem',
-          fontWeight: 'bold',
-          backgroundColor: '#fff'
-        }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-            <input type="checkbox" defaultChecked disabled /> ESGT
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-            <input type="checkbox" disabled /> ESTA
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-            <input type="checkbox" disabled /> ESTT
-          </label>
-        </div>
-
-        <div style={{ 
-          borderBottom: '1px solid var(--border-color)', 
-          marginBottom: '2rem', 
+          borderBottom: '1px solid var(--border-color)',
+          marginBottom: '2rem',
           paddingBottom: '1rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start'
         }}>
           <div>
+            <h2 style={{ margin: 0 }}>{pedido.tituloFormulario}</h2>
             <p style={{ color: 'var(--text-muted)', marginTop: '5px' }}>
               Submetido por: <strong>{pedido.professor?.email || 'N/A'}</strong> em {new Date(pedido.dataSubmissao).toLocaleString('pt-PT')}
             </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
-            <span style={{ 
-              fontWeight: '700', 
+            <span style={{
+              fontWeight: '700',
               color: getStatusColor(pedido.estado),
               padding: '8px 16px',
               borderRadius: '20px',
@@ -241,101 +152,157 @@ function DetalhesPedido() {
             }}>
               {pedido.estado}
             </span>
-            
+
             {isAdminOrCoordenador && pedido.estado === 'Pendente' && (
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button 
-                  className="btn-primary" 
+                <button
+                  className="btn-primary"
                   onClick={() => handleUpdateStatus('Aprovado')}
-                  disabled={processando}
+                  disabled={processando || mostrarJustificacao}
                   style={{ padding: '5px 15px', fontSize: '0.85rem', backgroundColor: '#28a745' }}
                 >
                   Aprovar
                 </button>
-                <button 
-                  className="btn-logout" 
-                  onClick={() => handleUpdateStatus('Rejeitado')}
-                  disabled={processando}
-                  style={{ padding: '5px 15px', fontSize: '0.85rem' }}
-                >
-                  Rejeitar
-                </button>
+                {!mostrarJustificacao ? (
+                  <button
+                    className="btn-logout"
+                    onClick={() => setMostrarJustificacao(true)}
+                    disabled={processando}
+                    style={{ padding: '5px 15px', fontSize: '0.85rem' }}
+                  >
+                    Rejeitar
+                  </button>
+                ) : (
+                  <button
+                    className="btn-secondary"
+                    onClick={() => { setMostrarJustificacao(false); setJustificacao(''); }}
+                    disabled={processando}
+                    style={{ padding: '5px 15px', fontSize: '0.85rem' }}
+                  >
+                    Cancelar
+                  </button>
+                )}
               </div>
             )}
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {pedido.formulario && pedido.formulario.campos ? (
-            pedido.formulario.campos.map((campo) => {
-              const valor = pedido.respostas[campo._id] || 'Não preenchido';
-              const renderValor = () => {
-                if (valor === 'Não preenchido') return valor;
-                if (campo.tipo === 'Data') return new Date(valor).toLocaleDateString('pt-PT');
-                if (campo.tipo === 'Ficheiro') {
-                  try {
-                    const fileData = JSON.parse(valor);
-                    if (fileData && fileData.name && fileData.content) {
-                      const isImage = fileData.type?.startsWith('image/') || fileData.content.startsWith('data:image/');
-                      return (
-                        <div style={{ marginTop: '5px' }}>
-                          <a 
-                            href={fileData.content} 
-                            download={fileData.name} 
-                            style={{ 
-                              display: 'inline-flex', 
-                              alignItems: 'center', 
-                              gap: '8px', 
-                              padding: '8px 12px', 
-                              backgroundColor: '#007bff', 
-                              color: 'white', 
-                              borderRadius: '6px', 
-                              textDecoration: 'none', 
-                              fontWeight: '600',
-                              fontSize: '0.9rem',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            📥 Descarregar {fileData.name} ({(fileData.size / 1024).toFixed(1)} KB)
-                          </a>
-                          {isImage && (
-                            <div style={{ marginTop: '10px' }}>
-                              <img 
-                                src={fileData.content} 
-                                alt={fileData.name} 
-                                style={{ 
-                                  maxHeight: '200px', 
-                                  maxWidth: '100%', 
-                                  borderRadius: '6px', 
-                                  border: '1px solid #ddd',
-                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                }} 
-                              />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-                  } catch (e) {
-                    // raw string fallback
-                  }
-                }
-                return valor;
-              };
+        {/* Painel para envio da justificação */}
+        {mostrarJustificacao && (
+          <div style={{
+            backgroundColor: 'var(--error-bg)',
+            border: '1px solid var(--border-color)',
+            borderRadius: 'var(--radius-md)',
+            padding: '20px',
+            marginBottom: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            <label style={{ fontWeight: '600', color: 'var(--error-text)', fontSize: '0.9rem' }}>
+              Justificação da Rejeição <span style={{ color: 'red' }}>*</span>
+            </label>
+            <textarea
+              rows="3"
+              placeholder="Indique o motivo da rejeição (campo obrigatório)..."
+              value={justificacao}
+              onChange={(e) => setJustificacao(e.target.value)}
+              style={{
+                width: '100%',
+                resize: 'none',
+                borderRadius: 'var(--radius-md)',
+                padding: '10px',
+                border: '1px solid var(--border-color)',
+                backgroundColor: 'var(--input-bg)',
+                color: 'var(--text-main)',
+                fontFamily: 'inherit'
+              }}
+            />
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                className="btn-secondary"
+                onClick={() => { setMostrarJustificacao(false); setJustificacao(''); }}
+                style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn-primary"
+                onClick={() => handleUpdateStatus('Rejeitado', justificacao)}
+                // SEGURANÇA: Botão desativado se o campo estiver vazio ou apenas com espaços
+                disabled={!justificacao.trim() || processando}
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '0.85rem',
+                  backgroundColor: !justificacao.trim() ? 'var(--skeleton-bg)' : 'var(--error-text)',
+                  color: 'white',
+                  border: 'none',
+                  cursor: !justificacao.trim() ? 'not-allowed' : 'pointer'
+                }}
+              >
+                Confirmar Rejeição
+              </button>
+            </div>
+          </div>
+        )}
 
+        {/* Exibição da justificativa ao ler um pedido que já foi rejeitado */}
+        {pedido.estado === 'Rejeitado' && pedido.justificacao && (
+          <div style={{
+            backgroundColor: 'var(--error-bg)',
+            borderLeft: '5px solid var(--error-text)',
+            padding: '15px',
+            borderRadius: 'var(--radius-md)',
+            marginBottom: '20px'
+          }}>
+            <strong style={{ color: 'var(--error-text)', display: 'block', marginBottom: '5px' }}>Motivo da
+              Rejeição:</strong>
+            <span style={{ color: 'var(--text-main)', fontStyle: 'italic' }}>{pedido.justificacao}</span>
+          </div>
+        )}
+
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(12, 1fr)', 
+          gap: '20px 15px',
+          backgroundColor: 'var(--card-bg)',
+          border: '1px solid var(--border-color)',
+          borderRadius: 'var(--radius-md)',
+          padding: '24px'
+        }}>
+          {pedido.formulario && pedido.formulario.campos ? (
+            pedido.formulario.campos.filter(campo => campo.visivel !== false).map((campo) => {
+              const valor = pedido.respostas[campo._id] || 'Não preenchido';
               return (
-                <div key={campo._id} style={{ padding: '15px', backgroundColor: 'var(--muted-bg)', borderRadius: '8px' }}>
+                <div 
+                  key={campo._id} 
+                  style={{ 
+                    gridColumn: `${campo.x || 1} / span ${campo.w || 12}`, 
+                    gridRowStart: campo.y || 'auto',
+                    padding: '15px', 
+                    backgroundColor: 'var(--muted-bg)', 
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border-color)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center'
+                  }}
+                >
                   <label style={{ fontWeight: '600', display: 'block', color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '5px' }}>
                     {campo.etiqueta.toUpperCase()}
                   </label>
                   <div style={{ fontSize: '1.1rem', fontWeight: '500' }}>
-                    {renderValor()}
+                    {campo.tipo === 'Data' && valor !== 'Não preenchido'
+                      ? new Date(valor).toLocaleDateString('pt-PT')
+                      : valor}
                   </div>
                 </div>
               );
             })
           ) : (
-            <p style={{ color: 'var(--text-muted)' }}>Os detalhes do formulário original já não estão disponíveis.</p>
+            <div style={{ gridColumn: '1 / span 12', padding: '20px', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-muted)', margin: 0 }}>Os detalhes do formulário original já não estão disponíveis.</p>
+            </div>
           )}
         </div>
       </div>
