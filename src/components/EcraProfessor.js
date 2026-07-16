@@ -1,7 +1,178 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { agruparFormulariosPorCategoria } from '../utils/formUtils';
 import { SALAS } from '../utils/salasData';
 import './EcraProfessor.css';
+
+const CampoFicheiro = ({ campo, value, onChange, temErro, corTema }) => {
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const processFile = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const payload = {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        content: e.target.result // base64 data URL
+      };
+      onChange(JSON.stringify(payload));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      processFile(e.target.files[0]);
+    }
+  };
+
+  // Parse current value if it exists
+  let fileData = null;
+  if (value) {
+    try {
+      fileData = JSON.parse(value);
+    } catch (e) {
+      // not a json
+    }
+  }
+
+  return (
+    <div style={{ marginTop: '5px' }}>
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileSelect} 
+        style={{ display: 'none' }} 
+      />
+      
+      {fileData ? (
+        <div style={{ 
+          border: `2px solid ${corTema}`, 
+          borderRadius: '8px', 
+          padding: '15px', 
+          backgroundColor: '#f6ffed', 
+          display: 'flex', 
+          flexDirection: 'column',
+          gap: '10px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '1.5rem' }}>📄</span>
+              <div>
+                <div style={{ fontWeight: 'bold', color: 'var(--text-main)', wordBreak: 'break-all' }}>{fileData.name}</div>
+                <div style={{ fontSize: '0.8rem', color: '#888' }}>
+                  {(fileData.size / 1024).toFixed(1)} KB
+                </div>
+              </div>
+            </div>
+            <button 
+              type="button" 
+              onClick={() => onChange('')} 
+              style={{ 
+                backgroundColor: 'transparent', 
+                border: 'none', 
+                color: 'red', 
+                cursor: 'pointer', 
+                fontWeight: 'bold',
+                fontSize: '1.1rem',
+                padding: '5px 10px'
+              }}
+            >
+              Remover
+            </button>
+          </div>
+          {fileData.content && fileData.content.startsWith('data:image/') && (
+            <div style={{ textAlign: 'center', marginTop: '5px' }}>
+              <img 
+                src={fileData.content} 
+                alt="Pré-visualização" 
+                style={{ 
+                  maxHeight: '120px', 
+                  maxWidth: '100%', 
+                  borderRadius: '4px', 
+                  border: '1px solid #ddd',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }} 
+              />
+            </div>
+          )}
+        </div>
+      ) : (
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current.click()}
+          style={{
+            border: `2px dashed ${dragOver ? corTema : temErro ? 'var(--error-text)' : '#ccc'}`,
+            borderRadius: '8px',
+            padding: '30px 20px',
+            textAlign: 'center',
+            backgroundColor: dragOver ? `${corTema}11` : '#f8f9fa',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            outline: 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px'
+          }}
+        >
+          <div style={{ fontSize: '2.5rem' }}>📁</div>
+          <div style={{ fontWeight: '600', color: 'var(--text-main)' }}>
+            Arrastar e soltar ficheiro aqui
+          </div>
+          <div style={{ fontSize: '0.85rem', color: '#888' }}>
+            ou
+          </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              fileInputRef.current.click();
+            }}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: corTema,
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              transition: 'transform 0.1s ease, filter 0.2s ease'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.filter = 'brightness(0.9)'}
+            onMouseOut={(e) => e.currentTarget.style.filter = 'none'}
+          >
+            Selecionar Ficheiro
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 function EcraProfessor() {
   const [formularios, setFormularios] = useState([]);
@@ -240,13 +411,103 @@ function EcraProfessor() {
         </button>
         
         <div className="card" style={{ borderTop: `6px solid ${corTema}` }}>
-          <div className="form-header-box">
-            {logoTema && (
-              <img src={logoTema} alt="Logo" className="form-logo" />
-            )}
-            <h2 style={{ color: corTema }}>{formSelecionado.titulo}</h2>
-            <p className="text-muted" style={{ margin: 0 }}>{formSelecionado.descricao}</p>
+          {/* Cabeçalho Estruturado Estilo IPT */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '200px 1fr 200px',
+            border: '1px solid var(--border-color)',
+            marginBottom: '0px',
+            fontFamily: 'sans-serif',
+            backgroundColor: '#fff'
+          }}>
+            <div style={{
+              borderRight: '1px solid var(--border-color)',
+              padding: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              {logoTema ? (
+                <img src={logoTema} alt="Logo" style={{ maxHeight: '70px', maxWidth: '100%', objectFit: 'contain' }} />
+              ) : (
+                <div style={{ color: '#ccc', fontSize: '0.8rem' }}>Sem Logótipo</div>
+              )}
+            </div>
+            
+            <div style={{
+              borderRight: '1px solid var(--border-color)',
+              padding: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '0.9rem', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-main)' }}>
+                Requerimento
+              </div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 'bold', letterSpacing: '1px', marginTop: '5px', color: corTema }}>
+                {formSelecionado.titulo}
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              fontSize: '0.8rem'
+            }}>
+              <div style={{
+                borderBottom: '1px solid var(--border-color)',
+                padding: '8px 10px',
+                textAlign: 'center',
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: '600',
+                color: 'var(--text-main)'
+              }}>
+                {formSelecionado.codigoDocumento || 'PT.SIGQ.MOD ACA 30 60 - 3'}
+              </div>
+              <div style={{
+                padding: '8px 10px',
+                textAlign: 'center',
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--text-muted)'
+              }}>
+                Página 1 de 1
+              </div>
+            </div>
           </div>
+
+          {/* Caixa de Checkboxes das Escolas */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '30px',
+            padding: '10px',
+            border: '1px solid var(--border-color)',
+            borderTop: 'none',
+            marginBottom: '20px',
+            fontSize: '0.85rem',
+            fontWeight: 'bold',
+            backgroundColor: '#fff'
+          }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--text-main)' }}>
+              <input type="checkbox" defaultChecked /> ESGT
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--text-main)' }}>
+              <input type="checkbox" /> ESTA
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--text-main)' }}>
+              <input type="checkbox" /> ESTT
+            </label>
+          </div>
+
+          <p className="text-muted" style={{ marginBottom: '30px', textAlign: 'center' }}>{formSelecionado.descricao}</p>
           
           <div className="form-fields-container">
             {formSelecionado.campos.map((campo) => {
@@ -260,7 +521,15 @@ function EcraProfessor() {
                     {campo.etiqueta} {campo.obrigatorio && <span className="required-asterisk">*</span>}
                   </label>
                   
-                  {isSala ? (
+                  {campo.tipo === 'Ficheiro' ? (
+                    <CampoFicheiro 
+                      campo={campo}
+                      value={respostas[campoId] || ''}
+                      onChange={(valor) => handleInputChange(campoId, valor)}
+                      temErro={temErro}
+                      corTema={corTema}
+                    />
+                  ) : isSala ? (
                     <select
                       className="form-input"
                       value={respostas[campoId] || ''}

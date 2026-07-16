@@ -7,7 +7,8 @@ const TEMPLATES = [
   { type: 'Texto Longo', label: 'Texto Longo', w: 12 },
   { type: 'Número', label: 'Número', w: 4 },
   { type: 'Data', label: 'Data', w: 4 },
-  { type: 'Dropdown', label: 'Dropdown', w: 6 }
+  { type: 'Dropdown', label: 'Dropdown', w: 6 },
+  { type: 'Ficheiro', label: 'Upload de Ficheiro', w: 12 }
 ];
 
 function EditarFormulario() {
@@ -22,7 +23,21 @@ function EditarFormulario() {
   const [loading, setLoading] = useState(true);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
+  const [logo, setLogo] = useState(null);
+  const [codigoDocumento, setCodigoDocumento] = useState('PT.SIGQ.MOD ACA 30 60 - 3');
   const canvasRef = useRef(null);
+
+  const handleLogoChange = (e) => {
+    if (isReadOnly) return;
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (uploadEvent) => {
+        setLogo(uploadEvent.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const tiposComOpcoes = ['Dropdown', 'Radio Button', 'Checkbox'];
 
@@ -40,6 +55,8 @@ function EditarFormulario() {
           setDescricao(dados.descricao);
           setCategoria(dados.categoria || 'Sem categoria');
           setEstado(dados.estado);
+          setLogo(dados.logo || null);
+          setCodigoDocumento(dados.codigoDocumento || 'PT.SIGQ.MOD ACA 30 60 - 3');
           // Garantir coordenadas para a grelha
           setCampos(dados.campos.map((c, index) => ({
             id: c._id || c.id || `campo-${index}`,
@@ -194,6 +211,8 @@ function EditarFormulario() {
           descricao,
           categoria: categoria.trim() || 'Sem categoria',
           estado,
+          logo,
+          codigoDocumento,
           campos: campos.map(c => ({
             etiqueta: c.etiqueta,
             tipo: c.tipo,
@@ -278,14 +297,144 @@ function EditarFormulario() {
         <div style={{ flex: 1 }}>
           {isPreview ? (
             <div className="card" style={{ padding: '40px', minHeight: '800px', position: 'relative' }}>
-               <h1>{titulo}</h1>
+               
+               {/* Cabeçalho Estruturado Estilo IPT */}
+               <div style={{
+                 display: 'grid',
+                 gridTemplateColumns: '200px 1fr 200px',
+                 border: '1px solid #000',
+                 marginBottom: '0px',
+                 fontFamily: 'sans-serif',
+                 backgroundColor: '#fff'
+               }}>
+                 <div style={{
+                   borderRight: '1px solid #000',
+                   padding: '10px',
+                   display: 'flex',
+                   alignItems: 'center',
+                   justifyContent: 'center'
+                 }}>
+                   {logo ? (
+                     <img src={logo} alt="Logo" style={{ maxHeight: '70px', maxWidth: '100%', objectFit: 'contain' }} />
+                   ) : (
+                     <div style={{ color: '#ccc', fontSize: '0.8rem' }}>Sem Logótipo</div>
+                   )}
+                 </div>
+                 
+                 <div style={{
+                   borderRight: '1px solid #000',
+                   padding: '10px',
+                   display: 'flex',
+                   flexDirection: 'column',
+                   alignItems: 'center',
+                   justifyContent: 'center',
+                   textAlign: 'center'
+                 }}>
+                   <div style={{ fontSize: '0.9rem', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase' }}>
+                     Requerimento
+                   </div>
+                   <div style={{ fontSize: '1.1rem', fontWeight: 'bold', letterSpacing: '1px', marginTop: '5px' }}>
+                     {titulo || 'Sem Título'}
+                   </div>
+                 </div>
+
+                 <div style={{
+                   display: 'flex',
+                   flexDirection: 'column',
+                   fontSize: '0.8rem'
+                 }}>
+                   <div style={{
+                     borderBottom: '1px solid #000',
+                     padding: '8px 10px',
+                     textAlign: 'center',
+                     flex: 1,
+                     display: 'flex',
+                     alignItems: 'center',
+                     justifyContent: 'center',
+                     fontWeight: '600'
+                   }}>
+                     {codigoDocumento}
+                   </div>
+                   <div style={{
+                     padding: '8px 10px',
+                     textAlign: 'center',
+                     flex: 1,
+                     display: 'flex',
+                     alignItems: 'center',
+                     justifyContent: 'center'
+                   }}>
+                     Página 1 de 1
+                   </div>
+                 </div>
+               </div>
+
+               {/* Caixa de Checkboxes das Escolas */}
+               <div style={{
+                 display: 'flex',
+                 justifyContent: 'center',
+                 gap: '30px',
+                 padding: '10px',
+                 border: '1px solid #000',
+                 borderTop: 'none',
+                 marginBottom: '30px',
+                 fontSize: '0.85rem',
+                 fontWeight: 'bold',
+                 backgroundColor: '#fff'
+               }}>
+                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                   <input type="checkbox" defaultChecked /> ESGT
+                 </label>
+                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                   <input type="checkbox" /> ESTA
+                 </label>
+                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                   <input type="checkbox" /> ESTT
+                 </label>
+               </div>
+
                <p>{descricao}</p>
-               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '20px', marginTop: '40px' }}>
+               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '20px', marginTop: '20px' }}>
                   {campos.map(c => (
-                    <div key={c.id} style={{ gridColumn: `${c.x} / span ${c.w}`, gridRowStart: c.y }}>
-                      <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>{c.etiqueta} {c.obrigatorio && '*'}</label>
-                      <input style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }} disabled placeholder={`Resposta (${c.tipo})...`} />
-                    </div>
+                     <div key={c.id} style={{ gridColumn: `${c.x} / span ${c.w}`, gridRowStart: c.y }}>
+                       <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>{c.etiqueta} {c.obrigatorio && '*'}</label>
+                       {c.tipo === 'Ficheiro' ? (
+                         <div style={{ 
+                           border: '2px dashed #ccc', 
+                           borderRadius: '8px', 
+                           padding: '20px', 
+                           textAlign: 'center', 
+                           backgroundColor: '#f8f9fa', 
+                           color: '#666',
+                           fontSize: '0.9rem',
+                           display: 'flex',
+                           flexDirection: 'column',
+                           alignItems: 'center',
+                           gap: '10px'
+                         }}>
+                           <div style={{ fontSize: '2rem' }}>📁</div>
+                           <div style={{ fontWeight: '600' }}>Arrastar e soltar ficheiro aqui</div>
+                           <div style={{ fontSize: '0.8rem', color: '#888' }}>ou</div>
+                           <button
+                             type="button"
+                             disabled
+                             style={{
+                               padding: '8px 16px',
+                               backgroundColor: '#ccc',
+                               color: 'white',
+                               border: 'none',
+                               borderRadius: '6px',
+                               fontWeight: 'bold',
+                               cursor: 'not-allowed',
+                               fontSize: '0.85rem'
+                             }}
+                           >
+                             Selecionar Ficheiro
+                           </button>
+                         </div>
+                       ) : (
+                         <input style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }} disabled placeholder={`Resposta (${c.tipo})...`} />
+                       )}
+                     </div>
                   ))}
                </div>
             </div>
@@ -297,6 +446,31 @@ function EditarFormulario() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <label style={{ fontWeight: '600', fontSize: '0.9rem' }}>Categoria:</label>
                   <input style={{ padding: '5px 10px', borderRadius: '4px', border: '1px solid #ddd', flex: 1 }} value={categoria} onChange={e => setCategoria(e.target.value)} disabled={isReadOnly} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <label style={{ fontWeight: '600', fontSize: '0.9rem' }}>Código do Documento:</label>
+                    <input
+                      style={{ padding: '5px 10px', borderRadius: '4px', border: '1px solid #ddd', flex: 1 }}
+                      value={codigoDocumento}
+                      onChange={(e) => setCodigoDocumento(e.target.value)}
+                      disabled={isReadOnly}
+                      placeholder="Ex: PT.SIGQ.MOD ACA 30 60 - 3"
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <label style={{ fontWeight: '600', fontSize: '0.9rem' }}>Alterar Logótipo:</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoChange}
+                      disabled={isReadOnly}
+                      style={{ fontSize: '0.8rem', flex: 1 }}
+                    />
+                    {logo && (
+                      <img src={logo} alt="Mini Logo" style={{ maxHeight: '30px', maxWidth: '80px', objectFit: 'contain', border: '1px solid #ddd', borderRadius: '4px' }} />
+                    )}
+                  </div>
                 </div>
               </div>
               
