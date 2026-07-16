@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { agruparFormulariosPorCategoria } from '../utils/formUtils';
+import {
+  agruparFormulariosPorCategoria,
+  filtrarEOrdenarFormularios,
+  obterCategorias
+} from '../utils/formUtils';
 import { SALAS } from '../utils/salasData';
 import './EcraProfessor.css';
 
@@ -146,6 +150,11 @@ function EcraProfessor() {
   const [ocupacaoReal, setOcupacaoReal] = useState([]);
   const [salaSelecionada, setSalaSelecionada] = useState(null);
   const [salas, setSalas] = useState(SALAS);
+  const [filtros, setFiltros] = useState({
+    pesquisa: '',
+    categoria: 'Todas',
+    ordenacao: 'recentes'
+  });
 
   const carregarSalas = async () => {
     try {
@@ -205,7 +214,35 @@ function EcraProfessor() {
     carregarSalas();
   }, []);
 
-  const formulariosAgrupados = useMemo(() => agruparFormulariosPorCategoria(formularios), [formularios]);
+  const categorias = useMemo(
+    () => obterCategorias(formularios),
+    [formularios]
+  );
+
+  const formulariosFiltrados = useMemo(
+    () => filtrarEOrdenarFormularios(formularios, filtros),
+    [formularios, filtros]
+  );
+
+  const formulariosAgrupados = useMemo(
+    () => agruparFormulariosPorCategoria(formulariosFiltrados),
+    [formulariosFiltrados]
+  );
+
+  const atualizarFiltro = (nome, valor) => {
+    setFiltros((filtrosAtuais) => ({
+      ...filtrosAtuais,
+      [nome]: valor
+    }));
+  };
+
+  const limparFiltros = () => {
+    setFiltros({
+      pesquisa: '',
+      categoria: 'Todas',
+      ordenacao: 'recentes'
+    });
+  };
 
   // LÓGICA DE VALIDAÇÃO REFINADA (SMART)
   const validarCampos = (novasRespostas) => {
@@ -564,11 +601,86 @@ function EcraProfessor() {
         <p className="text-muted">Selecione um formulário para iniciar o preenchimento.</p>
       </div>
 
+      <div
+        className="card"
+        style={{
+          marginBottom: '2rem',
+          display: 'flex',
+          gap: '15px',
+          alignItems: 'flex-end',
+          flexWrap: 'wrap'
+        }}
+      >
+        <div style={{ flex: 1, minWidth: '240px' }}>
+          <label className="form-label">Pesquisar</label>
+          <input
+            type="search"
+            className="form-input"
+            placeholder="Título ou descrição..."
+            value={filtros.pesquisa}
+            onChange={(event) =>
+              atualizarFiltro('pesquisa', event.target.value)
+            }
+          />
+        </div>
+
+        <div style={{ minWidth: '190px' }}>
+          <label className="form-label">Categoria</label>
+          <select
+            className="form-input"
+            value={filtros.categoria}
+            onChange={(event) =>
+              atualizarFiltro('categoria', event.target.value)
+            }
+          >
+            <option value="Todas">Todas as categorias</option>
+            {categorias.map((categoria) => (
+              <option key={categoria} value={categoria}>
+                {categoria}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ minWidth: '170px' }}>
+          <label className="form-label">Ordenar</label>
+          <select
+            className="form-input"
+            value={filtros.ordenacao}
+            onChange={(event) =>
+              atualizarFiltro('ordenacao', event.target.value)
+            }
+          >
+            <option value="recentes">Mais recentes</option>
+            <option value="antigos">Mais antigos</option>
+            <option value="titulo-asc">Título A–Z</option>
+            <option value="titulo-desc">Título Z–A</option>
+          </select>
+        </div>
+
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={limparFiltros}
+          style={{ minHeight: '42px' }}
+        >
+          Limpar filtros
+        </button>
+
+        <div style={{ width: '100%', color: 'var(--text-muted)' }}>
+          {formulariosFiltrados.length} de {formularios.length} formulário(s)
+        </div>
+      </div>
+
       {loading ? (
         <div className="text-center" style={{ padding: '40px' }}>A carregar formulários...</div>
       ) : formularios.length === 0 ? (
         <div className="card text-center text-muted">
           Não há formulários publicados de momento.
+        </div>
+      ) : formulariosFiltrados.length === 0 ? (
+        <div className="card text-center text-muted">
+          Nenhum formulário corresponde aos filtros selecionados.
         </div>
       ) : (
         <div>
