@@ -116,6 +116,9 @@ function DetalhesPedido() {
 
   if (!pedido) return null;
 
+  const logoTema = pedido.formulario?.logo || localStorage.getItem('logo');
+  const codigoDocumento = pedido.formulario?.codigoDocumento || 'PT.SIGQ.MOD ACA 30 60 - 3';
+
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
       <button
@@ -127,6 +130,41 @@ function DetalhesPedido() {
       </button>
 
       <div className="card">
+        {/* PDF Header Layout in Details */}
+        {pedido.formulario && pedido.formulario.showCabecalho !== false && (
+          <>
+            <div className="ipt-pdf-header">
+              {pedido.formulario.showLogo !== false && (
+                <div className="ipt-pdf-header-logo-box">
+                  {logoTema ? (
+                    <img src={logoTema} alt="Logótipo IPT" style={{ objectFit: 'contain' }} />
+                  ) : (
+                    <div style={{ color: '#ccc', fontSize: '0.8rem' }}>Sem Logo</div>
+                  )}
+                </div>
+              )}
+              <div className="ipt-pdf-header-title-box">
+                {pedido.formulario.showTitulo !== false ? (
+                  <h1 className="ipt-pdf-header-title-text">{pedido.tituloFormulario}</h1>
+                ) : (
+                  <h1 className="ipt-pdf-header-title-text" style={{ visibility: 'hidden' }}>REQUERIMENTO</h1>
+                )}
+              </div>
+              <div className="ipt-pdf-header-meta-box">
+                <div className="ipt-pdf-meta-top">{codigoDocumento}</div>
+                <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
+              </div>
+            </div>
+
+            {/* Schools Checkboxes Bar */}
+            <div className="ipt-pdf-schools-bar" style={{ marginBottom: '30px' }}>
+              <label><input type="checkbox" defaultChecked disabled /> ESGT</label>
+              <label><input type="checkbox" disabled /> ESTA</label>
+              <label><input type="checkbox" disabled /> ESTT</label>
+            </div>
+          </>
+        )}
+
         <div style={{
           borderBottom: '1px solid var(--border-color)',
           marginBottom: '2rem',
@@ -136,7 +174,9 @@ function DetalhesPedido() {
           alignItems: 'flex-start'
         }}>
           <div>
-            <h2 style={{ margin: 0 }}>{pedido.tituloFormulario}</h2>
+            {(!pedido.formulario || pedido.formulario.showCabecalho === false || pedido.formulario.showTitulo === false) && (
+              <h2 style={{ margin: 0, marginBottom: '5px' }}>{pedido.tituloFormulario}</h2>
+            )}
             <p style={{ color: 'var(--text-muted)', marginTop: '5px' }}>
               Submetido por: <strong>{pedido.professor?.email || 'N/A'}</strong> em {new Date(pedido.dataSubmissao).toLocaleString('pt-PT')}
             </p>
@@ -292,9 +332,46 @@ function DetalhesPedido() {
                     {campo.etiqueta.toUpperCase()}
                   </label>
                   <div style={{ fontSize: '1.1rem', fontWeight: '500' }}>
-                    {campo.tipo === 'Data' && valor !== 'Não preenchido'
-                      ? new Date(valor).toLocaleDateString('pt-PT')
-                      : valor}
+                    {campo.tipo === 'Data' && valor !== 'Não preenchido' ? (
+                      new Date(valor).toLocaleDateString('pt-PT')
+                    ) : campo.tipo === 'Ficheiro' && valor && typeof valor === 'object' && valor.content ? (
+                      <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', backgroundColor: '#fff', border: '1px solid var(--border-color)', borderRadius: '6px' }}>
+                          <span style={{ fontSize: '1.8rem' }}>📁</span>
+                          <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                            <strong style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-main)' }}>{valor.name}</strong>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{(valor.size / 1024).toFixed(1)} KB</span>
+                          </div>
+                          <a 
+                            href={valor.content} 
+                            download={valor.name}
+                            className="btn-primary"
+                            style={{ 
+                              padding: '6px 12px', 
+                              fontSize: '0.8rem', 
+                              textDecoration: 'none', 
+                              borderRadius: '4px',
+                              backgroundColor: 'var(--primary-green)',
+                              color: '#fff',
+                              fontWeight: 'bold',
+                              display: 'inline-block'
+                            }}
+                          >
+                            Download
+                          </a>
+                        </div>
+                        {valor.type && valor.type.startsWith('image/') && (
+                          <div style={{ marginTop: '5px' }}>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '5px' }}>Pré-visualização da imagem:</p>
+                            <img src={valor.content} alt={valor.name} style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '4px', border: '1px solid var(--border-color)', objectFit: 'contain' }} />
+                          </div>
+                        )}
+                      </div>
+                    ) : typeof valor === 'object' && valor.name ? (
+                      valor.name
+                    ) : (
+                      valor
+                    )}
                   </div>
                 </div>
               );

@@ -3,6 +3,140 @@ import { agruparFormulariosPorCategoria } from '../utils/formUtils';
 import { SALAS } from '../utils/salasData';
 import './EcraProfessor.css';
 
+// Componente de Upload de Ficheiro Interativo
+function CampoFicheiro({ campo, value, onChange, temErro, corTema }) {
+  const fileInputRef = React.useRef(null);
+  const [dragOver, setDragOver] = useState(false);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      processFile(file);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      processFile(file);
+    }
+  };
+
+  const processFile = (file) => {
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      onChange({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        content: uploadEvent.target.result // Base64 string
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const clearFile = (e) => {
+    e.stopPropagation();
+    onChange('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  return (
+    <div 
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      style={{
+        border: `2px dashed ${dragOver ? corTema : temErro ? '#dc3545' : '#ccc'}`,
+        borderRadius: '8px',
+        padding: '25px',
+        textAlign: 'center',
+        backgroundColor: dragOver ? 'rgba(0,0,0,0.02)' : '#f8f9fa',
+        cursor: 'pointer',
+        position: 'relative',
+        transition: 'all 0.2s ease',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '10px'
+      }}
+      onClick={() => fileInputRef.current && fileInputRef.current.click()}
+    >
+      <input 
+        type="file" 
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+      
+      {value ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center' }}>
+          <span style={{ fontSize: '1.5rem' }}>📄</span>
+          <div style={{ textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '70%' }}>
+            <strong style={{ display: 'block', fontSize: '0.9rem', color: '#333' }}>{value.name}</strong>
+            <span style={{ fontSize: '0.75rem', color: '#888' }}>{(value.size / 1024).toFixed(1)} KB</span>
+          </div>
+          <button 
+            type="button" 
+            onClick={clearFile}
+            style={{
+              background: '#fff',
+              border: '1px solid #ddd',
+              borderRadius: '50%',
+              width: '26px',
+              height: '26px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#ff4d4f',
+              fontWeight: 'bold',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+            }}
+          >
+            ×
+          </button>
+        </div>
+      ) : (
+        <>
+          <div style={{ fontSize: '2rem' }}>📁</div>
+          <div style={{ fontWeight: '600', color: '#555' }}>Arrastar e soltar ficheiro aqui</div>
+          <div style={{ fontSize: '0.8rem', color: '#888' }}>ou</div>
+          <button
+            type="button"
+            className="btn-primary"
+            style={{
+              padding: '8px 16px',
+              backgroundColor: corTema,
+              border: 'none',
+              borderRadius: '6px',
+              fontWeight: 'bold',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '0.85rem'
+            }}
+          >
+            Selecionar Ficheiro
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 function EcraProfessor() {
   const [formularios, setFormularios] = useState([]);
   const [formSelecionado, setFormSelecionado] = useState(null);
@@ -252,6 +386,10 @@ function EcraProfessor() {
   }
 
   if (formSelecionado) {
+    const corTema = formSelecionado.corPrincipal || '#28a745';
+    const logoTema = formSelecionado.logo || localStorage.getItem('logo');
+    const codigoDocumento = formSelecionado.codigoDocumento || 'PT.SIGQ.MOD ACA 30 60 - 3';
+
     return (
       <div className="form-view-container">
         <button
@@ -268,7 +406,11 @@ function EcraProfessor() {
             <div className="ipt-pdf-header">
               {formSelecionado.showLogo !== false && (
                 <div className="ipt-pdf-header-logo-box">
-                  <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" />
+                  {logoTema ? (
+                    <img src={logoTema} alt="Logótipo IPT" style={{ objectFit: 'contain' }} />
+                  ) : (
+                    <div style={{ color: '#ccc', fontSize: '0.8rem' }}>Sem Logo</div>
+                  )}
                 </div>
               )}
               <div className="ipt-pdf-header-title-box">
@@ -279,7 +421,7 @@ function EcraProfessor() {
                 )}
               </div>
               <div className="ipt-pdf-header-meta-box">
-                <div className="ipt-pdf-meta-top">PT.SIGQ.MOD ACA 30 20 - 1</div>
+                <div className="ipt-pdf-meta-top">{codigoDocumento}</div>
                 <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
               </div>
             </div>
@@ -344,6 +486,14 @@ function EcraProfessor() {
                         </option>
                       ))}
                     </select>
+                  ) : campo.tipo === 'Ficheiro' ? (
+                    <CampoFicheiro 
+                      campo={campo}
+                      value={respostas[campoId] || ''}
+                      onChange={(valor) => handleInputChange(campoId, valor)}
+                      temErro={temErro}
+                      corTema={corTema}
+                    />
                   ) : (
                     <input
                       className="form-input"

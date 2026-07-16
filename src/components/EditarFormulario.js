@@ -7,7 +7,8 @@ const TEMPLATES = [
   { type: 'Texto Longo', label: 'Texto Longo', w: 12 },
   { type: 'Número', label: 'Número', w: 4 },
   { type: 'Data', label: 'Data', w: 4 },
-  { type: 'Dropdown', label: 'Dropdown', w: 6 }
+  { type: 'Dropdown', label: 'Dropdown', w: 6 },
+  { type: 'Ficheiro', label: 'Upload de Ficheiro', w: 12 }
 ];
 
 function EditarFormulario() {
@@ -24,9 +25,21 @@ function EditarFormulario() {
   const [isPreview, setIsPreview] = useState(false);
   const [corPrincipal, setCorPrincipal] = useState('#28a745');
   const [logo, setLogo] = useState('');
+  const [codigoDocumento, setCodigoDocumento] = useState('PT.SIGQ.MOD ACA 30 60 - 3');
   const [showCabecalho, setShowCabecalho] = useState(true);
   const [showTitulo, setShowTitulo] = useState(true);
   const [showLogo, setShowLogo] = useState(true);
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (uploadEvent) => {
+        setLogo(uploadEvent.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   const canvasRef = useRef(null);
 
   const tiposComOpcoes = ['Dropdown', 'Radio Button', 'Checkbox'];
@@ -47,6 +60,7 @@ function EditarFormulario() {
           setEstado(dados.estado);
           setCorPrincipal(dados.corPrincipal || '#28a745');
           setLogo(dados.logo || '');
+          setCodigoDocumento(dados.codigoDocumento || 'PT.SIGQ.MOD ACA 30 60 - 3');
           setShowCabecalho(dados.showCabecalho !== undefined ? dados.showCabecalho : true);
           setShowTitulo(dados.showTitulo !== undefined ? dados.showTitulo : true);
           setShowLogo(dados.showLogo !== undefined ? dados.showLogo : true);
@@ -211,6 +225,7 @@ function EditarFormulario() {
           estado,
           corPrincipal,
           logo,
+          codigoDocumento,
           showCabecalho,
           showTitulo,
           showLogo,
@@ -295,7 +310,11 @@ function EditarFormulario() {
                 <div className="ipt-pdf-header">
                   {showLogo && (
                     <div className="ipt-pdf-header-logo-box">
-                      <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" />
+                      {logo ? (
+                        <img src={logo} alt="Logótipo" style={{ objectFit: 'contain' }} />
+                      ) : (
+                        <div style={{ color: '#ccc', fontSize: '0.8rem' }}>Sem Logo</div>
+                      )}
                     </div>
                   )}
                   <div className="ipt-pdf-header-title-box">
@@ -306,7 +325,7 @@ function EditarFormulario() {
                     )}
                   </div>
                   <div className="ipt-pdf-header-meta-box">
-                    <div className="ipt-pdf-meta-top">PT.SIGQ.MOD ACA 30 20 - 1</div>
+                    <div className="ipt-pdf-meta-top">{codigoDocumento}</div>
                     <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
                   </div>
                 </div>
@@ -346,6 +365,40 @@ function EditarFormulario() {
                             <option key={idx}>{op}</option>
                           ))}
                         </select>
+                      ) : c.tipo === 'Ficheiro' ? (
+                        <div style={{ 
+                          border: '2px dashed #ccc', 
+                          borderRadius: '8px', 
+                          padding: '20px', 
+                          textAlign: 'center', 
+                          backgroundColor: '#f8f9fa', 
+                          color: '#666',
+                          fontSize: '0.9rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: '10px'
+                        }}>
+                          <div style={{ fontSize: '2rem' }}>📁</div>
+                          <div style={{ fontWeight: '600' }}>Arrastar e soltar ficheiro aqui</div>
+                          <div style={{ fontSize: '0.8rem', color: '#888' }}>ou</div>
+                          <button
+                            type="button"
+                            disabled
+                            style={{
+                              padding: '8px 16px',
+                              backgroundColor: '#ccc',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontWeight: 'bold',
+                              cursor: 'not-allowed',
+                              fontSize: '0.85rem'
+                            }}
+                          >
+                            Selecionar Ficheiro
+                          </button>
+                        </div>
                       ) : (
                         <input
                           type={c.tipo === 'Data' ? 'date' : c.tipo === 'Hora' ? 'time' : c.tipo === 'Número' ? 'number' : 'text'}
@@ -366,7 +419,11 @@ function EditarFormulario() {
                 <div className="ipt-pdf-header">
                   {showLogo && (
                     <div className="ipt-pdf-header-logo-box">
-                      <img src="https://portal2.ipt.pt/img/logo_v2.png" alt="Logótipo IPT" />
+                      {logo ? (
+                        <img src={logo} alt="Logótipo" style={{ objectFit: 'contain' }} />
+                      ) : (
+                        <div style={{ color: '#ccc', fontSize: '0.8rem' }}>Sem Logo</div>
+                      )}
                     </div>
                   )}
                   <div className="ipt-pdf-header-title-box">
@@ -383,7 +440,7 @@ function EditarFormulario() {
                     )}
                   </div>
                   <div className="ipt-pdf-header-meta-box">
-                    <div className="ipt-pdf-meta-top">PT.SIGQ.MOD ACA 30 20 - 1</div>
+                    <div className="ipt-pdf-meta-top">{codigoDocumento}</div>
                     <div className="ipt-pdf-meta-bottom">Página 1 de 1</div>
                   </div>
                 </div>
@@ -546,6 +603,34 @@ function EditarFormulario() {
                     />
                     Ativar Imagem/Logo (IPT)
                   </label>
+                </div>
+              </div>
+
+              {/* Secção 1.5: Logótipo e Referência */}
+              <div style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '15px' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#999', textTransform: 'uppercase', marginBottom: '10px' }}>Logótipo e Referência</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>Código do Documento:</label>
+                  <input
+                    style={{ padding: '6px 10px', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.85rem' }}
+                    value={codigoDocumento}
+                    onChange={(e) => setCodigoDocumento(e.target.value)}
+                    placeholder="Ex: PT.SIGQ.MOD ACA 30 60 - 3"
+                    disabled={isReadOnly}
+                  />
+                  <label style={{ fontSize: '0.85rem', fontWeight: '600', marginTop: '5px' }}>Alterar Logótipo:</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    style={{ fontSize: '0.8rem' }}
+                    disabled={isReadOnly}
+                  />
+                  {logo && (
+                    <div style={{ textAlign: 'center', marginTop: '5px' }}>
+                      <img src={logo} alt="Mini Logo" style={{ maxHeight: '40px', maxWidth: '100px', objectFit: 'contain', border: '1px solid #ddd', borderRadius: '4px' }} />
+                    </div>
+                  )}
                 </div>
               </div>
 
