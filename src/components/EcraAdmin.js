@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { agruparFormulariosPorCategoria, filtrarEOrdenarFormularios, obterCategorias } from '../utils/formUtils';
+import './EcraAdmin.css';
 function EcraAdmin() {
   const [formularios, setFormularios] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -166,20 +167,20 @@ function EcraAdmin() {
     }
   };
   return <div>
-      <div className="ecra-admin-extracted-1">
+      <div className="admin__header">
         <div>
           <h2>Painel de Administração</h2>
-          <p className="ecra-admin-extracted-2">Gerir formulários e configurações do sistema.</p>
+          <p className="admin__intro">Gerir formulários e configurações do sistema.</p>
         </div>
 
         {/* Agrupamento dos botões de ação do topo */}
-        <div className="ecra-admin-extracted-3">
-          <button className="btn-secondary ecra-admin-extracted-4" onClick={() => navigate('/gerir-salas')}>
+        <div className="admin__header-actions">
+          <button className="btn-secondary admin__rooms-button" onClick={() => navigate('/gerir-salas')}>
 
 
             🏢 Gerir Salas
           </button>
-          <button className="btn-primary ecra-admin-extracted-5" onClick={() => navigate('/criar-formulario')}>
+          <button className="btn-primary admin__create-form-button" onClick={() => navigate('/criar-formulario')}>
 
 
             + Criar Novo Formulário
@@ -187,7 +188,7 @@ function EcraAdmin() {
         </div>
       </div>
 
-      <div className="card ecra-admin-extracted-6">
+      <div className="card admin-filters">
 
 
 
@@ -196,13 +197,13 @@ function EcraAdmin() {
 
 
 
-        <div className="ecra-admin-extracted-7">
+        <div className="admin-filters__field">
           <label className="form-label">Pesquisar</label>
           <input type="search" className="form-input" placeholder="Título ou descrição..." value={filtros.pesquisa} onChange={event => atualizarFiltro('pesquisa', event.target.value)} />
 
         </div>
 
-        <div className="ecra-admin-extracted-8">
+        <div className="admin-filters__field">
           <label className="form-label">Categoria</label>
           <select className="form-input" value={filtros.categoria} onChange={event => atualizarFiltro('categoria', event.target.value)}>
 
@@ -213,7 +214,7 @@ function EcraAdmin() {
           </select>
         </div>
 
-        <div className="ecra-admin-extracted-9">
+        <div className="admin-filters__field">
           <label className="form-label">Estado</label>
           <select className="form-input" value={filtros.estado} onChange={event => atualizarFiltro('estado', event.target.value)}>
 
@@ -224,7 +225,7 @@ function EcraAdmin() {
           </select>
         </div>
 
-        <div className="ecra-admin-extracted-10">
+        <div className="admin-filters__field">
           <label className="form-label">Ordenar</label>
           <select className="form-input" value={filtros.ordenacao} onChange={event => atualizarFiltro('ordenacao', event.target.value)}>
 
@@ -235,7 +236,7 @@ function EcraAdmin() {
           </select>
         </div>
 
-        <label className="ecra-admin-extracted-11">
+        <label className="admin-filters__toggle">
 
 
 
@@ -248,88 +249,88 @@ function EcraAdmin() {
           Apenas com pedidos pendentes
         </label>
 
-        <button type="button" className="btn-secondary ecra-admin-extracted-12" onClick={limparFiltros}>
+        <button type="button" className="btn-secondary admin-filters__clear-button" onClick={limparFiltros}>
 
 
           Limpar filtros
         </button>
 
-        <div className="ecra-admin-extracted-13">
+        <div className="admin-filters__result-count">
           {formulariosFiltrados.length} de {formularios.length} formulário(s)
         </div>
       </div>
 
       {/* Lista de formulários agrupada por categoria */}
       <div>
-        {loading ? <div className="ecra-admin-extracted-14">
-            {[1, 2, 3].map(i => <div key={i} className="card ecra-admin-extracted-15">
-                <div className="skeleton skeleton-text ecra-admin-extracted-16"></div>
+        {loading ? <div className="admin__loading-grid">
+            {[1, 2, 3].map(i => <div key={i} className="card admin__loading-card">
+                <div className="skeleton skeleton-text admin__loading-line"></div>
                 <div className="skeleton skeleton-row"></div>
                 <div className="skeleton skeleton-row"></div>
                 <div className="skeleton skeleton-row"></div>
               </div>)}
-          </div> : Object.entries(formulariosAgrupados).map(([categoria, itens]) => <section key={categoria} className="ecra-admin-extracted-17">
-              <div className="ecra-admin-extracted-18">
-                <h3 className="ecra-admin-extracted-19">{categoria}</h3>
+          </div> : Object.entries(formulariosAgrupados).map(([categoria, itens]) => <section key={categoria} className="form-category">
+              <div className="form-category__header">
+                <h3 className="form-category__title">{categoria}</h3>
                 <span className="status-badge status-publicado">{itens.length} formulário(s)</span>
               </div>
-              <div className="card ecra-admin-extracted-20">
-                <table className="ecra-admin-extracted-21">
+              <div className="card admin-table-card">
+                <table className="admin-table">
                   <thead>
-                    <tr className="ecra-admin-extracted-22">
-                      <th className="ecra-admin-extracted-23">Título do Formulário</th>
-                      <th className="ecra-admin-extracted-24">Estado</th>
-                      <th className="ecra-admin-extracted-25">Preenchimentos</th>
-                      <th className="ecra-admin-extracted-26">Pendentes</th>
-                      <th className="ecra-admin-extracted-27">Data Criacão</th>
-                      <th className="ecra-admin-extracted-28">Ações</th>
+                    <tr className="admin-table__head-row">
+                      <th className="admin-table__heading">Título do Formulário</th>
+                      <th className="admin-table__heading">Estado</th>
+                      <th className="admin-table__heading">Preenchimentos</th>
+                      <th className="admin-table__heading">Pendentes</th>
+                      <th className="admin-table__heading">Data Criacão</th>
+                      <th className="admin-table__heading">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {itens.map(form => <tr key={form._id} className="ecra-admin-extracted-29">
-                        <td className="ecra-admin-extracted-30">{form.titulo}</td>
-                        <td className="ecra-admin-extracted-31">
+                    {itens.map(form => <tr key={form._id} className="admin-table__row">
+                        <td className="admin-table__title">{form.titulo}</td>
+                        <td className="admin-table__cell">
                           <span className={`status-badge ${getStatusClass(form.estado)}`}>
                             {form.estado}
                           </span>
                         </td>
-                        <td className="ecra-admin-extracted-32">
-                          <span className="ecra-admin-extracted-33">{form.totalSubmissoes || 0}</span>
+                        <td className="admin-table__cell">
+                          <span className="admin-table__submission-count">{form.totalSubmissoes || 0}</span>
                         </td>
-                        <td className="ecra-admin-extracted-34">
-                          {form.submissoesPendentes > 0 ? <span className="status-badge status-rascunho ecra-admin-extracted-35">
+                        <td className="admin-table__cell">
+                          {form.submissoesPendentes > 0 ? <span className="status-badge status-rascunho admin-table__pending-count">
                               {form.submissoesPendentes} pendente(s)
-                            </span> : <span className="ecra-admin-extracted-36">0</span>}
+                            </span> : <span className="admin-table__empty-count">0</span>}
                         </td>
-                        <td className="ecra-admin-extracted-37">
+                        <td className="admin-table__cell">
                           {new Date(form.criadoEm || form.createdAt).toLocaleDateString()}
                         </td>
-                        <td className="ecra-admin-extracted-38">
-                          <div className="ecra-admin-extracted-39">
-                            <button className="btn-primary ecra-admin-extracted-40" onClick={() => clonarFormulario(form._id)}>
+                        <td className="admin-table__actions-cell">
+                          <div className="admin-table__actions">
+                            <button className="btn-primary admin-table__action-button" onClick={() => clonarFormulario(form._id)}>
 
                               Clonar
                             </button>
-                            {form.estado === 'Rascunho' && <button className="btn-primary ecra-admin-extracted-41" onClick={() => publicarFormulario(form._id)}>
+                            {form.estado === 'Rascunho' && <button className="btn-primary admin-table__action-button" onClick={() => publicarFormulario(form._id)}>
 
                                 Publicar
                               </button>}
-                            <button className="btn-logout ecra-admin-extracted-42" onClick={() => navigate(`/editar-formulario/${form._id}`)} disabled={form.estado === 'Publicado' || form.estado === 'Arquivado'}>
+                            <button className="btn-logout admin-table__action-button" onClick={() => navigate(`/editar-formulario/${form._id}`)} disabled={form.estado === 'Publicado' || form.estado === 'Arquivado'}>
 
                               Editar
                             </button>
                             {/* Apenas para formulários Publicados */}
                             {form.estado === 'Publicado' && <>
-                                <button className="btn-secondary ecra-admin-extracted-43" onClick={() => despublicarFormulario(form._id)}>
+                                <button className="btn-secondary admin-table__action-button" onClick={() => despublicarFormulario(form._id)}>
 
                                   Retirar para Rascunho
                                 </button>
-                                <button className="btn-primary ecra-admin-extracted-44" onClick={() => arquivarFormulario(form._id)}>
+                                <button className="btn-primary admin-table__action-button" onClick={() => arquivarFormulario(form._id)}>
 
                                   Arquivar
                                 </button>
                               </>}
-                            {form.estado !== 'Publicado' && form.estado !== 'Arquivado' && <button className="btn-logout ecra-admin-extracted-45" onClick={() => apagarFormulario(form._id)}>
+                            {form.estado !== 'Publicado' && form.estado !== 'Arquivado' && <button className="btn-logout admin-table__delete-button" onClick={() => apagarFormulario(form._id)}>
 
                                 Apagar
                               </button>}
@@ -342,11 +343,11 @@ function EcraAdmin() {
             </section>)}
 
         {/* Mensagem caso não existam formulários */}
-        {!loading && formularios.length === 0 && <div className="card ecra-admin-extracted-46">
+        {!loading && formularios.length === 0 && <div className="card admin__empty-state">
             Nenhum formulário encontrado na base de dados.
           </div>}
 
-        {!loading && formularios.length > 0 && formulariosFiltrados.length === 0 && <div className="card ecra-admin-extracted-47">
+        {!loading && formularios.length > 0 && formulariosFiltrados.length === 0 && <div className="card admin__empty-state">
             Nenhum formulário corresponde aos filtros selecionados.
           </div>}
       </div>

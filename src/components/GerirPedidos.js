@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './GerirPedidos.css';
 function GerirPedidos() {
   const navigate = useNavigate();
   const [pedidos, setPedidos] = useState([]);
@@ -54,21 +55,21 @@ function GerirPedidos() {
   });
   console.log('DEBUG: Pedidos filtrados para exibição:', pedidosFiltrados.length);
   return <div>
-      <div className="gerir-pedidos-style-1">
+      <div className="request-manager__header">
         <h2>Gestão de Pedidos</h2>
-        <p className="gerir-pedidos-style-2">Motor de filtragem e visualização de submissões.</p>
+        <p className="request-manager__intro">Motor de filtragem e visualização de submissões.</p>
       </div>
 
-      <div className="gerir-pedidos-style-3">
-        <div className="gerir-pedidos-style-4">
-          <label htmlFor="pesquisaNome" className="gerir-pedidos-style-5">Pesquisar Nome:</label>
-          <input id="pesquisaNome" type="text" placeholder="Filtrar por nome..." value={pesquisaNome} onChange={e => setPesquisaNome(e.target.value)} className="gerir-pedidos-style-6" />
+      <div className="request-filters">
+        <div className="request-manager-filters__field">
+          <label htmlFor="pesquisaNome" className="request-manager-filters__label">Pesquisar Nome:</label>
+          <input id="pesquisaNome" type="text" placeholder="Filtrar por nome..." value={pesquisaNome} onChange={e => setPesquisaNome(e.target.value)} className="request-manager-filters__control" />
 
         </div>
 
-        <div className="gerir-pedidos-style-7">
-          <label htmlFor="filtroEstado" className="gerir-pedidos-style-8">Estado:</label>
-          <select id="filtroEstado" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)} className="gerir-pedidos-style-9">
+        <div className="request-manager-filters__field">
+          <label htmlFor="filtroEstado" className="request-manager-filters__label">Estado:</label>
+          <select id="filtroEstado" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)} className="request-manager-filters__control">
 
             <option value="Todos">Todos os Estados</option>
             <option value="Pendente">Pendentes</option>
@@ -78,33 +79,33 @@ function GerirPedidos() {
         </div>
       </div>
 
-      {loading ? <div className="gerir-pedidos-style-10">A carregar dados do servidor...</div> : pedidos.length === 0 ? <div className="card gerir-pedidos-style-11">
+      {loading ? <div className="request-manager__loading">A carregar dados do servidor...</div> : pedidos.length === 0 ? <div className="card request-manager__empty-state">
           Ainda não existem pedidos submetidos no sistema.
-        </div> : pedidosFiltrados.length === 0 ? <div className="card gerir-pedidos-style-12">
+        </div> : pedidosFiltrados.length === 0 ? <div className="card request-manager__empty-state">
           Nenhum pedido corresponde aos critérios de filtragem.
-        </div> : <div className="card gerir-pedidos-style-13">
-          <table className="gerir-pedidos-style-14">
-            <thead className="gerir-pedidos-style-15">
+        </div> : <div className="card request-table-card">
+          <table className="request-table">
+            <thead className="request-table__head">
               <tr>
-                <th className="gerir-pedidos-style-16">Nome</th>
-                <th className="gerir-pedidos-style-17">Data</th>
-                <th className="gerir-pedidos-style-18">Professor</th>
-                <th className="gerir-pedidos-style-19">Estado</th>
-                <th className="gerir-pedidos-style-20">Ações</th>
+                <th className="request-table__heading">Nome</th>
+                <th className="request-table__heading">Data</th>
+                <th className="request-table__heading">Professor</th>
+                <th className="request-table__heading">Estado</th>
+                <th className="request-table__heading">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {pedidosFiltrados.map(pedido => <tr key={pedido._id} className="gerir-pedidos-style-21">
-                  <td className="gerir-pedidos-style-22">{pedido.tituloFormulario}</td>
-                  <td className="gerir-pedidos-style-23">{new Date(pedido.dataSubmissao).toLocaleDateString('pt-PT')}</td>
-                  <td className="gerir-pedidos-style-24">{pedido.professor?.email || 'N/A'}</td>
-                  <td className="gerir-pedidos-style-25">
+              {pedidosFiltrados.map(pedido => <tr key={pedido._id} className="request-table__row">
+                  <td className="request-table__title">{pedido.tituloFormulario}</td>
+                  <td className="request-table__cell">{new Date(pedido.dataSubmissao).toLocaleDateString('pt-PT')}</td>
+                  <td className="request-table__cell">{pedido.professor?.email || 'N/A'}</td>
+                  <td className="request-table__cell">
                     <span className={`status-badge ${getStatusClass(pedido.estado)}`}>
                       {pedido.estado}
                     </span>
                   </td>
-                  <td className="gerir-pedidos-style-26">
-                    <button className="btn-secondary gerir-pedidos-style-27" onClick={() => navigate(`/detalhes-pedido/${pedido._id}`)}>
+                  <td className="request-table__cell">
+                    <button className="btn-secondary request-table__details-button" onClick={() => navigate(`/detalhes-pedido/${pedido._id}`)}>
 
                       Analisar
                     </button>

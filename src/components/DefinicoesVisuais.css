@@ -75,3 +75,19 @@
   cursor: pointer;
   transition: background-color 0.3s;
 }
+
+/* Component styles formerly embedded in JSX. */
+.visual-settings__save-button-styled {
+  color: var(--success-text);
+  font-weight: bold;
+}
+
+.visual-settings__save-button-vertical-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.visual-settings__logo-styled {
+  font-size: 16px;
+}

@@ -249,3 +249,173 @@
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Component styles formerly embedded in JSX. */
+.file-upload__input {
+  display: none;
+}
+
+.file-upload__selected-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+}
+
+.file-upload__document-icon {
+  font-size: 1.5rem;
+}
+
+.file-upload__metadata {
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 70%;
+}
+
+.file-upload__file-name {
+  display: block;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.file-upload__file-size {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.file-upload__clear-button {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #ff4d4f;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.file-upload__empty-icon {
+  font-size: 2rem;
+}
+
+.file-upload__prompt {
+  font-weight: 600;
+  color: #555;
+}
+
+.file-upload__separator {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.submission-success__title {
+  color: var(--text-main);
+  margin-bottom: 1rem;
+}
+
+.submission-success__message {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.submission-success__button {
+  margin-top: 30px;
+}
+
+.professor-form__back-button {
+  margin-bottom: 20px;
+}
+
+.form-document__logo {
+  object-fit: contain;
+}
+
+.form-document__logo-placeholder {
+  color: #ccc;
+  font-size: 0.8rem;
+}
+
+.form-document__hidden-title {
+  visibility: hidden;
+}
+
+.form-document__description {
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: var(--muted-bg);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-color);
+}
+
+.form-document__description-text {
+  margin: 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.room-selection__summary {
+  margin-top: 10px;
+  padding: 12px;
+  background-color: var(--muted-bg);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  border: 1px solid rgba(0, 108, 198, 0.2);
+}
+
+.room-selection__details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.professor-forms__header {
+  margin-bottom: 2rem;
+}
+
+.professor-filters {
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.professor-filters__field {
+  flex: 1;
+  min-width: 240px;
+}
+
+.professor-filters__clear-button {
+  min-height: 42px;
+}
+
+.professor-filters__result-count {
+  width: 100%;
+  color: var(--text-muted);
+}
+
+.professor-forms__loading {
+  padding: 40px;
+}
+
+.professor-form-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.professor-form-card__title {
+  margin-bottom: 0.5rem;
+}
+
+.professor-form-card__description {
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}

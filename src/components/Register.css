@@ -1,0 +1,67 @@
+/* Component styles formerly embedded in JSX. */
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-title {
+  color: var(--primary-green);
+  margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+  color: var(--text-muted);
+}
+
+.auth-error {
+  background-color: var(--error-bg);
+  color: var(--error-text);
+  padding: 10px;
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.auth-label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.auth-submit {
+  padding: 12px;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+.auth-account-link {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.auth-link {
+  color: var(--primary-green);
+  font-weight: bold;
+  text-decoration: none;
+}

@@ -1,0 +1,248 @@
+/* Component styles formerly embedded in JSX. */
+.request-details__loading {
+  text-align: center;
+  padding: 50px;
+}
+
+.request-details__error-card {
+  text-align: center;
+  padding: 40px;
+}
+
+.request-details__error {
+  color: var(--error-text);
+  font-weight: bold;
+}
+
+.request-details {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.request-details__back-button {
+  margin-bottom: 20px;
+}
+
+.request-details__logo {
+  object-fit: contain;
+}
+
+.request-details__logo-placeholder {
+  color: #ccc;
+  font-size: 0.8rem;
+}
+
+.request-details__hidden-title {
+  visibility: hidden;
+}
+
+.request-details__schools {
+  margin-bottom: 30px;
+}
+
+.request-details__content {
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.request-details__fallback-title {
+  margin: 0;
+  margin-bottom: 5px;
+}
+
+.request-details__metadata {
+  color: var(--text-muted);
+  margin-top: 5px;
+}
+
+.request-details__status-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.request-details__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.request-details__approve-button {
+  padding: 5px 15px;
+  font-size: 0.85rem;
+  background-color: #28a745;
+}
+
+.request-details__reject-button,
+.request-details__cancel-button {
+  padding: 5px 15px;
+  font-size: 0.85rem;
+}
+
+.rejection-form {
+  background-color: var(--error-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rejection-form__label {
+  font-weight: 600;
+  color: var(--error-text);
+  font-size: 0.9rem;
+}
+
+.rejection-form__required {
+  color: red;
+}
+
+.rejection-form__textarea {
+  width: 100%;
+  resize: none;
+  border-radius: var(--radius-md);
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-bg);
+  color: var(--text-main);
+  font-family: inherit;
+}
+
+.rejection-form__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.rejection-form__cancel-button {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+.rejection-reason {
+  background-color: var(--error-bg);
+  border-left: 5px solid var(--error-text);
+  padding: 15px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.rejection-reason__label {
+  color: var(--error-text);
+  display: block;
+  margin-bottom: 5px;
+}
+
+.rejection-reason__text {
+  color: var(--text-main);
+  font-style: italic;
+}
+
+.request-answers {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px 15px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 24px;
+}
+
+.request-answer__label {
+  font-weight: 600;
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 5px;
+}
+
+.request-answer__value {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.request-file {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.request-file__details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.request-file__icon {
+  font-size: 1.8rem;
+}
+
+.request-file__metadata {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.request-file__name {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.request-file__size {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.request-file__download {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  text-decoration: none;
+  border-radius: 4px;
+  background-color: var(--primary-green);
+  color: #fff;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.request-file__preview {
+  margin-top: 5px;
+}
+
+.request-file__preview-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+
+.request-file__preview-image {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  object-fit: contain;
+}
+
+.request-details__unavailable {
+  grid-column: 1 / span 12;
+  padding: 20px;
+  text-align: center;
+}
+
+.request-details__unavailable-text {
+  color: var(--text-muted);
+  margin: 0;
+}

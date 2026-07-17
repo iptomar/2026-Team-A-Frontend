@@ -1,0 +1,148 @@
+/* Component styles formerly embedded in JSX. */
+.coordinator__header,
+.form-category {
+  margin-bottom: 2rem;
+}
+
+.coordinator__intro {
+  color: var(--text-muted);
+}
+
+.coordinator-kpis {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.coordinator-kpi__label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.coordinator-kpi__value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--text-main);
+}
+
+.coordinator-kpi__value--pending {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #f39c12;
+}
+
+.coordinator-kpi__value--approved {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary-green);
+}
+
+.coordinator-filters {
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.coordinator-filters__field {
+  flex: 1;
+  min-width: 250px;
+}
+
+.coordinator-filters__label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.coordinator-filters__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+}
+
+.coordinator-filters__clear-button {
+  min-height: 42px;
+}
+
+.coordinator-filters__result-count {
+  width: 100%;
+  color: var(--text-muted);
+}
+
+.coordinator__loading {
+  padding: 40px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.form-category__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.form-category__title {
+  margin: 0;
+}
+
+.coordinator-table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.coordinator-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.coordinator-table__head-row {
+  background-color: var(--muted-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.coordinator-table__heading,
+.coordinator-table__cell {
+  padding: 15px 20px;
+}
+
+.coordinator-table__row {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.coordinator-table__title {
+  padding: 15px 20px;
+  font-weight: 600;
+}
+
+.coordinator-table__submission-count {
+  font-weight: 600;
+}
+
+.coordinator-table__pending-count {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid #ffeeba;
+}
+
+.coordinator-table__empty-count {
+  color: #6c757d;
+}
+
+.coordinator__empty-state {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted);
+}

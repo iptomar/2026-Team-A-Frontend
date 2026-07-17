@@ -57,9 +57,9 @@ function DefinicoesVisuais() {
       <h2>Definições Visuais do Sistema</h2>
       <p>Personalize o aspeto dos formulários para os docentes.</p>
 
-      {mensagem && <p className="definicoes-visuais-style-1">{mensagem}</p>}
+      {mensagem && <p className="visual-settings__save-button-styled">{mensagem}</p>}
 
-      <form onSubmit={handleGuardar} className="definicoes-visuais-style-2">
+      <form onSubmit={handleGuardar} className="visual-settings__save-button-vertical-layout">
 
         {/* Secção da Cor */}
         <div className="settings-section">
@@ -67,7 +67,7 @@ function DefinicoesVisuais() {
           <label className="color-label">
             <input type="color" value={corPrincipal} onChange={e => setCorPrincipal(e.target.value)} className="color-input" />
 
-            <span className="definicoes-visuais-style-3">Clique no quadrado para escolher a cor de destaque</span>
+            <span className="visual-settings__logo-styled">Clique no quadrado para escolher a cor de destaque</span>
           </label>
         </div>
 

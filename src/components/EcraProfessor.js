@@ -57,17 +57,17 @@ function CampoFicheiro({
   };
   return <div onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} className={`file-upload-field ${themeClass} ${dragOver ? 'is-drag-over' : ''} ${temErro ? 'has-error' : ''}`} onClick={() => fileInputRef.current && fileInputRef.current.click()}>
 
-      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="ecra-professor-extracted-1" />
+      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="file-upload__input" />
 
 
 
-      {value ? <div className="ecra-professor-extracted-2">
-          <span className="ecra-professor-extracted-3">📄</span>
-          <div className="ecra-professor-extracted-4">
-            <strong className="ecra-professor-extracted-5">{value.name}</strong>
-            <span className="ecra-professor-extracted-6">{(value.size / 1024).toFixed(1)} KB</span>
+      {value ? <div className="file-upload__selected-file">
+          <span className="file-upload__document-icon">📄</span>
+          <div className="file-upload__metadata">
+            <strong className="file-upload__file-name">{value.name}</strong>
+            <span className="file-upload__file-size">{(value.size / 1024).toFixed(1)} KB</span>
           </div>
-          <button type="button" onClick={clearFile} className="ecra-professor-extracted-7">
+          <button type="button" onClick={clearFile} className="file-upload__clear-button">
 
 
 
@@ -86,9 +86,9 @@ function CampoFicheiro({
             ×
           </button>
         </div> : <>
-          <div className="ecra-professor-extracted-8">📁</div>
-          <div className="ecra-professor-extracted-9">Arrastar e soltar ficheiro aqui</div>
-          <div className="ecra-professor-extracted-10">ou</div>
+          <div className="file-upload__empty-icon">📁</div>
+          <div className="file-upload__prompt">Arrastar e soltar ficheiro aqui</div>
+          <div className="file-upload__separator">ou</div>
           <button type="button" className="btn-primary file-upload-select-button">
 
             Selecionar Ficheiro
@@ -331,12 +331,12 @@ function EcraProfessor() {
     return <div className="success-screen">
         <div className="card success-card">
           <div className="success-icon">✅</div>
-          <h2 className="ecra-professor-extracted-11">Submissão Concluída!</h2>
-          <p className="text-muted ecra-professor-extracted-12">
+          <h2 className="submission-success__title">Submissão Concluída!</h2>
+          <p className="text-muted submission-success__message">
             O seu pedido foi registado com sucesso no sistema <strong>SmartForms</strong>.<br />
             Será redirecionado para a lista de formulários em instantes.
           </p>
-          <button className="btn-primary ecra-professor-extracted-13" onClick={() => {
+          <button className="btn-primary submission-success__button" onClick={() => {
           setFormSelecionado(null);
           setSubmetidoComSucesso(false);
         }}>
@@ -357,7 +357,7 @@ function EcraProfessor() {
         setRespostas({});
         setSubmetidoComSucesso(false);
         setSalaSelecionada(null);
-      }} className="btn-logout ecra-professor-extracted-14">
+      }} className="btn-logout professor-form__back-button">
 
 
           ← Voltar aos Formulários
@@ -367,10 +367,10 @@ function EcraProfessor() {
           {/* PDF Header Layout */}
           {formSelecionado.showCabecalho !== false && <div className="ipt-pdf-header">
               {formSelecionado.showLogo !== false && <div className="ipt-pdf-header-logo-box">
-                  {logoTema ? <img src={logoTema} alt="Logótipo IPT" className="ecra-professor-extracted-15" /> : <div className="ecra-professor-extracted-16">Sem Logo</div>}
+                  {logoTema ? <img src={logoTema} alt="Logótipo IPT" className="form-document__logo" /> : <div className="form-document__logo-placeholder">Sem Logo</div>}
                 </div>}
               <div className="ipt-pdf-header-title-box">
-                {formSelecionado.showTitulo !== false ? <h1 className="ipt-pdf-header-title-text">{formSelecionado.titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1> : <h1 className="ipt-pdf-header-title-text ecra-professor-extracted-17">REQUERIMENTO</h1>}
+                {formSelecionado.showTitulo !== false ? <h1 className="ipt-pdf-header-title-text">{formSelecionado.titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1> : <h1 className="ipt-pdf-header-title-text form-document__hidden-title">REQUERIMENTO</h1>}
               </div>
               <div className="ipt-pdf-header-meta-box">
                 <div className="ipt-pdf-meta-top">{codigoDocumento}</div>
@@ -385,8 +385,8 @@ function EcraProfessor() {
               <label><input type="checkbox" /> ESTT</label>
             </div>}
 
-          {formSelecionado.descricao && <div className="ecra-professor-extracted-18">
-              <p className="ecra-professor-extracted-19">{formSelecionado.descricao}</p>
+          {formSelecionado.descricao && <div className="form-document__description">
+              <p className="form-document__description-text">{formSelecionado.descricao}</p>
             </div>}
 
           <div className="form-fields-container">
@@ -415,7 +415,7 @@ function EcraProfessor() {
               // Atributos de validação nativos adicionados para consistência
               maxLength={['Texto Curto', 'Texto Longo', 'Nome', 'Email'].includes(campo.tipo) ? campo.maxCaracteres : undefined} min={campo.tipo === 'Número' ? campo.minNumero : undefined} max={campo.tipo === 'Número' ? campo.maxNumero : undefined} />}
 
-                  {isSala && salaSelecionada && <div className="room-info-card ecra-professor-extracted-20">
+                  {isSala && salaSelecionada && <div className="room-info-card room-selection__summary">
 
 
 
@@ -423,7 +423,7 @@ function EcraProfessor() {
 
 
 
-                      <div className="ecra-professor-extracted-21">
+                      <div className="room-selection__details">
                         <div><strong>Tipo:</strong> {salaSelecionada.tipo}</div>
                         <div><strong>Lotação:</strong> {salaSelecionada.lotacao}</div>
                         <div><strong>Projetor:</strong> {salaSelecionada.equipamentos.projetor ? '✅' : '❌'}</div>
@@ -446,12 +446,12 @@ function EcraProfessor() {
       </div>;
   }
   return <div>
-      <div className="ecra-professor-extracted-22">
+      <div className="professor-forms__header">
         <h2>Formulários Disponíveis</h2>
         <p className="text-muted">Selecione um formulário para iniciar o preenchimento.</p>
       </div>
 
-      <div className="card ecra-professor-extracted-23">
+      <div className="card professor-filters">
 
 
 
@@ -460,13 +460,13 @@ function EcraProfessor() {
 
 
 
-        <div className="ecra-professor-extracted-24">
+        <div className="professor-filters__field">
           <label className="form-label">Pesquisar</label>
           <input type="search" className="form-input" placeholder="Título ou descrição..." value={filtros.pesquisa} onChange={event => atualizarFiltro('pesquisa', event.target.value)} />
 
         </div>
 
-        <div className="ecra-professor-extracted-25">
+        <div className="professor-filters__field">
           <label className="form-label">Categoria</label>
           <select className="form-input" value={filtros.categoria} onChange={event => atualizarFiltro('categoria', event.target.value)}>
 
@@ -477,7 +477,7 @@ function EcraProfessor() {
           </select>
         </div>
 
-        <div className="ecra-professor-extracted-26">
+        <div className="professor-filters__field">
           <label className="form-label">Ordenar</label>
           <select className="form-input" value={filtros.ordenacao} onChange={event => atualizarFiltro('ordenacao', event.target.value)}>
 
@@ -488,18 +488,18 @@ function EcraProfessor() {
           </select>
         </div>
 
-        <button type="button" className="btn-secondary ecra-professor-extracted-27" onClick={limparFiltros}>
+        <button type="button" className="btn-secondary professor-filters__clear-button" onClick={limparFiltros}>
 
 
           Limpar filtros
         </button>
 
-        <div className="ecra-professor-extracted-28">
+        <div className="professor-filters__result-count">
           {formulariosFiltrados.length} de {formularios.length} formulário(s)
         </div>
       </div>
 
-      {loading ? <div className="text-center ecra-professor-extracted-29">A carregar formulários...</div> : formularios.length === 0 ? <div className="card text-center text-muted">
+      {loading ? <div className="text-center professor-forms__loading">A carregar formulários...</div> : formularios.length === 0 ? <div className="card text-center text-muted">
           Não há formulários publicados de momento.
         </div> : formulariosFiltrados.length === 0 ? <div className="card text-center text-muted">
           Nenhum formulário corresponde aos filtros selecionados.
@@ -510,10 +510,10 @@ function EcraProfessor() {
                 <span className="status-badge status-publicado">{itens.length} formulário(s)</span>
               </div>
               <div className="grid-container">
-                {itens.map(form => <div key={form._id} className="card ecra-professor-extracted-30">
+                {itens.map(form => <div key={form._id} className="card professor-form-card">
                     <div>
-                      <h3 className="ecra-professor-extracted-31">{form.titulo}</h3>
-                      <p className="text-muted ecra-professor-extracted-32">
+                      <h3 className="professor-form-card__title">{form.titulo}</h3>
+                      <p className="text-muted professor-form-card__description">
                         {form.descricao || 'Sem descrição disponível.'}
                       </p>
                     </div>
