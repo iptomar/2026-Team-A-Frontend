@@ -91,11 +91,11 @@ const Layout = ({
     }
   }, []);
   return <div className="App">
-      <nav className="navbar app-extracted-1">
-        <div className="app-extracted-2">
-          {logo && <img src={logo} alt="Logótipo da Instituição" onClick={() => window.location.href = '/'} className="app-extracted-3" />}
+      <nav className="navbar app-navbar">
+        <div className="app-navbar__brand">
+          {logo && <img src={logo} alt="Logótipo da Instituição" onClick={() => window.location.href = '/'} className="app-navbar__logo" />}
 
-          <h1 className="navbar-brand app-extracted-4" onClick={() => window.location.href = '/'}>
+          <h1 className="navbar-brand app-navbar__title" onClick={() => window.location.href = '/'}>
             SmartForms
           </h1>
 
@@ -122,17 +122,17 @@ const Layout = ({
             </div>}
         </div>
 
-        <div className="user-section app-extracted-5">
-          <button onClick={toggleTheme} className="btn-secondary app-extracted-6" title="Alternar Modo Claro/Escuro">
+        <div className="user-section app-navbar__actions">
+          <button onClick={toggleTheme} className="btn-secondary app-navbar__theme-toggle" title="Alternar Modo Claro/Escuro">
 
             {theme === 'light' ? '🌙' : '☀️'}
           </button>
-          <span className="user-info app-extracted-7">Sessão: <strong>{user.name || user.email}</strong> ({user.role})</span>
+          <span className="user-info app-navbar__user-name">Sessão: <strong>{user.name || user.email}</strong> ({user.role})</span>
           <button className="btn-logout" onClick={handleLogout}>Sair</button>
         </div>
       </nav>
 
-      <main className="main-content app-extracted-8">{children}</main>
+      <main className="main-content app-content">{children}</main>
     </div>;
 };
 function App() {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import './Login.css';
 function Login({
   onLogin
 }) {
@@ -39,19 +40,19 @@ function Login({
       setLoading(false);
     }
   };
-  return <div className="login-style-1">
+  return <div className="auth-page">
 
 
 
 
 
-      <div className="card login-style-2">
-        <div className="login-style-3">
-          <h2 className="login-style-4">Bem-vindo</h2>
-          <p className="login-style-5">Inicie sessão para aceder ao sistema</p>
+      <div className="card auth-card">
+        <div className="auth-header">
+          <h2 className="auth-title">Bem-vindo</h2>
+          <p className="auth-subtitle">Inicie sessão para aceder ao sistema</p>
         </div>
 
-        {error && <div className="login-style-6">
+        {error && <div className="auth-error">
 
 
 
@@ -64,30 +65,30 @@ function Login({
             {error}
           </div>}
 
-        <form onSubmit={handleSubmit} className="login-style-7">
+        <form onSubmit={handleSubmit} className="login-form">
           <div>
-            <label className="login-style-8">Email</label>
+            <label className="auth-label">Email</label>
             <input type="email" className="form-input" value={email} onChange={e => setEmail(e.target.value)} placeholder="exemplo@ipt.pt" required disabled={loading} />
 
           </div>
 
           <div>
-            <label className="login-style-9">Palavra-passe</label>
+            <label className="auth-label">Palavra-passe</label>
             <input type="password" className="form-input" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required disabled={loading} />
 
           </div>
 
-          <button type="submit" className="btn-primary login-style-10" disabled={loading}>
+          <button type="submit" className="btn-primary auth-submit" disabled={loading}>
 
             {loading ? 'A autenticar...' : 'Entrar no Sistema'}
           </button>
         </form>
 
-        <div className="login-style-11">
-          Não tem conta? <Link to="/register" className="login-style-12">Crie uma nova conta</Link>
+        <div className="auth-account-link">
+          Não tem conta? <Link to="/register" className="auth-link">Crie uma nova conta</Link>
         </div>
 
-        <div className="login-style-13">
+        <div className="auth-footer">
           © 2026 - Instituto Politécnico de Tomar
         </div>
       </div>

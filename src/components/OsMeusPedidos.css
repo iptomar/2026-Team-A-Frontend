@@ -1,0 +1,85 @@
+/* Component styles formerly embedded in JSX. */
+.my-requests__header {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.my-requests__intro {
+  color: var(--text-muted);
+}
+
+.request-filters {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.my-request-filters__field {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.my-request-filters__label {
+  font-weight: 500;
+}
+
+.my-request-filters__control {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.my-request-filters__sort-button {
+  padding: 8px 12px;
+  min-width: max-content;
+}
+
+.my-requests__loading {
+  text-align: center;
+  padding: 40px;
+}
+
+.my-requests__empty-state {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.request-table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.request-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.request-table__head {
+  background-color: var(--muted-bg);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.request-table__heading,
+.request-table__cell {
+  padding: 15px;
+}
+
+.request-table__row {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.request-table__title {
+  padding: 15px;
+  font-weight: 500;
+}
+
+.request-table__details-button {
+  padding: 5px 10px;
+  font-size: 0.85rem;
+}

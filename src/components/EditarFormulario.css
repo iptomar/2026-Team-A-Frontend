@@ -106,3 +106,451 @@
   padding: 15px;
   fontSize: 1.1rem;
 }
+
+/* Component styles formerly embedded in JSX. */
+.form-editor__loading {
+  padding: 40px;
+  text-align: center;
+}
+
+.form-editor {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.form-editor__header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.form-editor__header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.form-editor__preview-toggle {
+  padding: 10px 20px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.form-editor__workspace {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.form-editor__main {
+  flex: 1;
+}
+
+.form-editor__preview {
+  min-height: 600px;
+}
+
+.form-document__logo {
+  object-fit: contain;
+}
+
+.form-document__logo-placeholder {
+  color: #ccc;
+  font-size: 0.8rem;
+}
+
+.form-document__hidden-title {
+  visibility: hidden;
+}
+
+.form-document__description {
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: var(--muted-bg);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-color);
+}
+
+.form-document__description-text {
+  margin: 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.form-document__fields {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+}
+
+.form-editor-field__label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.form-editor-field__required {
+  color: red;
+}
+
+.form-editor-field__preview-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--input-bg);
+  color: var(--text-main);
+  outline-color: #006cc6;
+}
+
+.file-field-preview {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  background-color: #f8f9fa;
+  color: #666;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-field-preview__icon {
+  font-size: 2rem;
+}
+
+.file-field-preview__prompt {
+  font-weight: 600;
+}
+
+.file-field-preview__separator {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.file-field-preview__button {
+  padding: 8px 16px;
+  background-color: #ccc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: not-allowed;
+  font-size: 0.85rem;
+}
+
+.form-editor__builder {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-document__hidden-title-placeholder {
+  color: #ccc;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.form-editor__metadata-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-editor__description-input {
+  width: 100%;
+  border: none;
+  resize: none;
+  outline: none;
+  color: #666;
+  border-bottom: 1px solid #eee;
+}
+
+.form-editor__category-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-editor__category-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.form-editor__category-input {
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  flex: 1;
+}
+
+.form-editor__canvas {
+  background-color: #fff;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  min-height: 1000px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 100px;
+  background-image: radial-gradient(#ddd 1px, transparent 1px);
+  background-size: calc(100% / 12) 100px;
+  padding: 10px;
+  gap: 10px;
+}
+
+.form-editor-editable-field__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.form-editor-editable-field__drag-handle {
+  font-size: 0.6rem;
+  color: #999;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.form-editor-editable-field__type {
+  border: none;
+  background: none;
+  color: red;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.form-editor-editable-field__remove-button {
+  border: none;
+  border-bottom: 1px solid #eee;
+  font-weight: bold;
+  width: 100%;
+  outline: none;
+}
+
+.form-editor-editable-field__label-input {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.form-editor-editable-field__required-row {
+  font-size: 0.7rem;
+  color: #888;
+}
+
+.form-editor-editable-field__required-label {
+  margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.form-editor-editable-field__constraint-row,
+.form-editor-editable-field__number-limit {
+  font-size: 0.65rem;
+  color: #666;
+  font-weight: bold;
+}
+
+.form-editor-editable-field__constraint-label {
+  font-size: 0.7rem;
+  padding: 2px 4px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-editor-editable-field__constraint-input {
+  margin-top: 5px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.form-editor-editable-field__number-limits {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.form-editor-editable-field__options {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.form-editor-editable-field__new-option {
+  flex: 1;
+  font-size: 0.8rem;
+}
+
+.form-editor-editable-field__add-option,
+.form-editor__logo-label {
+  font-size: 0.8rem;
+}
+
+.form-editor-editable-field__option-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.form-editor-editable-field__option {
+  padding: 2px 8px;
+  background-color: #e9ecef;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.form-editor-editable-field__remove-option {
+  border: none;
+  background: none;
+  margin-left: 5px;
+  cursor: pointer;
+  color: red;
+}
+
+.form-editor-editable-field__resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 15px;
+  height: 15px;
+  cursor: nwse-resize;
+  border-right: 2px solid #007bff;
+  border-bottom: 2px solid #007bff;
+  border-radius: 0 0 8px 0;
+}
+
+.form-editor__save-button {
+  padding: 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.form-editor__sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-editor__sidebar-card,
+.form-editor-field-visibility-item__delete {
+  padding: 20px;
+}
+
+.form-editor__sidebar-title {
+  margin-bottom: 15px;
+}
+
+.form-editor__message {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.form-editor__settings-section,
+.form-editor__logo-thumbnail {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #999;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.form-editor__settings-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-editor__settings-options,
+.form-editor__toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.form-editor__document-label {
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 0.85rem;
+}
+
+.form-editor__document-code {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.form-editor__logo-input {
+  text-align: center;
+  margin-top: 5px;
+}
+
+.form-editor__logo-preview {
+  max-height: 40px;
+  max-width: 100px;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-editor__empty-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.form-editor-field-visibility-list {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.form-editor-field-visibility-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.form-editor-field-visibility-item__content {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.form-editor-field-visibility-item__actions {
+  border: none;
+  background: none;
+  color: red;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+}

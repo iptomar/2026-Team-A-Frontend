@@ -1,0 +1,153 @@
+/* Component styles formerly embedded in JSX. */
+.admin__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.admin__intro {
+  color: var(--text-muted);
+}
+
+.admin__header-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.admin__rooms-button,
+.admin__create-form-button {
+  padding: 12px 25px;
+}
+
+.admin-filters {
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.admin-filters__field {
+  flex: 1;
+  min-width: 240px;
+}
+
+.admin-filters__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+}
+
+.admin-filters__clear-button {
+  min-height: 42px;
+}
+
+.admin-filters__result-count {
+  width: 100%;
+  color: var(--text-muted);
+}
+
+.admin__loading-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin__loading-card {
+  padding: 20px;
+}
+
+.admin__loading-line {
+  width: 30%;
+  height: 24px;
+  margin-bottom: 20px;
+}
+
+.form-category {
+  margin-bottom: 2rem;
+}
+
+.form-category__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.form-category__title {
+  margin: 0;
+}
+
+.admin-table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table__head-row {
+  background-color: var(--muted-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table__heading,
+.admin-table__cell {
+  padding: 15px 20px;
+}
+
+.admin-table__row {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table__title {
+  padding: 15px 20px;
+  font-weight: 600;
+}
+
+.admin-table__submission-count {
+  font-weight: 500;
+}
+
+.admin-table__pending-count {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.admin-table__empty-count {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.admin-table__actions-cell {
+  padding: 15px 20px;
+  text-align: right;
+}
+
+.admin-table__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.admin-table__action-button {
+  padding: 5px 12px;
+  background-color: #28a745;
+}
+
+.admin-table__delete-button {
+  padding: 5px 12px;
+  color: var(--error-text);
+}
+
+.admin__empty-state {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted);
+}

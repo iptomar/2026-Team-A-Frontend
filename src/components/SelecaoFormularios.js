@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { agruparFormulariosPorCategoria, filtrarEOrdenarFormularios, obterCategorias } from '../utils/formUtils';
+import './SelecaoFormularios.css';
 const SelecaoFormularios = ({
   onSelectForm
 }) => {
@@ -49,20 +50,20 @@ const SelecaoFormularios = ({
     });
   };
   if (loading) {
-    return <div className="selecao-formularios-extracted-1">A carregar formulários ativos...</div>;
+    return <div className="form-selection__loading">A carregar formulários ativos...</div>;
   }
   if (formularios.length === 0) {
-    return <div className="card selecao-formularios-extracted-2">
+    return <div className="card form-selection__empty-state">
         <p>Não existem formulários ativos de momento.</p>
       </div>;
   }
   return <div className="selecao-formularios">
-      <div className="selecao-formularios-extracted-3">
+      <div className="form-selection__section">
         <h2>Selecione um Formulário</h2>
-        <p className="selecao-formularios-extracted-4">Escolha um dos formulários abaixo para submeter o seu pedido.</p>
+        <p className="form-selection__intro">Escolha um dos formulários abaixo para submeter o seu pedido.</p>
       </div>
 
-      <div className="card selecao-formularios-extracted-5">
+      <div className="card form-filter-panel">
 
 
 
@@ -71,13 +72,13 @@ const SelecaoFormularios = ({
 
 
 
-        <div className="selecao-formularios-extracted-6">
+        <div className="form-filter-field form-filter-field--search">
           <label className="form-label">Pesquisar</label>
           <input type="search" className="form-input" placeholder="Título ou descrição..." value={filtros.pesquisa} onChange={event => atualizarFiltro('pesquisa', event.target.value)} />
 
         </div>
 
-        <div className="selecao-formularios-extracted-7">
+        <div className="form-filter-field form-filter-field--category">
           <label className="form-label">Categoria</label>
           <select className="form-input" value={filtros.categoria} onChange={event => atualizarFiltro('categoria', event.target.value)}>
 
@@ -88,7 +89,7 @@ const SelecaoFormularios = ({
           </select>
         </div>
 
-        <div className="selecao-formularios-extracted-8">
+        <div className="form-filter-field form-filter-field--sort">
           <label className="form-label">Ordenar</label>
           <select className="form-input" value={filtros.ordenacao} onChange={event => atualizarFiltro('ordenacao', event.target.value)}>
 
@@ -99,36 +100,36 @@ const SelecaoFormularios = ({
           </select>
         </div>
 
-        <button type="button" className="btn-secondary selecao-formularios-extracted-9" onClick={limparFiltros}>
+        <button type="button" className="btn-secondary form-filter-panel__clear-button" onClick={limparFiltros}>
 
 
           Limpar filtros
         </button>
 
-        <div className="selecao-formularios-extracted-10">
+        <div className="form-filter-panel__result-count">
           {formulariosFiltrados.length} de {formularios.length} formulário(s)
         </div>
       </div>
 
       <div>
-        {formulariosFiltrados.length === 0 ? <div className="card selecao-formularios-extracted-11">
+        {formulariosFiltrados.length === 0 ? <div className="card form-selection__no-results">
             Nenhum formulário corresponde aos filtros selecionados.
-          </div> : Object.entries(formulariosAgrupados).map(([categoria, itens]) => <section key={categoria} className="selecao-formularios-extracted-12">
-            <div className="selecao-formularios-extracted-13">
-              <h3 className="selecao-formularios-extracted-14">{categoria}</h3>
+          </div> : Object.entries(formulariosAgrupados).map(([categoria, itens]) => <section key={categoria} className="form-category">
+            <div className="form-category__header">
+              <h3 className="form-category__title">{categoria}</h3>
               <span className="status-badge status-publicado">{itens.length} formulário(s)</span>
             </div>
             <div className="grid-container">
-              {itens.map(form => <div key={form._id} className="card selecao-formularios-extracted-15">
+              {itens.map(form => <div key={form._id} className="card form-selection-card">
                   <div>
-                    <h3 className="selecao-formularios-extracted-16">{form.titulo}</h3>
-                    <p className="selecao-formularios-extracted-17">
+                    <h3 className="form-selection-card__title">{form.titulo}</h3>
+                    <p className="form-selection-card__description">
                       {form.descricao || 'Sem descrição disponível.'}
                     </p>
                   </div>
-                  <div className="selecao-formularios-extracted-18">
+                  <div className="form-selection-card__footer">
                     <span className="status-badge status-publicado">Ativo</span>
-                    <button className="btn-primary selecao-formularios-extracted-19" onClick={() => onSelectForm(form)}>
+                    <button className="btn-primary form-selection-card__select-button" onClick={() => onSelectForm(form)}>
 
 
                       Selecionar

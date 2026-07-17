@@ -1,0 +1,88 @@
+/* Component styles formerly embedded in JSX. */
+.form-selection__loading {
+  text-align: center;
+  padding: 40px;
+}
+
+.form-selection__empty-state,
+.form-selection__no-results {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-muted);
+}
+
+.form-selection__section,
+.form-category {
+  margin-bottom: 2rem;
+}
+
+.form-selection__intro {
+  color: var(--text-muted);
+}
+
+.form-filter-panel {
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.form-filter-field {
+  flex: 1;
+  min-width: 240px;
+}
+
+.form-filter-field--category {
+  min-width: 190px;
+}
+
+.form-filter-field--sort {
+  min-width: 170px;
+}
+
+.form-filter-panel__clear-button {
+  min-height: 42px;
+}
+
+.form-filter-panel__result-count {
+  width: 100%;
+  color: var(--text-muted);
+}
+
+.form-category__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.form-category__title {
+  margin: 0;
+}
+
+.form-selection-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.form-selection-card__title {
+  margin-bottom: 0.5rem;
+}
+
+.form-selection-card__description {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-selection-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-selection-card__select-button {
+  padding: 8px 15px;
+}

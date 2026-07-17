@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import './Register.css';
 function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,26 +44,26 @@ function Register() {
       setLoading(false);
     }
   };
-  return <div className="register-extracted-1">
-      <div className="card register-extracted-2">
-        <div className="register-extracted-3">
-          <h2 className="register-extracted-4">Criar Conta</h2>
-          <p className="register-extracted-5">Registe-se para aceder ao sistema</p>
+  return <div className="auth-page">
+      <div className="card auth-card">
+        <div className="auth-header">
+          <h2 className="auth-title">Criar Conta</h2>
+          <p className="auth-subtitle">Registe-se para aceder ao sistema</p>
         </div>
 
-        {error && <div className="register-extracted-6">
+        {error && <div className="auth-error">
             {error}
           </div>}
 
-        <form onSubmit={handleSubmit} className="register-extracted-7">
+        <form onSubmit={handleSubmit} className="register-form">
           <div>
-            <label className="register-extracted-8">Email</label>
+            <label className="auth-label">Email</label>
             <input type="email" className="form-input" value={email} onChange={e => setEmail(e.target.value)} placeholder="exemplo@ipt.pt" required disabled={loading} />
 
           </div>
 
           <div>
-            <label className="register-extracted-9">Tipo de Utilizador</label>
+            <label className="auth-label">Tipo de Utilizador</label>
             <select className="form-input" value={role} onChange={e => setRole(e.target.value)} disabled={loading}>
 
               <option value="professor">Professor</option>
@@ -74,31 +75,31 @@ function Register() {
           </div>
 
           {(role === 'aluno' || role === 'diretor' || role === 'professor') && <div>
-              <label className="register-extracted-10">Curso</label>
+              <label className="auth-label">Curso</label>
               <input type="text" className="form-input" value={curso} onChange={e => setCurso(e.target.value)} placeholder="Ex: Engenharia Informática, Design, etc." required disabled={loading} />
 
             </div>}
 
           <div>
-            <label className="register-extracted-11">Palavra-passe</label>
+            <label className="auth-label">Palavra-passe</label>
             <input type="password" className="form-input" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required disabled={loading} />
 
           </div>
 
           <div>
-            <label className="register-extracted-12">Confirmar Palavra-passe</label>
+            <label className="auth-label">Confirmar Palavra-passe</label>
             <input type="password" className="form-input" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" required disabled={loading} />
 
           </div>
 
-          <button type="submit" className="btn-primary register-extracted-13" disabled={loading}>
+          <button type="submit" className="btn-primary auth-submit" disabled={loading}>
 
             {loading ? 'A criar conta...' : 'Registar'}
           </button>
         </form>
 
-        <div className="register-extracted-14">
-          Já tem uma conta? <Link to="/" className="register-extracted-15">Faça Login</Link>
+        <div className="auth-account-link">
+          Já tem uma conta? <Link to="/" className="auth-link">Faça Login</Link>
         </div>
       </div>
     </div>;

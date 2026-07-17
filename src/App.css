@@ -78,3 +78,47 @@
   border-color: var(--primary-green);
   box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
 }
+
+/* Component styles formerly embedded in JSX. */
+.app-navbar {
+  background-color: var(--navbar-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.app-navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.app-navbar__logo {
+  max-height: 40px;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+.app-navbar__title {
+  cursor: pointer;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.app-navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.app-navbar__theme-toggle {
+  padding: 5px 10px;
+  font-size: 1.2rem;
+  border: 1px solid transparent;
+}
+
+.app-navbar__user-name {
+  color: var(--text-main);
+}
+
+.app-content {
+  padding: 2rem;
+}

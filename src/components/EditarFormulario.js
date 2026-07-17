@@ -277,12 +277,12 @@ function EditarFormulario() {
       opcoes: c.opcoes.filter((_, i) => i !== indice)
     } : c));
   };
-  if (loading) return <div className="editar-formulario-extracted-1">A carregar...</div>;
-  return <div className="editar-formulario-extracted-2">
-      <div className="editar-formulario-extracted-3">
+  if (loading) return <div className="form-editor__loading">A carregar...</div>;
+  return <div className="form-editor">
+      <div className="form-editor__header">
         <h2>Editor de Layout Livre</h2>
-        <div className="editar-formulario-extracted-4">
-          <button onClick={() => setIsPreview(!isPreview)} className="editar-formulario-extracted-5">
+        <div className="form-editor__header-actions">
+          <button onClick={() => setIsPreview(!isPreview)} className="form-editor__preview-toggle">
             {isPreview ? 'Voltar ao Editor' : '👁 Pré-visualizar'}
           </button>
           <button className="btn-logout" onClick={() => navigate('/admin')}>Cancelar</button>
@@ -293,17 +293,17 @@ function EditarFormulario() {
           {mensagem}
         </div>}
 
-      <div className="editar-formulario-extracted-6">
+      <div className="form-editor__workspace">
         {/* Main Canvas and Preview container on Left */}
-        <div className="editar-formulario-extracted-7">
-          {isPreview ? <div className="ipt-form-card editar-formulario-extracted-8">
+        <div className="form-editor__main">
+          {isPreview ? <div className="ipt-form-card form-editor__preview">
               {/* PDF Header Layout */}
               {showCabecalho && <div className="ipt-pdf-header">
                   {showLogo && <div className="ipt-pdf-header-logo-box">
-                      {logo ? <img src={logo} alt="Logótipo" className="editar-formulario-extracted-9" /> : <div className="editar-formulario-extracted-10">Sem Logo</div>}
+                      {logo ? <img src={logo} alt="Logótipo" className="form-document__logo" /> : <div className="form-document__logo-placeholder">Sem Logo</div>}
                     </div>}
                   <div className="ipt-pdf-header-title-box">
-                    {showTitulo ? <h1 className="ipt-pdf-header-title-text">{titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1> : <h1 className="ipt-pdf-header-title-text editar-formulario-extracted-11">REQUERIMENTO</h1>}
+                    {showTitulo ? <h1 className="ipt-pdf-header-title-text">{titulo || 'REQUERIMENTO / ASSUNTOS DIVERSOS'}</h1> : <h1 className="ipt-pdf-header-title-text form-document__hidden-title">REQUERIMENTO</h1>}
                   </div>
                   <div className="ipt-pdf-header-meta-box">
                     <div className="ipt-pdf-meta-top">{codigoDocumento}</div>
@@ -318,23 +318,23 @@ function EditarFormulario() {
                   <label><input type="checkbox" disabled /> ESTT</label>
                 </div>}
 
-              {descricao && <div className="editar-formulario-extracted-12">
-                  <p className="editar-formulario-extracted-13">{descricao}</p>
+              {descricao && <div className="form-document__description">
+                  <p className="form-document__description-text">{descricao}</p>
                 </div>}
 
-              <div className="editar-formulario-extracted-14">
+              <div className="form-document__fields">
                 {campos.filter(c => c.visivel !== false).map(c => {
               const isSalaField = c.etiqueta.toLowerCase().includes('sala') || c.etiqueta.toLowerCase().includes('room');
               return <div key={c.id} className={obterClassesPosicaoCampo(c)}>
-                      <label className="editar-formulario-extracted-15">
-                        {c.etiqueta} {c.obrigatorio && <span className="editar-formulario-extracted-16">*</span>}
+                      <label className="form-editor-field__label">
+                        {c.etiqueta} {c.obrigatorio && <span className="form-editor-field__required">*</span>}
                       </label>
-                      {isSalaField ? <select disabled className="editar-formulario-extracted-17">
+                      {isSalaField ? <select disabled className="form-editor-field__preview-control">
                           <option>Selecione uma sala...</option>
-                        </select> : c.tipo === 'Dropdown' ? <select disabled className="editar-formulario-extracted-18">
+                        </select> : c.tipo === 'Dropdown' ? <select disabled className="form-editor-field__preview-control">
                           <option>Selecione uma opção...</option>
                           {c.opcoes && c.opcoes.map((op, idx) => <option key={idx}>{op}</option>)}
-                        </select> : c.tipo === 'Ficheiro' ? <div className="editar-formulario-extracted-19">
+                        </select> : c.tipo === 'Ficheiro' ? <div className="file-field-preview">
 
 
 
@@ -347,10 +347,10 @@ function EditarFormulario() {
 
 
 
-                          <div className="editar-formulario-extracted-20">📁</div>
-                          <div className="editar-formulario-extracted-21">Arrastar e soltar ficheiro aqui</div>
-                          <div className="editar-formulario-extracted-22">ou</div>
-                          <button type="button" disabled className="editar-formulario-extracted-23">
+                          <div className="file-field-preview__icon">📁</div>
+                          <div className="file-field-preview__prompt">Arrastar e soltar ficheiro aqui</div>
+                          <div className="file-field-preview__separator">ou</div>
+                          <button type="button" disabled className="file-field-preview__button">
 
 
 
@@ -364,18 +364,18 @@ function EditarFormulario() {
 
                             Selecionar Ficheiro
                           </button>
-                        </div> : <input type={c.tipo === 'Data' ? 'date' : c.tipo === 'Hora' ? 'time' : c.tipo === 'Número' ? 'number' : 'text'} disabled placeholder={c.tipo === 'Data' || c.tipo === 'Hora' ? '' : 'Introduza aqui...'} className="editar-formulario-extracted-24" />}
+                        </div> : <input type={c.tipo === 'Data' ? 'date' : c.tipo === 'Hora' ? 'time' : c.tipo === 'Número' ? 'number' : 'text'} disabled placeholder={c.tipo === 'Data' || c.tipo === 'Hora' ? '' : 'Introduza aqui...'} className="form-editor-field__preview-control" />}
                     </div>;
             })}
               </div>
-            </div> : <div className="editar-formulario-extracted-25">
+            </div> : <div className="form-editor__builder">
               {/* PDF Header Layout in Editor */}
               {showCabecalho && <div className="ipt-pdf-header">
                   {showLogo && <div className="ipt-pdf-header-logo-box">
-                      {logo ? <img src={logo} alt="Logótipo" className="editar-formulario-extracted-26" /> : <div className="editar-formulario-extracted-27">Sem Logo</div>}
+                      {logo ? <img src={logo} alt="Logótipo" className="form-document__logo" /> : <div className="form-document__logo-placeholder">Sem Logo</div>}
                     </div>}
                   <div className="ipt-pdf-header-title-box">
-                    {showTitulo ? <input className="ipt-pdf-header-title-input" value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="TÍTULO DO REQUERIMENTO" disabled={isReadOnly} /> : <div className="editar-formulario-extracted-28">(Título Ocultado)</div>}
+                    {showTitulo ? <input className="ipt-pdf-header-title-input" value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="TÍTULO DO REQUERIMENTO" disabled={isReadOnly} /> : <div className="form-document__hidden-title-placeholder">(Título Ocultado)</div>}
                   </div>
                   <div className="ipt-pdf-header-meta-box">
                     <div className="ipt-pdf-meta-top">{codigoDocumento}</div>
@@ -391,15 +391,15 @@ function EditarFormulario() {
                 </div>}
 
               {/* Description Input Card */}
-              <div className="card editar-formulario-extracted-29">
-                <textarea value={descricao} onChange={e => setDescricao(e.target.value)} disabled={isReadOnly} rows="2" placeholder="Adicione uma descrição..." className="editar-formulario-extracted-30" />
-                <div className="editar-formulario-extracted-31">
-                  <label className="editar-formulario-extracted-32">Categoria:</label>
-                  <input value={categoria} onChange={e => setCategoria(e.target.value)} disabled={isReadOnly} className="editar-formulario-extracted-33" />
+              <div className="card form-editor__metadata-card">
+                <textarea value={descricao} onChange={e => setDescricao(e.target.value)} disabled={isReadOnly} rows="2" placeholder="Adicione uma descrição..." className="form-editor__description-input" />
+                <div className="form-editor__category-row">
+                  <label className="form-editor__category-label">Categoria:</label>
+                  <input value={categoria} onChange={e => setCategoria(e.target.value)} disabled={isReadOnly} className="form-editor__category-input" />
                 </div>
               </div>
 
-              <div ref={canvasRef} onDragOver={e => !isReadOnly && e.preventDefault()} onDrop={onDrop} className="editar-formulario-extracted-34">
+              <div ref={canvasRef} onDragOver={e => !isReadOnly && e.preventDefault()} onDrop={onDrop} className="form-editor__canvas">
 
 
 
@@ -408,83 +408,83 @@ function EditarFormulario() {
 
 
                 {campos.filter(c => c.visivel !== false).map(c => <div key={c.id} className={`editable-field-card editable-field-card-blue ${obterClassesPosicaoCampo(c)}`}>
-                    <div className="editar-formulario-extracted-35">
+                    <div className="form-editor-editable-field__header">
                       <div onMouseDown={e => startMove(e, c.id)} className={`field-drag-handle ${isReadOnly ? 'is-read-only' : ''}`}>⠿</div>
-                      <span className="editar-formulario-extracted-36">{c.type}</span>
-                      {!isReadOnly && <button onClick={() => removerCampo(c.id)} className="editar-formulario-extracted-37">×</button>}
+                      <span className="form-editor-editable-field__drag-handle">{c.type}</span>
+                      {!isReadOnly && <button onClick={() => removerCampo(c.id)} className="form-editor-editable-field__type">×</button>}
                     </div>
-                    <input value={c.etiqueta} onChange={e => atualizarCampo(c.id, 'etiqueta', e.target.value)} disabled={isReadOnly} className="editar-formulario-extracted-38" />
+                    <input value={c.etiqueta} onChange={e => atualizarCampo(c.id, 'etiqueta', e.target.value)} disabled={isReadOnly} className="form-editor-editable-field__remove-button" />
 
-                    <div className="editar-formulario-extracted-39">
+                    <div className="form-editor-editable-field__label-input">
                       <input type="checkbox" checked={c.obrigatorio} onChange={e => atualizarCampo(c.id, 'obrigatorio', e.target.checked)} disabled={isReadOnly} />
-                      <span className="editar-formulario-extracted-40">Obrigatório</span>
+                      <span className="form-editor-editable-field__required-row">Obrigatório</span>
                     </div>
 
                     {/* INPUTS PARA CONFIGURAR LIMITES EM EDIÇÃO */}
-                    {['Texto Curto', 'Texto Longo', 'Nome', 'Email'].includes(c.tipo) && <div className="editar-formulario-extracted-41">
-                        <label className="editar-formulario-extracted-42">Tam. Máximo:</label>
-                        <input type="number" value={c.maxCaracteres || ''} onChange={e => atualizarCampo(c.id, 'maxCaracteres', e.target.value ? parseInt(e.target.value) : '')} placeholder="Caracteres máx." disabled={isReadOnly} className="editar-formulario-extracted-43" />
+                    {['Texto Curto', 'Texto Longo', 'Nome', 'Email'].includes(c.tipo) && <div className="form-editor-editable-field__required-label">
+                        <label className="form-editor-editable-field__constraint-row">Tam. Máximo:</label>
+                        <input type="number" value={c.maxCaracteres || ''} onChange={e => atualizarCampo(c.id, 'maxCaracteres', e.target.value ? parseInt(e.target.value) : '')} placeholder="Caracteres máx." disabled={isReadOnly} className="form-editor-editable-field__constraint-label" />
 
                       </div>}
-                    {c.tipo === 'Número' && <div className="editar-formulario-extracted-44">
-                        <div className="editar-formulario-extracted-45">
-                          <label className="editar-formulario-extracted-46">Mínimo:</label>
-                          <input type="number" value={c.minNumero !== undefined ? c.minNumero : ''} onChange={e => atualizarCampo(c.id, 'minNumero', e.target.value !== '' ? Number(e.target.value) : '')} placeholder="Mín" disabled={isReadOnly} className="editar-formulario-extracted-47" />
+                    {c.tipo === 'Número' && <div className="form-editor-editable-field__constraint-input">
+                        <div className="form-editor-editable-field__number-limits">
+                          <label className="form-editor-editable-field__number-limit">Mínimo:</label>
+                          <input type="number" value={c.minNumero !== undefined ? c.minNumero : ''} onChange={e => atualizarCampo(c.id, 'minNumero', e.target.value !== '' ? Number(e.target.value) : '')} placeholder="Mín" disabled={isReadOnly} className="form-editor-editable-field__constraint-label" />
 
                         </div>
-                        <div className="editar-formulario-extracted-48">
-                          <label className="editar-formulario-extracted-49">Máximo:</label>
-                          <input type="number" value={c.maxNumero !== undefined ? c.maxNumero : ''} onChange={e => atualizarCampo(c.id, 'maxNumero', e.target.value !== '' ? Number(e.target.value) : '')} placeholder="Máx" disabled={isReadOnly} className="editar-formulario-extracted-50" />
+                        <div className="form-editor-editable-field__constraint-input">
+                          <label className="form-editor-editable-field__number-limit">Máximo:</label>
+                          <input type="number" value={c.maxNumero !== undefined ? c.maxNumero : ''} onChange={e => atualizarCampo(c.id, 'maxNumero', e.target.value !== '' ? Number(e.target.value) : '')} placeholder="Máx" disabled={isReadOnly} className="form-editor-editable-field__constraint-label" />
 
                         </div>
                       </div>}
 
 
 
-                    {tiposComOpcoes.includes(c.tipo) && <div className="editar-formulario-extracted-51">
-                        {!isReadOnly && <div className="editar-formulario-extracted-52">
-                            <input type="text" value={c.novaOpcao} onChange={e => atualizarCampo(c.id, 'novaOpcao', e.target.value)} placeholder="Opção..." className="editar-formulario-extracted-53" />
-                            <button onClick={() => adicionarOpcaoNoCampo(c.id)} className="editar-formulario-extracted-54">+</button>
+                    {tiposComOpcoes.includes(c.tipo) && <div className="form-editor-editable-field__constraint-input">
+                        {!isReadOnly && <div className="form-editor-editable-field__options">
+                            <input type="text" value={c.novaOpcao} onChange={e => atualizarCampo(c.id, 'novaOpcao', e.target.value)} placeholder="Opção..." className="form-editor-editable-field__new-option" />
+                            <button onClick={() => adicionarOpcaoNoCampo(c.id)} className="form-editor-editable-field__add-option">+</button>
                           </div>}
-                        <div className="editar-formulario-extracted-55">
-                          {c.opcoes.map((op, idx) => <span key={idx} className="editar-formulario-extracted-56">
+                        <div className="form-editor-editable-field__option-list">
+                          {c.opcoes.map((op, idx) => <span key={idx} className="form-editor-editable-field__option">
                               {op}
-                              {!isReadOnly && <button onClick={() => removerOpcaoDoCampo(c.id, idx)} className="editar-formulario-extracted-57">×</button>}
+                              {!isReadOnly && <button onClick={() => removerOpcaoDoCampo(c.id, idx)} className="form-editor-editable-field__remove-option">×</button>}
                             </span>)}
                         </div>
                       </div>}
 
-                    {!isReadOnly && <div onMouseDown={e => startResize(e, c.id)} className="editar-formulario-extracted-58" />}
+                    {!isReadOnly && <div onMouseDown={e => startResize(e, c.id)} className="form-editor-editable-field__resize-handle" />}
                   </div>)}
               </div>
 
-              {!isReadOnly && <button onClick={handleSave} className="editar-formulario-extracted-59">
+              {!isReadOnly && <button onClick={handleSave} className="form-editor__save-button">
                   Guardar Alterações
                 </button>}
             </div>}
         </div>
 
         {/* Control Panel / Sidebar on Right */}
-        {!isPreview && <div className="editar-formulario-extracted-60">
+        {!isPreview && <div className="form-editor__sidebar">
             {/* Definições Globais e Visibilidade Card */}
-            <div className="card editar-formulario-extracted-61">
-              <h4 className="editar-formulario-extracted-62">Definições Globais e Visibilidade</h4>
+            <div className="card form-editor__sidebar-card">
+              <h4 className="form-editor__sidebar-title">Definições Globais e Visibilidade</h4>
 
               {/* Secção 1: Estrutura Global */}
-              <div className="editar-formulario-extracted-63">
-                <p className="editar-formulario-extracted-64">Estrutura Global do Formulário</p>
-                <div className="editar-formulario-extracted-65">
-                  <label className="editar-formulario-extracted-66">
+              <div className="form-editor__message">
+                <p className="form-editor__settings-section">Estrutura Global do Formulário</p>
+                <div className="form-editor__settings-heading">
+                  <label className="form-editor__settings-options">
                     <input type="checkbox" checked={showCabecalho} onChange={e => setShowCabecalho(e.target.checked)} disabled={isReadOnly} />
 
                     Ativar Cabeçalho (IPT Logo)
                   </label>
-                  <label className="editar-formulario-extracted-67">
+                  <label className="form-editor__toggle-label">
                     <input type="checkbox" checked={showTitulo} onChange={e => setShowTitulo(e.target.checked)} disabled={isReadOnly} />
 
                     Ativar Título do Formulário
                   </label>
-                  <label className="editar-formulario-extracted-68">
+                  <label className="form-editor__toggle-label">
                     <input type="checkbox" checked={showLogo} onChange={e => setShowLogo(e.target.checked)} disabled={isReadOnly} />
 
                     Ativar Imagem/Logo (IPT)
@@ -493,26 +493,26 @@ function EditarFormulario() {
               </div>
 
               {/* Secção 1.5: Logótipo e Referência */}
-              <div className="editar-formulario-extracted-69">
-                <p className="editar-formulario-extracted-70">Logótipo e Referência</p>
-                <div className="editar-formulario-extracted-71">
-                  <label className="editar-formulario-extracted-72">Código do Documento:</label>
-                  <input value={codigoDocumento} onChange={e => setCodigoDocumento(e.target.value)} placeholder="Ex: PT.SIGQ.MOD ACA 30 60 - 3" disabled={isReadOnly} className="editar-formulario-extracted-73" />
+              <div className="form-editor__toggle-label">
+                <p className="form-editor__settings-section">Logótipo e Referência</p>
+                <div className="form-editor__settings-heading">
+                  <label className="form-editor__settings-options">Código do Documento:</label>
+                  <input value={codigoDocumento} onChange={e => setCodigoDocumento(e.target.value)} placeholder="Ex: PT.SIGQ.MOD ACA 30 60 - 3" disabled={isReadOnly} className="form-editor__document-label" />
 
-                  <label className="editar-formulario-extracted-74">Alterar Logótipo:</label>
-                  <input type="file" accept="image/*" onChange={handleLogoChange} disabled={isReadOnly} className="editar-formulario-extracted-75" />
+                  <label className="form-editor__document-code">Alterar Logótipo:</label>
+                  <input type="file" accept="image/*" onChange={handleLogoChange} disabled={isReadOnly} className="form-editor__logo-label" />
 
-                  {logo && <div className="editar-formulario-extracted-76">
-                      <img src={logo} alt="Mini Logo" className="editar-formulario-extracted-77" />
+                  {logo && <div className="form-editor__logo-input">
+                      <img src={logo} alt="Mini Logo" className="form-editor__logo-preview" />
                     </div>}
                 </div>
               </div>
 
               {/* Secção 2: Visibilidade de Campos */}
               <div>
-                <p className="editar-formulario-extracted-78">Visibilidade dos Campos Individuais</p>
-                {campos.length === 0 ? <p className="editar-formulario-extracted-79">Nenhum campo adicionado.</p> : <div className="editar-formulario-extracted-80">
-                    {campos.map(c => <div key={c.id} className="editar-formulario-extracted-81">
+                <p className="form-editor__logo-thumbnail">Visibilidade dos Campos Individuais</p>
+                {campos.length === 0 ? <p className="form-editor__settings-heading">Nenhum campo adicionado.</p> : <div className="form-editor__empty-fields">
+                    {campos.map(c => <div key={c.id} className="form-editor-field-visibility-list">
 
 
 
@@ -523,15 +523,15 @@ function EditarFormulario() {
 
 
 
-                        <div className="editar-formulario-extracted-82">
+                        <div className="form-editor-field-visibility-item">
                           <input type="checkbox" checked={c.visivel !== false} onChange={e => atualizarCampo(c.id, 'visivel', e.target.checked)} title={c.visivel !== false ? "Desativar campo" : "Ativar campo"} disabled={isReadOnly} className={`visibility-toggle ${isReadOnly ? 'is-read-only' : ''}`} />
 
-                          <span className={`field-visibility-label ${c.visivel === false ? 'is-hidden' : ''}`}>
+                          <span className={`form-editor-field-visibility-label ${c.visivel === false ? 'is-hidden' : ''}`}>
                             {c.etiqueta || "Sem nome"}
                           </span>
                         </div>
-                        <div className="editar-formulario-extracted-83">
-                          {!isReadOnly && <button onClick={() => removerCampo(c.id)} title="Eliminar campo" className="editar-formulario-extracted-84">
+                        <div className="form-editor-field-visibility-item__content">
+                          {!isReadOnly && <button onClick={() => removerCampo(c.id)} title="Eliminar campo" className="form-editor-field-visibility-item__actions">
 
                               🗑
                             </button>}
@@ -542,9 +542,9 @@ function EditarFormulario() {
             </div>
 
             {/* Toolbox Card */}
-            <div className="card editar-formulario-extracted-85">
+            <div className="card form-editor-field-visibility-item__delete">
               <h4>Toolbox</h4>
-              <p className="editar-formulario-extracted-86">ARRASTE PARA O QUADRO</p>
+              <p className="form-editor__sidebar-card">ARRASTE PARA O QUADRO</p>
               {TEMPLATES.map((t, i) => <div key={i} draggable={!isReadOnly} onDragStart={e => onDragStart(e, t)} className={`toolbox-item ${isReadOnly ? 'is-read-only' : ''}`}>
                   + {t.label}
                 </div>)}

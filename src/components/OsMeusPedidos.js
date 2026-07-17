@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './OsMeusPedidos.css';
 function OsMeusPedidos() {
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,10 +48,10 @@ function OsMeusPedidos() {
     return ordenacaoData === 'asc' ? dataA - dataB : dataB - dataA;
   });
   return <div>
-      <div className="os-meus-pedidos-extracted-1">
+      <div className="my-requests__header">
         <div>
           <h2>Os Meus Pedidos</h2>
-          <p className="os-meus-pedidos-extracted-2">Consulte aqui o estado das suas submissões.</p>
+          <p className="my-requests__intro">Consulte aqui o estado das suas submissões.</p>
         </div>
         <button className="btn-primary" onClick={() => window.location.href = user?.role === 'aluno' ? '/aluno' : '/professor'}>
 
@@ -58,10 +59,10 @@ function OsMeusPedidos() {
         </button>
       </div>
 
-      <div className="os-meus-pedidos-extracted-3">
-        <div className="os-meus-pedidos-extracted-4">
-          <label htmlFor="filtroEstado" className="os-meus-pedidos-extracted-5">Filtrar por estado:</label>
-          <select id="filtroEstado" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)} className="os-meus-pedidos-extracted-6">
+      <div className="request-filters">
+        <div className="my-request-filters__field">
+          <label htmlFor="filtroEstado" className="my-request-filters__label">Filtrar por estado:</label>
+          <select id="filtroEstado" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)} className="my-request-filters__control">
 
 
             <option value="Todos">Todos</option>
@@ -71,9 +72,9 @@ function OsMeusPedidos() {
           </select>
         </div>
 
-        <div className="os-meus-pedidos-extracted-7">
-          <span className="os-meus-pedidos-extracted-8">Ordenar por data:</span>
-          <button className="btn-secondary os-meus-pedidos-extracted-9" type="button" onClick={() => setOrdenacaoData(current => current === 'desc' ? 'asc' : 'desc')}>
+        <div className="my-request-filters__field">
+          <span className="my-request-filters__label">Ordenar por data:</span>
+          <button className="btn-secondary my-request-filters__sort-button" type="button" onClick={() => setOrdenacaoData(current => current === 'desc' ? 'asc' : 'desc')}>
 
 
             {ordenacaoData === 'desc' ? 'Mais recentes' : 'Mais antigos'}
@@ -81,31 +82,31 @@ function OsMeusPedidos() {
         </div>
       </div>
 
-      {loading ? <div className="os-meus-pedidos-extracted-10">A carregar os seus pedidos...</div> : pedidos.length === 0 ? <div className="card os-meus-pedidos-extracted-11">
+      {loading ? <div className="my-requests__loading">A carregar os seus pedidos...</div> : pedidos.length === 0 ? <div className="card my-requests__empty-state">
           Ainda não efetuou nenhum pedido.
-        </div> : pedidosFiltrados.length === 0 ? <div className="card os-meus-pedidos-extracted-12">
+        </div> : pedidosFiltrados.length === 0 ? <div className="card my-requests__empty-state">
           Nenhum pedido correspondente ao filtro "{filtroEstado}".
-        </div> : <div className="card os-meus-pedidos-extracted-13">
-          <table className="os-meus-pedidos-extracted-14">
-            <thead className="os-meus-pedidos-extracted-15">
+        </div> : <div className="card request-table-card">
+          <table className="request-table">
+            <thead className="request-table__head">
               <tr>
-                <th className="os-meus-pedidos-extracted-16">Nome</th>
-                <th className="os-meus-pedidos-extracted-17">Data</th>
-                <th className="os-meus-pedidos-extracted-18">Estado</th>
-                <th className="os-meus-pedidos-extracted-19">Ações</th>
+                <th className="request-table__heading">Nome</th>
+                <th className="request-table__heading">Data</th>
+                <th className="request-table__heading">Estado</th>
+                <th className="request-table__heading">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {pedidosFiltrados.map(pedido => <tr key={pedido._id} className="os-meus-pedidos-extracted-20">
-                  <td className="os-meus-pedidos-extracted-21">{pedido.tituloFormulario}</td>
-                  <td className="os-meus-pedidos-extracted-22">{new Date(pedido.dataSubmissao).toLocaleDateString('pt-PT')}</td>
-                  <td className="os-meus-pedidos-extracted-23">
+              {pedidosFiltrados.map(pedido => <tr key={pedido._id} className="request-table__row">
+                  <td className="request-table__title">{pedido.tituloFormulario}</td>
+                  <td className="request-table__cell">{new Date(pedido.dataSubmissao).toLocaleDateString('pt-PT')}</td>
+                  <td className="request-table__cell">
                     <span className={`status-badge ${getStatusClass(pedido.estado)}`}>
                       {pedido.estado}
                     </span>
                   </td>
-                  <td className="os-meus-pedidos-extracted-24">
-                    <button className="btn-secondary os-meus-pedidos-extracted-25" onClick={() => navigate(`/detalhes-pedido/${pedido._id}`)}>
+                  <td className="request-table__cell">
+                    <button className="btn-secondary request-table__details-button" onClick={() => navigate(`/detalhes-pedido/${pedido._id}`)}>
 
                       Ver Detalhes
                     </button>

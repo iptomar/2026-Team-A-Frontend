@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { obterClassesPosicaoCampo } from '../utils/formUtils';
+import './DetalhesPedido.css';
 function DetalhesPedido() {
   const {
     id
@@ -87,11 +88,11 @@ function DetalhesPedido() {
     }
   };
   if (loading) {
-    return <div className="detalhes-pedido-extracted-1">A carregar detalhes do pedido...</div>;
+    return <div className="request-details__loading">A carregar detalhes do pedido...</div>;
   }
   if (erro) {
-    return <div className="card detalhes-pedido-extracted-2">
-        <p className="detalhes-pedido-extracted-3">{erro}</p>
+    return <div className="card request-details__error-card">
+        <p className="request-details__error">{erro}</p>
         <button className="btn-secondary" onClick={handleBack}>
           Voltar
         </button>
@@ -100,8 +101,8 @@ function DetalhesPedido() {
   if (!pedido) return null;
   const logoTema = pedido.formulario?.logo || localStorage.getItem('logo');
   const codigoDocumento = pedido.formulario?.codigoDocumento || 'PT.SIGQ.MOD ACA 30 60 - 3';
-  return <div className="detalhes-pedido-extracted-4">
-      <button onClick={handleBack} className="btn-logout detalhes-pedido-extracted-5">
+  return <div className="request-details">
+      <button onClick={handleBack} className="btn-logout request-details__back-button">
 
 
         ← Voltar
@@ -112,10 +113,10 @@ function DetalhesPedido() {
         {pedido.formulario && pedido.formulario.showCabecalho !== false && <>
             <div className="ipt-pdf-header">
               {pedido.formulario.showLogo !== false && <div className="ipt-pdf-header-logo-box">
-                  {logoTema ? <img src={logoTema} alt="Logótipo IPT" className="detalhes-pedido-extracted-6" /> : <div className="detalhes-pedido-extracted-7">Sem Logo</div>}
+                  {logoTema ? <img src={logoTema} alt="Logótipo IPT" className="request-details__logo" /> : <div className="request-details__logo-placeholder">Sem Logo</div>}
                 </div>}
               <div className="ipt-pdf-header-title-box">
-                {pedido.formulario.showTitulo !== false ? <h1 className="ipt-pdf-header-title-text">{pedido.tituloFormulario}</h1> : <h1 className="ipt-pdf-header-title-text detalhes-pedido-extracted-8">REQUERIMENTO</h1>}
+                {pedido.formulario.showTitulo !== false ? <h1 className="ipt-pdf-header-title-text">{pedido.tituloFormulario}</h1> : <h1 className="ipt-pdf-header-title-text request-details__hidden-title">REQUERIMENTO</h1>}
               </div>
               <div className="ipt-pdf-header-meta-box">
                 <div className="ipt-pdf-meta-top">{codigoDocumento}</div>
@@ -124,14 +125,14 @@ function DetalhesPedido() {
             </div>
 
             {/* Schools Checkboxes Bar */}
-            <div className="ipt-pdf-schools-bar detalhes-pedido-extracted-9">
+            <div className="ipt-pdf-schools-bar request-details__schools">
               <label><input type="checkbox" defaultChecked disabled /> ESGT</label>
               <label><input type="checkbox" disabled /> ESTA</label>
               <label><input type="checkbox" disabled /> ESTT</label>
             </div>
           </>}
 
-        <div className="detalhes-pedido-extracted-10">
+        <div className="request-details__content">
 
 
 
@@ -140,27 +141,27 @@ function DetalhesPedido() {
 
 
           <div>
-            {(!pedido.formulario || pedido.formulario.showCabecalho === false || pedido.formulario.showTitulo === false) && <h2 className="detalhes-pedido-extracted-11">{pedido.tituloFormulario}</h2>}
-            <p className="detalhes-pedido-extracted-12">
+            {(!pedido.formulario || pedido.formulario.showCabecalho === false || pedido.formulario.showTitulo === false) && <h2 className="request-details__fallback-title">{pedido.tituloFormulario}</h2>}
+            <p className="request-details__metadata">
               Submetido por: <strong>{pedido.professor?.email || 'N/A'}</strong> em {new Date(pedido.dataSubmissao).toLocaleString('pt-PT')}
             </p>
           </div>
-          <div className="detalhes-pedido-extracted-13">
+          <div className="request-details__status-row">
             <span className={getStatusClass(pedido.estado)}>
               {pedido.estado}
             </span>
 
-            {isAdminOrCoordenador && pedido.estado === 'Pendente' && <div className="detalhes-pedido-extracted-14">
-                <button className="btn-primary detalhes-pedido-extracted-15" onClick={() => handleUpdateStatus('Aprovado')} disabled={processando || mostrarJustificacao}>
+            {isAdminOrCoordenador && pedido.estado === 'Pendente' && <div className="request-details__actions">
+                <button className="btn-primary request-details__approve-button" onClick={() => handleUpdateStatus('Aprovado')} disabled={processando || mostrarJustificacao}>
 
 
                   Aprovar
                 </button>
-                {!mostrarJustificacao ? <button className="btn-logout detalhes-pedido-extracted-16" onClick={() => setMostrarJustificacao(true)} disabled={processando}>
+                {!mostrarJustificacao ? <button className="btn-logout request-details__reject-button" onClick={() => setMostrarJustificacao(true)} disabled={processando}>
 
 
                     Rejeitar
-                  </button> : <button className="btn-secondary detalhes-pedido-extracted-17" onClick={() => {
+                  </button> : <button className="btn-secondary request-details__cancel-button" onClick={() => {
               setMostrarJustificacao(false);
               setJustificacao('');
             }} disabled={processando}>
@@ -173,7 +174,7 @@ function DetalhesPedido() {
         </div>
 
         {/* Painel para envio da justificação */}
-        {mostrarJustificacao && <div className="detalhes-pedido-extracted-18">
+        {mostrarJustificacao && <div className="rejection-form">
 
 
 
@@ -183,10 +184,10 @@ function DetalhesPedido() {
 
 
 
-            <label className="detalhes-pedido-extracted-19">
-              Justificação da Rejeição <span className="detalhes-pedido-extracted-20">*</span>
+            <label className="rejection-form__label">
+              Justificação da Rejeição <span className="rejection-form__required">*</span>
             </label>
-            <textarea rows="3" placeholder="Indique o motivo da rejeição (campo obrigatório)..." value={justificacao} onChange={e => setJustificacao(e.target.value)} className="detalhes-pedido-extracted-21" />
+            <textarea rows="3" placeholder="Indique o motivo da rejeição (campo obrigatório)..." value={justificacao} onChange={e => setJustificacao(e.target.value)} className="rejection-form__textarea" />
 
 
 
@@ -198,8 +199,8 @@ function DetalhesPedido() {
 
 
 
-            <div className="detalhes-pedido-extracted-22">
-              <button className="btn-secondary detalhes-pedido-extracted-23" onClick={() => {
+            <div className="rejection-form__actions">
+              <button className="btn-secondary rejection-form__cancel-button" onClick={() => {
             setMostrarJustificacao(false);
             setJustificacao('');
           }}>
@@ -217,19 +218,19 @@ function DetalhesPedido() {
           </div>}
 
         {/* Exibição da justificativa ao ler um pedido que já foi rejeitado */}
-        {pedido.estado === 'Rejeitado' && pedido.justificacao && <div className="detalhes-pedido-extracted-24">
+        {pedido.estado === 'Rejeitado' && pedido.justificacao && <div className="rejection-reason">
 
 
 
 
 
 
-            <strong className="detalhes-pedido-extracted-25">Motivo da
+            <strong className="rejection-reason__label">Motivo da
               Rejeição:</strong>
-            <span className="detalhes-pedido-extracted-26">{pedido.justificacao}</span>
+            <span className="rejection-reason__text">{pedido.justificacao}</span>
           </div>}
 
-        <div className="detalhes-pedido-extracted-27">
+        <div className="request-answers">
 
 
 
@@ -242,18 +243,18 @@ function DetalhesPedido() {
           const valor = pedido.respostas[campo._id] || 'Não preenchido';
           return <div key={campo._id} className={`request-answer ${obterClassesPosicaoCampo(campo)}`}>
 
-                  <label className="detalhes-pedido-extracted-28">
+                  <label className="request-answer__label">
                     {campo.etiqueta.toUpperCase()}
                   </label>
-                  <div className="detalhes-pedido-extracted-29">
-                    {campo.tipo === 'Data' && valor !== 'Não preenchido' ? new Date(valor).toLocaleDateString('pt-PT') : campo.tipo === 'Ficheiro' && valor && typeof valor === 'object' && valor.content ? <div className="detalhes-pedido-extracted-30">
-                        <div className="detalhes-pedido-extracted-31">
-                          <span className="detalhes-pedido-extracted-32">📁</span>
-                          <div className="detalhes-pedido-extracted-33">
-                            <strong className="detalhes-pedido-extracted-34">{valor.name}</strong>
-                            <span className="detalhes-pedido-extracted-35">{(valor.size / 1024).toFixed(1)} KB</span>
+                  <div className="request-answer__value">
+                    {campo.tipo === 'Data' && valor !== 'Não preenchido' ? new Date(valor).toLocaleDateString('pt-PT') : campo.tipo === 'Ficheiro' && valor && typeof valor === 'object' && valor.content ? <div className="request-file">
+                        <div className="request-file__details">
+                          <span className="request-file__icon">📁</span>
+                          <div className="request-file__metadata">
+                            <strong className="request-file__name">{valor.name}</strong>
+                            <span className="request-file__size">{(valor.size / 1024).toFixed(1)} KB</span>
                           </div>
-                          <a href={valor.content} download={valor.name} className="btn-primary detalhes-pedido-extracted-36">
+                          <a href={valor.content} download={valor.name} className="btn-primary request-file__download">
 
 
 
@@ -268,15 +269,15 @@ function DetalhesPedido() {
                             Download
                           </a>
                         </div>
-                        {valor.type && valor.type.startsWith('image/') && <div className="detalhes-pedido-extracted-37">
-                            <p className="detalhes-pedido-extracted-38">Pré-visualização da imagem:</p>
-                            <img src={valor.content} alt={valor.name} className="detalhes-pedido-extracted-39" />
+                        {valor.type && valor.type.startsWith('image/') && <div className="request-file__preview">
+                            <p className="request-file__preview-label">Pré-visualização da imagem:</p>
+                            <img src={valor.content} alt={valor.name} className="request-file__preview-image" />
                           </div>}
                       </div> : typeof valor === 'object' && valor.name ? valor.name : valor}
                   </div>
                 </div>;
-        }) : <div className="detalhes-pedido-extracted-40">
-              <p className="detalhes-pedido-extracted-41">Os detalhes do formulário original já não estão disponíveis.</p>
+        }) : <div className="request-details__unavailable">
+              <p className="request-details__unavailable-text">Os detalhes do formulário original já não estão disponíveis.</p>
             </div>}
         </div>
       </div>
